@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useFormStatus } from "react";
-import { useEffect, useState, useRef } from "react";
+import { useActionState, useEffect, useState, useRef } from "react";
+import { useFormStatus } from "react-dom";
 import { getCakeRecommendations } from "@/lib/actions";
 import type { RecommendationState } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
