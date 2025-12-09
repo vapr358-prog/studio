@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Elegant cake on a stand, setting a sophisticated mood for the homepage.",
+      "imageUrl": "https://images.unsplash.com/photo-1559620192-032c4bc4674e?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "elegant cake"
+    },
+    {
+      "id": "red-velvet",
+      "description": "A slice of rich Red Velvet cake with cream cheese frosting.",
+      "imageUrl": "https://images.unsplash.com/photo-1616541823720-e8e424985237?q=80&w=1964&auto=format&fit=crop",
+      "imageHint": "red velvet"
+    },
+    {
+      "id": "tres-leches",
+      "description": "A serving of Tres Leches cake soaked in milk and topped with whipped cream and fruit.",
+      "imageUrl": "https://i.ibb.co/L5T4sFb/tres-leches.jpg",
+      "imageHint": "tres leches"
+    },
+    {
+      "id": "cheesecake",
+      "description": "A creamy artisan cheesecake with a berry topping.",
+      "imageUrl": "https://images.unsplash.com/photo-1524383303575-e50e50481747?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "artisan cheesecake"
+    },
+    {
+      "id": "chocolate-fudge",
+      "description": "A decadent chocolate fudge cake with glossy ganache.",
+      "imageUrl": "https://images.unsplash.com/photo-1678969405727-1a1e2a572119?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaG9jb2xhdGUlMjBmdWRnZXxlbnwwfHx8fDE3NjUyOTM2OTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chocolate fudge"
+    },
+    {
+      "id": "carrot-cake",
+      "description": "A slice of moist carrot cake with walnuts and cream cheese frosting.",
+      "imageUrl": "https://images.unsplash.com/photo-1633046483479-932d80cd4356?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjYXJyb3QlMjBjYWtlfGVufDB8fHx8MTc2NTI5MzY5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "carrot cake"
+    },
+    {
+      "id": "lemon-drizzle",
+      "description": "A bright and zesty lemon drizzle cake.",
+      "imageUrl": "https://images.unsplash.com/photo-1691242720316-7bea97eb655f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxsZW1vbiUyMGNha2V8ZW58MHx8fHwxNzY1MjQyMzUzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "lemon cake"
+    },
+    {
+      "id": "blog-history",
+      "description": "A vintage-style photo of a baker's hands kneading dough.",
+      "imageUrl": "https://images.unsplash.com/photo-1525384192518-3a84e622b78b?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "baking history"
+    }
+  ]
 }
