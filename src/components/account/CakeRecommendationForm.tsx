@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState, useFormStatus } from "react";
 import { useEffect, useState, useRef } from "react";
 import { getCakeRecommendations } from "@/lib/actions";
 import type { RecommendationState } from "@/lib/actions";
@@ -26,7 +26,7 @@ function SubmitButton() {
 
 export default function CakeRecommendationForm({ flavors }: CakeRecommendationFormProps) {
   const initialState: RecommendationState = {};
-  const [state, dispatch] = useFormState(getCakeRecommendations, initialState);
+  const [state, dispatch] = useActionState(getCakeRecommendations, initialState);
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
 
