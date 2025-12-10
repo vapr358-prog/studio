@@ -34,15 +34,8 @@ export default function ContactPage() {
             <div className="flex items-start gap-4">
               <Phone className="h-6 w-6 mt-1 text-primary" />
               <div>
-                <h3 className="font-bold">Teléfono</h3>
+                <h3 className="font-bold">Teléfono / WhatsApp</h3>
                 <p className="text-muted-foreground">(+34) 664 477 944</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <Mail className="h-6 w-6 mt-1 text-primary" />
-              <div>
-                <h3 className="font-bold">Email</h3>
-                <p className="text-muted-foreground">prietoerazovalentina8@gmail.com</p>
               </div>
             </div>
              <div className="flex items-start gap-4">
@@ -52,6 +45,13 @@ export default function ContactPage() {
                 <Link href="https://www.instagram.com/sweetqueen_18/#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                   @sweetqueen_18
                 </Link>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <Mail className="h-6 w-6 mt-1 text-primary" />
+              <div>
+                <h3 className="font-bold">Email</h3>
+                <p className="text-muted-foreground">prietoerazovalentina8@gmail.com</p>
               </div>
             </div>
           </CardContent>
