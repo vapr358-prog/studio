@@ -7,6 +7,12 @@
       "imageHint": "elegant cake"
     },
     {
+      "id": "brand-post",
+      "description": "A beautiful and elegant cake that represents the Sweet Queen brand.",
+      "imageUrl": "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "brand cake"
+    },
+    {
       "id": "red-velvet",
       "description": "A slice of rich Red Velvet cake with cream cheese frosting.",
       "imageUrl": "https://images.unsplash.com/photo-1616541823720-e8e424985237?q=80&w=1964&auto=format&fit=crop",
