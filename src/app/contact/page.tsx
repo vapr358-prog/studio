@@ -1,6 +1,7 @@
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Instagram } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Contacto',
@@ -42,6 +43,15 @@ export default function ContactPage() {
               <div>
                 <h3 className="font-bold">Email</h3>
                 <p className="text-muted-foreground">prietoerazovalentina8@gmail.com</p>
+              </div>
+            </div>
+             <div className="flex items-start gap-4">
+              <Instagram className="h-6 w-6 mt-1 text-primary" />
+              <div>
+                <h3 className="font-bold">Instagram</h3>
+                <Link href="https://www.instagram.com/sweetqueen_18/#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  @sweetqueen_18
+                </Link>
               </div>
             </div>
           </CardContent>
