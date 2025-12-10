@@ -49,14 +49,14 @@ export default function ContactPage() {
 
         <div className="rounded-lg overflow-hidden shadow-lg aspect-w-16 aspect-h-9">
            <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.297059483808!2d-122.41941552372436!3d37.7749295121324!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808580795c6b4545%3A0x28a1c97a8e8e3963!2sSan%20Francisco%20City%20Hall!5e0!3m2!1sen!2sus!4v1700000000000"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3005.902621346213!2d1.106478676214851!3d41.1578059713296!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a1458027733971%3A0x83151752e370b343!2sCarrer%20Alt%20de%20Sant%20Pere%2C%2017%2C%2043201%20Reus%2C%20Tarragona!5e0!3m2!1ses!2ses!4v1718895521686"
             width="100%"
             height="100%"
             style={{ border: 0 }}
             allowFullScreen={true}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="Ubicación de Sweet Queen"
+            title="Ubicación de Sweet Queen en Reus"
             className='min-h-[400px]'
           ></iframe>
         </div>
