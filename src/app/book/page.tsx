@@ -1,15 +1,11 @@
-import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
+import DynamicReservationForm from '@/components/DynamicReservationForm';
 
 export const metadata: Metadata = {
   title: 'Reservar un Pastel',
   description: 'Solicita un pastel personalizado para tu evento especial. Completa nuestro formulario y nos pondremos en contacto contigo.',
 };
 
-const ReservationForm = dynamic(() => import('@/components/ReservationForm'), {
-  ssr: false,
-  loading: () => <p className="text-center p-8">Cargando formulario...</p>,
-});
 
 export default function BookPage() {
   return (
@@ -21,7 +17,7 @@ export default function BookPage() {
             Cuéntanos sobre el pastel de tus sueños y lo haremos realidad. Rellena el formulario y nuestro equipo se pondrá en contacto para afinar los detalles.
           </p>
         </div>
-        <ReservationForm />
+        <DynamicReservationForm />
       </div>
     </div>
   );
