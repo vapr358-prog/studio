@@ -11,9 +11,9 @@ export default function ContactPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
       <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl">Ponte en Contacto</h1>
+        <h1 className="font-headline text-4xl md:text-5xl">Tu Pastel Soñado Empieza con un Mensaje</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Nos encantaría saber de ti. Visítanos, llámanos o envíanos un email.
+          Contáctanos por llamada, mensaje o correo electrónico.
         </p>
       </div>
 
