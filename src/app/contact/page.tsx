@@ -27,21 +27,21 @@ export default function ContactPage() {
               <MapPin className="h-6 w-6 mt-1 text-primary" />
               <div>
                 <h3 className="font-bold">Dirección</h3>
-                <p className="text-muted-foreground">Calle Ficticia 123, Ciudad Dulce, 08001</p>
+                <p className="text-muted-foreground">Carrer Alt de Sant Pere 17, Reus, 43201</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
               <Phone className="h-6 w-6 mt-1 text-primary" />
               <div>
                 <h3 className="font-bold">Teléfono</h3>
-                <p className="text-muted-foreground">(+34) 912 345 678</p>
+                <p className="text-muted-foreground">(+34) 664 477 944</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
               <Mail className="h-6 w-6 mt-1 text-primary" />
               <div>
                 <h3 className="font-bold">Email</h3>
-                <p className="text-muted-foreground">hola@sweetqueen.com</p>
+                <p className="text-muted-foreground">prietoerazovalentina8@gmail.com</p>
               </div>
             </div>
           </CardContent>
