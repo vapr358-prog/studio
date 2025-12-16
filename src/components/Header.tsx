@@ -26,7 +26,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="Sweet Queen Logo" width={28} height={28} />
+          <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={40} height={40} />
           <span className="font-headline text-2xl font-bold">Sweet Queen</span>
         </Link>
         
@@ -70,7 +70,7 @@ export function Header() {
               <div className="flex flex-col h-full">
                 <div className="flex justify-between items-center border-b pb-4">
                     <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-                        <Image src="/logo.svg" alt="Sweet Queen Logo" width={24} height={24} />
+                        <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={32} height={32} />
                         <span className="font-headline text-xl font-bold">Sweet Queen</span>
                     </Link>
                     <SheetClose asChild>
