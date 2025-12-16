@@ -6,25 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { Search, MapPin, Calendar, Warehouse, Truck, CheckCircle, PackageCheck } from 'lucide-react';
+import { Search, MapPin, Calendar, Truck, CheckCircle, PackageCheck } from 'lucide-react';
 import type { Shipment } from '@/lib/types';
 
 const statusConfig = {
   'EN PREPARACION': {
     progress: 10,
-    color: 'bg-yellow-500',
     icon: <PackageCheck className="h-5 w-5 text-yellow-500" />,
     label: 'En Preparación'
   },
   'EN TRANSITO': {
     progress: 50,
-    color: 'bg-blue-500',
     icon: <Truck className="h-5 w-5 text-blue-500" />,
     label: 'En Tránsito'
   },
   'ENTREGADO': {
     progress: 100,
-    color: 'bg-green-500',
     icon: <CheckCircle className="h-5 w-5 text-green-500" />,
     label: 'Entregado'
   }
@@ -35,15 +32,19 @@ export default function TrackingClient() {
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = async () => {
     if (!trackingCode) {
       setError('Por favor, introduce un código de seguimiento.');
+      setShipment(null);
+      setHasSearched(true);
       return;
     }
     setLoading(true);
     setError(null);
     setShipment(null);
+    setHasSearched(true);
 
     try {
       const response = await fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct/search?tracking_code=${trackingCode}`);
@@ -88,16 +89,16 @@ export default function TrackingClient() {
         </CardContent>
       </Card>
 
-      {error && (
+      {hasSearched && error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
-      {shipment && currentStatus && (
+      {hasSearched && !loading && shipment && currentStatus && (
         <Card className="shadow-lg animate-in fade-in-50">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl flex items-center gap-2">
+            <CardTitle className="font-headline text-2xl flex flex-wrap items-center gap-2">
               <span>Resultado para:</span>
               <span className="font-mono text-primary bg-muted px-2 py-1 rounded-md">{shipment.tracking_code}</span>
             </CardTitle>
@@ -109,7 +110,7 @@ export default function TrackingClient() {
                 {currentStatus.icon}
                 <span className="text-xl font-semibold text-foreground">{currentStatus.label}</span>
               </div>
-              <Progress value={currentStatus.progress} className={`h-2 ${currentStatus.color}`} />
+              <Progress value={currentStatus.progress} className="h-2" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>En preparación</span>
                 <span>En tránsito</span>
