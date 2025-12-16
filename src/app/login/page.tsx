@@ -30,9 +30,9 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
-        `https://sheetdb.io/api/v1/tvh7feay2rpct/search?usuario=${encodeURIComponent(
+        `https://sheetdb.io/api/v1/tvh7feay2rpct/search?usuari=${encodeURIComponent(
           usuario
-        )}&contrasena=${encodeURIComponent(contrasena)}&sheet=usuaris`
+        )}&password=${encodeURIComponent(contrasena)}&sheet=usuaris`
       );
 
       if (!response.ok) {
@@ -46,10 +46,15 @@ export default function LoginPage() {
         // Guardar datos en localStorage
         localStorage.setItem(
           'user',
-          JSON.stringify({ name: user.usuario, company: user.empresa })
+          JSON.stringify({ name: user.nom, company: user.empresa, role: user.rol })
         );
-        // Redirigir a la página de cuenta/dashboard
-        router.push('/account');
+        
+        if (user.rol === 'admin') {
+          router.push('/admin/orders');
+        } else {
+          router.push('/account');
+        }
+
       } else {
         setError('Datos incorrectos. Por favor, inténtalo de nuevo.');
       }
