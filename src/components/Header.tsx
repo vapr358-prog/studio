@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { Separator } from './ui/separator';
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -47,6 +48,13 @@ export function Header() {
                 <User className="h-5 w-5" />
               </Link>
             </Button>
+            <Separator orientation="vertical" className="h-6" />
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/login">
+                <LogIn className="mr-2 h-4 w-4"/>
+                Acceder
+              </Link>
+            </Button>
           </div>
 
           {/* Mobile Navigation */}
@@ -83,17 +91,28 @@ export function Header() {
                     </SheetClose>
                   ))}
                 </nav>
-                <div className="mt-auto border-t pt-4 flex items-center gap-2">
-                    <Button variant="ghost" size="icon" asChild aria-label="Carrito de compras">
-                      <Link href="#" onClick={() => setIsOpen(false)}>
-                        <ShoppingBag className="h-5 w-5" />
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
-                      <Link href="/account" onClick={() => setIsOpen(false)}>
-                        <User className="h-5 w-5" />
-                      </Link>
-                    </Button>
+                <div className="mt-auto border-t pt-4 flex flex-col gap-4">
+                    <SheetClose asChild>
+                      <Link
+                          href="/login"
+                          className="flex items-center justify-center w-full text-lg font-medium transition-colors hover:text-primary"
+                        >
+                          <LogIn className="mr-2 h-5 w-5" />
+                          Acceder
+                        </Link>
+                    </SheetClose>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button variant="ghost" size="icon" asChild aria-label="Carrito de compras">
+                        <Link href="#" onClick={() => setIsOpen(false)}>
+                          <ShoppingBag className="h-5 w-5" />
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
+                        <Link href="/account" onClick={() => setIsOpen(false)}>
+                          <User className="h-5 w-5" />
+                        </Link>
+                      </Button>
+                    </div>
                 </div>
               </div>
             </SheetContent>
