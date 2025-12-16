@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/cakes', label: 'Nuestros Pasteles' },
   { href: '/blog', label: 'Blog' },
   { href: '/book', label: 'Reservar' },
+  { href: '/tracking', label: 'Seguimiento' },
   { href: '/contact', label: 'Contacto' },
 ];
 

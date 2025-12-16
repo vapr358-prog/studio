@@ -40,6 +40,15 @@ export type User = {
   email: string;
 };
 
+export type Shipment = {
+  tracking_code: string;
+  origin: string;
+  destination: string;
+  eta: string;
+  current_location: string;
+  status: 'En almacén' | 'En tránsito' | 'Librado';
+};
+
 export const allFlavors = [
   "Vainilla",
   "Chocolate",
