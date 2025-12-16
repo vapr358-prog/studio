@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'https-proxy.camo.vela.run',
+        protocol: 'https',
         hostname: 'i.ibb.co',
         port: '',
         pathname: '/**',
