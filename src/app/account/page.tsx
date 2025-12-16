@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OrderHistory } from "@/components/account/OrderHistory"
 import CakeRecommendationForm from "@/components/account/CakeRecommendationForm"
-import { orders } from "@/lib/data"
+import { orders as allOrders } from "@/lib/data"
 import { allFlavors } from "@/lib/types"
+import type { Order } from '@/lib/types';
 
 type User = {
   name: string;
@@ -15,11 +16,16 @@ type User = {
 
 export default function AccountPage() {
   const [user, setUser] = useState<User | null>(null);
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser: User = JSON.parse(storedUser);
+      setUser(parsedUser);
+      
+      const filteredOrders = allOrders.filter(order => order.clientName === parsedUser.name);
+      setUserOrders(filteredOrders);
     }
   }, []);
 
@@ -38,7 +44,7 @@ export default function AccountPage() {
           <TabsTrigger value="recommendations">Para Ti</TabsTrigger>
         </TabsList>
         <TabsContent value="history" className="mt-6">
-          <OrderHistory orders={orders} />
+          <OrderHistory orders={userOrders} />
         </TabsContent>
         <TabsContent value="recommendations" className="mt-6">
           <CakeRecommendationForm flavors={allFlavors} />

@@ -5,6 +5,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableCaption,
 } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +25,7 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
       </CardHeader>
       <CardContent>
         <Table>
+          {orders.length === 0 && <TableCaption>Aún no tienes pedidos en tu historial.</TableCaption>}
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Pedido</TableHead>

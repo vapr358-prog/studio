@@ -70,6 +70,7 @@ export const mockUser: User = {
 export const orders: Order[] = [
   {
     id: 'ORD-001',
+    clientName: 'Ana Pérez',
     date: '2023-10-15',
     items: [{ name: 'Red Velvet Premium', quantity: 1 }],
     total: 45.00,
@@ -77,6 +78,7 @@ export const orders: Order[] = [
   },
   {
     id: 'ORD-002',
+    clientName: 'Juan Rodriguez',
     date: '2023-11-20',
     items: [{ name: 'Pastel de Chocolate Intenso', quantity: 1 }],
     total: 48.00,
@@ -84,6 +86,7 @@ export const orders: Order[] = [
   },
   {
     id: 'ORD-003',
+    clientName: 'Ana Pérez',
     date: '2024-01-05',
     items: [
       { name: 'Tarta de Zanahoria y Nueces', quantity: 1 },
@@ -94,6 +97,7 @@ export const orders: Order[] = [
   },
   {
     id: 'ORD-004',
+    clientName: 'Valentina Prieto',
     date: '2024-03-01',
     items: [{ name: 'Tarta Tres Leches con Fruta Fresca', quantity: 1 }],
     total: 40.00,

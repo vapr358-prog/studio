@@ -25,6 +25,7 @@ export type BlogPost = {
 
 export type Order = {
   id: string;
+  clientName: string;
   date: string;
   items: {
     name: string;

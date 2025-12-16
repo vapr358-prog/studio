@@ -34,7 +34,7 @@ export default function AdminOrdersPage() {
               <TableRow>
                 <TableHead>Pedido</TableHead>
                 <TableHead>Fecha</TableHead>
-                <TableHead>Cliente (simulado)</TableHead>
+                <TableHead>Cliente</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Total</TableHead>
@@ -45,7 +45,7 @@ export default function AdminOrdersPage() {
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">{order.id}</TableCell>
                   <TableCell>{order.date}</TableCell>
-                  <TableCell>Ana Pérez</TableCell>
+                  <TableCell>{order.clientName}</TableCell>
                   <TableCell>{order.items.map(i => `${i.name} (x${i.quantity})`).join(', ')}</TableCell>
                   <TableCell>
                     <Badge variant={order.status === 'Entregado' ? 'default' : 'secondary'} 
