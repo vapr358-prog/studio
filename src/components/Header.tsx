@@ -26,12 +26,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 mr-6">
+        <Link href="/" className="flex items-center gap-2">
           <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={40} height={40} />
-          <span className="font-headline text-2xl font-bold text-primary">Sweet Queen</span>
+          <span className="font-headline text-2xl font-bold text-primary whitespace-nowrap">Sweet Queen</span>
         </Link>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 md:gap-4">
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-6">
             {navLinks.map((link) => (
@@ -41,8 +41,9 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center gap-2">
+              <Separator orientation="vertical" className="h-6 mx-2" />
               <Button variant="ghost" size="icon" aria-label="Carrito de compras">
                 <ShoppingBag className="h-5 w-5" />
               </Button>
