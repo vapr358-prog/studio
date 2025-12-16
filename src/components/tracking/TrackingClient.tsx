@@ -27,6 +27,13 @@ const statusConfig = {
   }
 };
 
+const normalizeString = (str: string) => {
+  return str
+    .normalize("NFD") // Decompose accented characters
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritical marks
+    .toUpperCase(); // Convert to uppercase
+};
+
 export default function TrackingClient() {
   const [trackingCode, setTrackingCode] = useState('');
   const [shipment, setShipment] = useState<Shipment | null>(null);
@@ -66,7 +73,8 @@ export default function TrackingClient() {
     }
   };
   
-  const currentStatus = shipment?.status ? statusConfig[shipment.status as keyof typeof statusConfig] : null;
+  const normalizedStatus = shipment?.status ? normalizeString(shipment.status) : null;
+  const currentStatus = normalizedStatus ? statusConfig[normalizedStatus as keyof typeof statusConfig] : null;
 
   return (
     <div className="space-y-8">
