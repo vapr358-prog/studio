@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X, LogIn, Bot } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -26,24 +26,28 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 mr-6">
           <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={40} height={40} />
           <span className="font-headline text-2xl font-bold text-primary whitespace-nowrap">Sweet Queen</span>
         </Link>
         
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex flex-1 items-center justify-end">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-6">
+          <nav className="hidden md:flex gap-6 text-sm font-medium">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="text-sm font-medium transition-colors hover:text-primary">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="transition-colors hover:text-primary"
+              >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-6">
             <div className="hidden md:flex items-center gap-2">
-              <Separator orientation="vertical" className="h-6 mx-2" />
+              <Separator orientation="vertical" className="h-6" />
               <Button variant="ghost" size="icon" aria-label="Carrito de compras">
                 <ShoppingBag className="h-5 w-5" />
               </Button>
@@ -74,7 +78,7 @@ export function Header() {
                   <div className="flex justify-between items-center border-b pb-4">
                       <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
                           <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={32} height={32} />
-                          <span className="font-headline text-xl font-bold text-primary">Sweet Queen</span>
+                          <span className="font-headline text-xl font-bold text-primary whitespace-nowrap">Sweet Queen</span>
                       </Link>
                       <SheetClose asChild>
                            <Button variant="ghost" size="icon">
