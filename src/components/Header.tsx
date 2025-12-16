@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X, LogIn } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ const navLinks = [
   { href: '/blog', label: 'Blog' },
   { href: '/book', label: 'Reservar' },
   { href: '/tracking', label: 'Seguimiento' },
+  { href: '/assistent', label: 'Asistente' },
   { href: '/contact', label: 'Contacto' },
 ];
 
