@@ -136,7 +136,7 @@ export default function TrackingClient() {
                <div className="flex items-start gap-4">
                  <Calendar className="h-6 w-6 mt-1 text-primary" />
                  <div>
-                    <h4 className="font-bold">Fecha prevista (ETA)</h4>
+                    <h4 className="font-bold">Fecha prevista de entrega</h4>
                     <p className="text-muted-foreground">{shipment.eta}</p>
                  </div>
               </div>
