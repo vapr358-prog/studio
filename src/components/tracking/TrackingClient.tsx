@@ -6,23 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { Search, MapPin, Calendar, Warehouse, Truck, CheckCircle } from 'lucide-react';
+import { Search, MapPin, Calendar, Warehouse, Truck, CheckCircle, PackageCheck } from 'lucide-react';
 import type { Shipment } from '@/lib/types';
 
 const statusConfig = {
-  'En almacén': {
+  'EN PREPARACION': {
     progress: 10,
     color: 'bg-yellow-500',
-    icon: <Warehouse className="h-5 w-5 text-yellow-500" />,
-    label: 'En Almacén'
+    icon: <PackageCheck className="h-5 w-5 text-yellow-500" />,
+    label: 'En Preparación'
   },
-  'En tránsito': {
+  'EN TRANSITO': {
     progress: 50,
     color: 'bg-blue-500',
     icon: <Truck className="h-5 w-5 text-blue-500" />,
     label: 'En Tránsito'
   },
-  'Librado': {
+  'ENTREGADO': {
     progress: 100,
     color: 'bg-green-500',
     icon: <CheckCircle className="h-5 w-5 text-green-500" />,
@@ -104,14 +104,14 @@ export default function TrackingClient() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <h3 className="font-bold text-lg">Estado del envío:</h3>
+              <h3 className="font-bold text-lg">Estado del pedido:</h3>
               <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
                 {currentStatus.icon}
                 <span className="text-xl font-semibold text-foreground">{currentStatus.label}</span>
               </div>
               <Progress value={currentStatus.progress} className={`h-2 ${currentStatus.color}`} />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>En almacén</span>
+                <span>En preparación</span>
                 <span>En tránsito</span>
                 <span>Entregado</span>
               </div>
@@ -137,13 +137,6 @@ export default function TrackingClient() {
                  <div>
                     <h4 className="font-bold">Fecha prevista (ETA)</h4>
                     <p className="text-muted-foreground">{shipment.eta}</p>
-                 </div>
-              </div>
-               <div className="flex items-start gap-4">
-                 <Warehouse className="h-6 w-6 mt-1 text-primary" />
-                 <div>
-                    <h4 className="font-bold">Ubicación actual</h4>
-                    <p className="text-muted-foreground">{shipment.current_location}</p>
                  </div>
               </div>
             </div>

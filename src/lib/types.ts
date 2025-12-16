@@ -42,11 +42,11 @@ export type User = {
 
 export type Shipment = {
   tracking_code: string;
+  client: string;
   origin: string;
   destination: string;
   eta: string;
-  current_location: string;
-  status: 'En almacén' | 'En tránsito' | 'Librado';
+  status: 'EN PREPARACION' | 'EN TRANSITO' | 'ENTREGADO';
 };
 
 export const allFlavors = [
