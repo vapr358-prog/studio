@@ -1,21 +1,35 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OrderHistory } from "@/components/account/OrderHistory"
 import CakeRecommendationForm from "@/components/account/CakeRecommendationForm"
-import { orders, mockUser } from "@/lib/data"
+import { orders } from "@/lib/data"
 import { allFlavors } from "@/lib/types"
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Mi Cuenta',
-  description: 'Gestiona tu cuenta, ve tu historial de pedidos y obtén recomendaciones personalizadas.',
-};
+type User = {
+  name: string;
+  company: string;
+  role: string;
+}
 
 export default function AccountPage() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
       <div className="mb-8">
         <h1 className="font-headline text-4xl md:text-5xl">Mi Cuenta</h1>
-        <p className="text-lg text-muted-foreground">Bienvenida de nuevo, {mockUser.name}.</p>
+        <p className="text-lg text-muted-foreground">
+          {user ? `Bienvenida de nuevo, ${user.name}.` : 'Cargando tu información...'}
+        </p>
       </div>
 
       <Tabs defaultValue="history" className="w-full">
