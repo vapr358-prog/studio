@@ -27,7 +27,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={40} height={40} />
-          <span className="font-headline text-2xl font-bold">Sweet Queen</span>
+          <span className="font-headline text-2xl font-bold text-primary">Sweet Queen</span>
         </Link>
         
         {/* Desktop Navigation */}
@@ -71,7 +71,7 @@ export function Header() {
                 <div className="flex justify-between items-center border-b pb-4">
                     <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
                         <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={32} height={32} />
-                        <span className="font-headline text-xl font-bold">Sweet Queen</span>
+                        <span className="font-headline text-xl font-bold text-primary">Sweet Queen</span>
                     </Link>
                     <SheetClose asChild>
                          <Button variant="ghost" size="icon">
