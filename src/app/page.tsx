@@ -3,21 +3,25 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cakes as allCakes } from '@/lib/data';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const featuredCakes = allCakes.slice(0, 3);
+const heroImage = PlaceHolderImages.find(p => p.id === 'hero-bg');
 
 export default function Home() {
   return (
     <div>
       <section className="relative h-[60vh] md:h-[80vh] w-full flex items-center justify-center text-center text-white">
-        <Image
-          src="/FONDO.jpg"
-          alt="Elegante pastel sobre un soporte, creando un ambiente sofisticado para la página de inicio."
-          fill
-          className="object-cover"
-          priority
-          data-ai-hint="elegant cake"
-        />
+        {heroImage && (
+            <Image
+                src={heroImage.imageUrl}
+                alt={heroImage.description}
+                fill
+                className="object-cover"
+                priority
+                data-ai-hint={heroImage.imageHint}
+            />
+        )}
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10 px-4">
           <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl drop-shadow-lg">
