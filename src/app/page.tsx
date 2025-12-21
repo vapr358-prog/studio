@@ -23,8 +23,10 @@ export default function Home() {
             />
         )}
         <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10 p-8 bg-black/20 backdrop-blur-sm rounded-xl">
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-primary drop-shadow-lg">
+        <div className="relative z-10 p-8">
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" style={{
+            textShadow: '1px 1px 3px rgba(0,0,0,0.3), -1px -1px 3px rgba(0,0,0,0.3), 1px -1px 3px rgba(0,0,0,0.3), -1px 1px 3px rgba(0,0,0,0.3)'
+          }}>
             Sweet Queen
           </h1>
           <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-primary-foreground drop-shadow-md">
