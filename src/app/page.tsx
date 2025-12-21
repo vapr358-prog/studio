@@ -11,7 +11,7 @@ const heroImage = PlaceHolderImages.find(p => p.id === 'hero-bg');
 export default function Home() {
   return (
     <div>
-      <section className="relative h-[60vh] md:h-[80vh] w-full flex items-center justify-center text-center text-white">
+      <section className="relative h-[60vh] md:h-[80vh] w-full flex items-center justify-center text-center">
         {heroImage && (
             <Image
                 src={heroImage.imageUrl}
@@ -22,12 +22,12 @@ export default function Home() {
                 data-ai-hint={heroImage.imageHint}
             />
         )}
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 px-4">
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl drop-shadow-lg">
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 p-8 bg-black/20 backdrop-blur-sm rounded-xl">
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-primary drop-shadow-lg">
             Sweet Queen
           </h1>
-          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto drop-shadow-md">
+          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-primary-foreground drop-shadow-md">
             El arte de la pastelería hecho con amor, para tus momentos más dulces.
           </p>
           <Button asChild className="mt-8" size="lg">
