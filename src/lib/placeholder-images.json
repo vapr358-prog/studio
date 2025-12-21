@@ -3,8 +3,8 @@
     {
       "id": "hero-bg",
       "description": "Elegant cake on a stand, setting a sophisticated mood for the homepage.",
-      "imageUrl": "https://images.unsplash.com/photo-1559620192-032c4bc4674e?q=80&w=1974&auto=format&fit=crop",
-      "imageHint": "elegant cake"
+      "imageUrl": "/FONDO.jpg",
+      "imageHint": "bakery interior"
     },
     {
       "id": "brand-post",
