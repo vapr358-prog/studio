@@ -24,7 +24,7 @@ export default function Home() {
             />
         )}
         <div className="absolute inset-0 bg-white/50" />
-        <div className="relative z-10 p-8">
+        <div className="relative z-10 p-8 bg-background/50 backdrop-blur-sm rounded-xl shadow-lg">
           <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-foreground">
             Sweet Queen
           </h1>
