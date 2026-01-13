@@ -25,10 +25,10 @@ export default function Home() {
         )}
         <div className="absolute inset-0 bg-white/50" />
         <div className="relative z-10 p-8">
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-primary">
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-foreground">
             Sweet Queen
           </h1>
-          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-primary">
+          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-foreground">
             El arte de la pastelería hecho con amor, para tus momentos más dulces.
           </p>
           <Button asChild className="mt-8" size="lg">
