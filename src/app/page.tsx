@@ -25,12 +25,10 @@ export default function Home() {
         )}
         <div className="absolute inset-0 bg-white/50" />
         <div className="relative z-10 p-8">
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-primary" style={{
-            textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-          }}>
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-primary">
             Sweet Queen
           </h1>
-          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-primary-foreground" style={{textShadow: '0 1px 3px rgba(0,0,0,0.7)'}}>
+          <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-primary">
             El arte de la pastelería hecho con amor, para tus momentos más dulces.
           </p>
           <Button asChild className="mt-8" size="lg">
