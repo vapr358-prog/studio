@@ -23,8 +23,8 @@ export default function Home() {
                 data-ai-hint={heroImage.imageHint}
             />
         )}
-        <div className="absolute inset-0 bg-white/50" />
-        <div className="relative z-10 p-8 bg-background/50 backdrop-blur-sm rounded-xl shadow-lg">
+        <div className="absolute inset-0 bg-white/75" />
+        <div className="relative z-10 p-8 bg-background rounded-xl shadow-lg">
           <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-foreground">
             Sweet Queen
           </h1>
@@ -59,7 +59,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="flex-grow p-6">
                   <CardTitle className="font-headline text-2xl mb-2">{cake.name}</CardTitle>
-                  <p className="text-muted-foreground text-base">
+                  <p className="text-muted-foreground text-lg font-semibold">
                     ${cake.price.toFixed(2)}
                   </p>
                 </CardContent>
@@ -76,3 +76,4 @@ export default function Home() {
     </div>
   );
 }
+
