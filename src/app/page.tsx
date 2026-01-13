@@ -23,7 +23,7 @@ export default function Home() {
                 data-ai-hint={heroImage.imageHint}
             />
         )}
-        <div className="absolute inset-0 bg-white/75" />
+        <div className="absolute inset-0 bg-white/50" />
         <div className="relative z-10 p-8 bg-secondary rounded-xl shadow-lg">
           <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-foreground">
             Sweet Queen
