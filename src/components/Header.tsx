@@ -16,7 +16,6 @@ const navLinks = [
   { href: '/blog', label: 'Blog' },
   { href: '/book', label: 'Reservar' },
   { href: '/tracking', label: 'Seguimiento' },
-  { href: '/assistent', label: 'Asistente' },
   { href: '/contact', label: 'Contacto' },
 ];
 
