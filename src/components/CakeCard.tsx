@@ -18,7 +18,7 @@ export function CakeCard({ cake }: CakeCardProps) {
             alt={cake.name}
             width={400}
             height={300}
-            className="object-cover object-top w-full h-full transition-transform duration-300 hover:scale-105"
+            className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
             data-ai-hint={cake.image.hint}
           />
         </Link>

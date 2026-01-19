@@ -52,7 +52,7 @@ export default function Home() {
                       alt={cake.name}
                       width={400}
                       height={300}
-                      className="object-cover object-top w-full h-full"
+                      className="object-cover w-full h-full"
                       data-ai-hint={cake.image.hint}
                     />
                   </div>

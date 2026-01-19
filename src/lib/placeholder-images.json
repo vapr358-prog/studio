@@ -13,12 +13,6 @@
       "imageHint": "brand cake"
     },
     {
-      "id": "red-velvet",
-      "description": "A slice of rich Red Velvet cake with cream cheese frosting.",
-      "imageUrl": "/TORTA1.jpg",
-      "imageHint": "red velvet"
-    },
-    {
       "id": "tres-leches",
       "description": "A serving of Tres Leches cake soaked in milk and topped with whipped cream and fruit.",
       "imageUrl": "https://i.ibb.co/L5T4sFb/tres-leches.jpg",
