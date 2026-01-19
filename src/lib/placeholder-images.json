@@ -47,6 +47,12 @@
       "description": "A vintage-style photo of a baker's hands kneading dough.",
       "imageUrl": "https://images.unsplash.com/photo-1525384192518-3a84e622b78b?q=80&w=2070&auto=format&fit=crop",
       "imageHint": "baking history"
+    },
+    {
+      "id": "red-velvet",
+      "description": "A classic Red Velvet cake, sliced to show its texture, with a creamy frosting.",
+      "imageUrl": "/torta1.avif",
+      "imageHint": "red velvet slice"
     }
   ]
 }
