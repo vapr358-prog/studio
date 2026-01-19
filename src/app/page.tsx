@@ -23,7 +23,7 @@ export default function Home() {
                 data-ai-hint={heroImage.imageHint}
             />
         )}
-        <div className="absolute inset-0 bg-white/50" />
+        <div className="absolute inset-0 bg-white/20" />
         <div className="relative z-10 p-8 bg-secondary rounded-xl shadow-lg">
           <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-foreground">
             Sweet Queen
@@ -52,7 +52,7 @@ export default function Home() {
                       alt={cake.name}
                       width={400}
                       height={300}
-                      className="object-cover w-full h-full"
+                      className="object-cover object-top w-full h-full"
                       data-ai-hint={cake.image.hint}
                     />
                   </div>

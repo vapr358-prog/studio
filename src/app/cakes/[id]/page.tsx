@@ -50,7 +50,7 @@ export default function CakeDetailPage({ params }: Props) {
             alt={cake.name}
             width={600}
             height={600}
-            className="w-full object-cover"
+            className="w-full object-cover object-top"
             data-ai-hint={cake.image.hint}
           />
         </div>
