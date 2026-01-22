@@ -32,7 +32,7 @@ type User = {
   fiscalid?: string;
   adreca?: string;
   telefon?: string;
-  nom?: string; // from localStorage
+  nom?: string;
 };
 
 type Invoice = {
@@ -77,15 +77,15 @@ export default function DocumentsPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
-    const processInvoices = (docs: Document[], users: User[], targetUser: User | null) => {
-        const userDetails = users.find(u => u.usuari === targetUser?.nom) || targetUser;
-        const userRole = userDetails?.rol?.toLowerCase();
+    const processInvoices = (docs: Document[], users: User[], authUser: User | null) => {
+        const userDetails = users.find(u => u.usuari === authUser?.usuari) || authUser;
+        const userRole = (userDetails?.rol)?.toLowerCase();
         
         let visibleDocs: Document[];
         if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
             visibleDocs = docs;
-        } else if (targetUser) {
-            visibleDocs = docs.filter(doc => doc.usuari === targetUser.nom);
+        } else if (authUser) {
+            visibleDocs = docs.filter(doc => doc.usuari === authUser.usuari);
         } else {
             visibleDocs = [];
         }
@@ -159,7 +159,7 @@ export default function DocumentsPage() {
         if (storedUser) {
             const parsed = JSON.parse(storedUser);
             userFromStorage = {
-                usuari: parsed.name,
+                usuari: parsed.username || parsed.name, // Use username, fallback to name
                 nom: parsed.name,
                 rol: parsed.role,
                 empresa: parsed.company
@@ -196,8 +196,8 @@ export default function DocumentsPage() {
       } catch (e: any) {
         setError("Error de connexió. Mostrant dades d'exemple.");
         const mockDocs: Document[] = [
-          { id: '1', num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'albara1' },
-          { id: '2', num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'albara2' },
+          { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'albara1' },
+          { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'albara2' },
         ];
         const mockUsers: User[] = [
             { usuari: 'angel', rol: 'client', nom: 'angel', empresa: 'Angel Inc.', fiscalid: 'A12345678', adreca: 'Carrer Fals 123', telefon: '600111222' },

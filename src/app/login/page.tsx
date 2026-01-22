@@ -46,7 +46,7 @@ export default function LoginPage() {
         // Guardar datos en localStorage
         localStorage.setItem(
           'user',
-          JSON.stringify({ name: user.nom, company: user.empresa, role: user.rol })
+          JSON.stringify({ username: user.usuari, name: user.nom, company: user.empresa, role: user.rol })
         );
         
         if (user.rol === 'admin') {
