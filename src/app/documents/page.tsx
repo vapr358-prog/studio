@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Types based on user description
 type Document = {
@@ -76,6 +77,78 @@ export default function DocumentsPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
+    const processInvoices = (docs: Document[], users: User[], targetUser: User | null) => {
+        const userDetails = users.find(u => u.usuari === targetUser?.nom) || targetUser;
+        const userRole = userDetails?.rol?.toLowerCase();
+        
+        let visibleDocs: Document[];
+        if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
+            visibleDocs = docs;
+        } else if (targetUser) {
+            visibleDocs = docs.filter(doc => doc.usuari === targetUser.nom);
+        } else {
+            visibleDocs = [];
+        }
+
+        const groupedByNumFactura = visibleDocs.reduce((acc, doc) => {
+          const key = doc.num_factura;
+          if (!acc[key]) {
+            acc[key] = [];
+          }
+          acc[key].push(doc);
+          return acc;
+        }, {} as Record<string, Document[]>);
+
+        const processedInvoices: Invoice[] = Object.values(groupedByNumFactura).map(docs => {
+          const firstDoc = docs[0];
+          const clientData = users.find(u => u.usuari === firstDoc.usuari);
+
+          let baseImposable = 0;
+          const ivaMap: Record<string, { base: number; quota: number }> = {};
+
+          const items = docs.map(d => {
+            const preu_unitari = parseFloat(d.preu_unitari) || 0;
+            const unitats = parseFloat(d.unitats) || 0;
+            const dte = parseFloat(d.dte) || 0;
+            const iva = parseFloat(d.iva) || 0;
+
+            const net = (preu_unitari * unitats) * (1 - dte / 100);
+            baseImposable += net;
+            
+            if (!ivaMap[iva]) {
+                ivaMap[iva] = { base: 0, quota: 0 };
+            }
+            ivaMap[iva].base += net;
+            ivaMap[iva].quota += net * (iva / 100);
+            
+            return { concepte: d.concepte, preu_unitari, unitats, iva, dte, net };
+          });
+
+          const ivaBreakdown = Object.entries(ivaMap).map(([rate, values]) => ({
+            rate: parseFloat(rate),
+            ...values
+          }));
+          
+          const totalIva = ivaBreakdown.reduce((sum, item) => sum + item.quota, 0);
+          const total = baseImposable + totalIva;
+
+          return {
+            num_factura: firstDoc.num_factura,
+            data: firstDoc.data,
+            usuari: firstDoc.usuari,
+            fpagament: firstDoc.fpagament,
+            albara: firstDoc.albara,
+            clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
+            items,
+            baseImposable,
+            ivaBreakdown,
+            total,
+          };
+        }).sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
+        setInvoices(processedInvoices);
+    }
+    
     const fetchAndProcessData = async () => {
       setIsLoading(true);
       setError(null);
@@ -118,76 +191,20 @@ export default function DocumentsPage() {
 
         const allDocs: Document[] = await docsRes.json();
         const allUsers: User[] = await usersRes.json();
-        
-        const userDetails = allUsers.find(u => u.usuari === userFromStorage!.nom) || userFromStorage;
-        const userRole = userDetails.rol?.toLowerCase();
-        
-        let visibleDocs: Document[];
-        if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
-            visibleDocs = allDocs;
-        } else {
-            visibleDocs = allDocs.filter(doc => doc.usuari === userFromStorage!.nom);
-        }
+        processInvoices(allDocs, allUsers, userFromStorage);
 
-        const groupedByNumFactura = visibleDocs.reduce((acc, doc) => {
-          const key = doc.num_factura;
-          if (!acc[key]) {
-            acc[key] = [];
-          }
-          acc[key].push(doc);
-          return acc;
-        }, {} as Record<string, Document[]>);
-
-        const processedInvoices: Invoice[] = Object.values(groupedByNumFactura).map(docs => {
-          const firstDoc = docs[0];
-          const clientData = allUsers.find(u => u.usuari === firstDoc.usuari);
-
-          let baseImposable = 0;
-          const ivaMap: Record<string, { base: number; quota: number }> = {};
-
-          const items = docs.map(d => {
-            const preu_unitari = parseFloat(d.preu_unitari) || 0;
-            const unitats = parseFloat(d.unitats) || 0;
-            const dte = parseFloat(d.dte) || 0;
-            const iva = parseFloat(d.iva) || 0;
-
-            const net = (preu_unitari * unitats) * (1 - dte / 100);
-            baseImposable += net;
-            
-            if (!ivaMap[iva]) {
-                ivaMap[iva] = { base: 0, quota: 0 };
-            }
-            ivaMap[iva].base += net;
-            ivaMap[iva].quota += net * (iva / 100);
-            
-            return { concepte: d.concepte, preu_unitari, unitats, iva, dte, net };
-          });
-
-          const ivaBreakdown = Object.entries(ivaMap).map(([rate, values]) => ({
-            rate: parseFloat(rate),
-            ...values
-          }));
-          
-          const totalIva = ivaBreakdown.reduce((sum, item) => sum + item.quota, 0);
-          const total = baseImposable + totalIva;
-
-          return {
-            num_factura: firstDoc.num_factura,
-            data: firstDoc.data,
-            usuari: firstDoc.usuari,
-            fpagament: firstDoc.fpagament,
-            albara: firstDoc.albara,
-            clientData,
-            items,
-            baseImposable,
-            ivaBreakdown,
-            total,
-          };
-        }).sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
-
-        setInvoices(processedInvoices);
       } catch (e: any) {
-        setError(e.message || 'Ha ocorregut un error inesperat.');
+        setError("Error de connexió. Mostrant dades d'exemple.");
+        const mockDocs: Document[] = [
+          { id: '1', num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'albara1' },
+          { id: '2', num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'albara2' },
+        ];
+        const mockUsers: User[] = [
+            { usuari: 'angel', rol: 'client', nom: 'angel', empresa: 'Angel Inc.', fiscalid: 'A12345678', adreca: 'Carrer Fals 123', telefon: '600111222' },
+            { usuari: 'nicol', rol: 'client', nom: 'nicol', empresa: 'Nicol Co.', fiscalid: 'B87654321', adreca: 'Avinguda Veritat 321', telefon: '600333444' },
+            { usuari: 'admin', rol: 'admin', nom: 'admin', empresa: 'Sweet Queen' },
+        ];
+        processInvoices(mockDocs, mockUsers, userFromStorage);
       } finally {
         setIsLoading(false);
       }
@@ -211,19 +228,6 @@ export default function DocumentsPage() {
         </div>
       </div>
     );
-  }
-  
-  if (error) {
-      return (
-          <div className="container mx-auto px-4 py-12 md:py-16">
-            <h1 className="font-headline text-4xl md:text-5xl mb-8">Error</h1>
-            <Card>
-                <CardContent className="p-6">
-                    <p className="text-destructive">{error}</p>
-                </CardContent>
-            </Card>
-          </div>
-      )
   }
 
   if (selectedInvoice) {
@@ -333,6 +337,11 @@ export default function DocumentsPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
         <h1 className="font-headline text-4xl md:text-5xl mb-8">Les Meves Factures</h1>
+        {error && (
+             <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
+        )}
         {invoices.length > 0 ? (
             <div className="space-y-4">
                 {invoices.map(invoice => (
@@ -367,5 +376,3 @@ export default function DocumentsPage() {
     </div>
   );
 }
-
-    
