@@ -106,7 +106,8 @@ export function InvoicesTab() {
         if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
             visibleDocs = docs;
         } else {
-            visibleDocs = docs.filter(doc => doc.usuari === user.username);
+            const currentUsername = user.username?.trim().toLowerCase();
+            visibleDocs = docs.filter(doc => doc.usuari?.trim().toLowerCase() === currentUsername);
         }
 
         const relevantDocs = visibleDocs.filter(doc => doc.num_factura);
@@ -122,7 +123,7 @@ export function InvoicesTab() {
 
         const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docs => {
           const firstDoc = docs[0];
-          const clientData = users.find(u => u.usuari === firstDoc.usuari);
+          const clientData = users.find(u => u.usuari?.trim().toLowerCase() === firstDoc.usuari?.trim().toLowerCase());
 
           let baseImposable = 0;
           const ivaMap: Record<string, { base: number; quota: number }> = {};
