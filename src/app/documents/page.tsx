@@ -70,8 +70,6 @@ type ProcessedDocument = {
 };
 
 // --- Constants & Configuration ---
-
-// TODO: Replace with your actual SheetDB URLs
 const API_URL_DOCUMENTS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents';
 const API_URL_USUARIS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris';
 
@@ -91,6 +89,17 @@ export default function DocumentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<ProcessedDocument | null>(null);
+
+  const parseDMY = (dateString: string): Date => {
+    if (!dateString || !/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString)) {
+      return new Date(dateString); // Fallback for YYYY-MM-DD or other parsable formats
+    }
+    const parts = dateString.split('/');
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in JS Date
+    const year = parseInt(parts[2], 10);
+    return new Date(year, month, day);
+  };
 
   // Effect to get the logged-in user from localStorage
   useEffect(() => {
@@ -183,12 +192,11 @@ export default function DocumentsPage() {
             ivaBreakdown,
             total,
           };
-        }).sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+        }).sort((a, b) => parseDMY(b.data).getTime() - parseDMY(a.data).getTime());
         
         setInvoices(processedDocs);
     }
     
-    // Mock data for testing purposes
     const useMockData = () => {
         const mockDocs: Document[] = [
             { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
@@ -292,7 +300,7 @@ export default function DocumentsPage() {
                         <div className="space-y-1">
                             <p><span className="font-bold">Nº Factura:</span> {id}</p>
                             {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
-                            <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
+                            <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
                                 <Badge className={cn('print:hidden', {
                                     'bg-green-100 text-green-800': estat.toLowerCase() === 'pagada',
@@ -397,7 +405,7 @@ export default function DocumentsPage() {
                                     <Badge variant="secondary">{invoice.id}</Badge>
                                     <div>
                                         <p className="font-medium">{invoice.clientData?.nom || invoice.usuari}</p>
-                                        <p className="text-sm text-muted-foreground">{new Date(invoice.data).toLocaleDateString('ca-ES')}</p>
+                                        <p className="text-sm text-muted-foreground">{parseDMY(invoice.data).toLocaleDateString('ca-ES')}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
