@@ -112,11 +112,13 @@ export function InvoicesTab({ user, documentType }: InvoicesTabProps) {
         const relevantDocs = visibleDocs.filter(doc => doc[groupingKey]);
 
         const groupedByKey = relevantDocs.reduce((acc, doc) => {
-          const key = doc[groupingKey]!;
-          if (!acc[key]) {
-            acc[key] = [];
+          const key = doc[groupingKey];
+          if (key) {
+            if (!acc[key]) {
+              acc[key] = [];
+            }
+            acc[key].push(doc);
           }
-          acc[key].push(doc);
           return acc;
         }, {} as Record<string, Document[]>);
 
