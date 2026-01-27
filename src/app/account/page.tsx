@@ -9,7 +9,7 @@ import { orders as allOrders } from "@/lib/data"
 import { allFlavors } from "@/lib/types"
 import type { Order } from '@/lib/types';
 
-type User = {
+type AppUser = {
   username: string;
   name: string;
   company: string;
@@ -17,17 +17,22 @@ type User = {
 }
 
 export default function AccountPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      const parsedUser: User = JSON.parse(storedUser);
-      setUser(parsedUser);
-      
-      const filteredOrders = allOrders.filter(order => order.clientName === parsedUser.name);
-      setUserOrders(filteredOrders);
+      try {
+        const parsedUser: AppUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        
+        const filteredOrders = allOrders.filter(order => order.clientName === parsedUser.name);
+        setUserOrders(filteredOrders);
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
@@ -53,7 +58,7 @@ export default function AccountPage() {
           <CakeRecommendationForm flavors={allFlavors} />
         </TabsContent>
         <TabsContent value="invoices" className="mt-6">
-          <InvoicesTab />
+          <InvoicesTab user={user} />
         </TabsContent>
       </Tabs>
     </div>

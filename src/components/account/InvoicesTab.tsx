@@ -48,7 +48,6 @@ type ProcessedDocument = {
   data: string;
   usuari: string;
   fpagament: string;
-  num_factura?: string;
   albara?: string;
   estat?: string;
   clientData?: UserData;
@@ -79,34 +78,30 @@ const SHELL_COMPANY_INFO = {
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
 
+interface InvoicesTabProps {
+  user: AppUser | null;
+}
 
-export function InvoicesTab() {
-  const [user, setUser] = useState<AppUser | null>(null);
+export function InvoicesTab({ user }: InvoicesTabProps) {
   const [invoices, setInvoices] = useState<ProcessedDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<ProcessedDocument | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-        setUser(JSON.parse(storedUser));
-    } else {
+    if (!user) {
       setIsLoading(false);
+      return;
     }
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
 
     const processDocuments = (docs: Document[], users: UserData[]) => {
-        const userRole = (user.role)?.toLowerCase();
+        const userRole = user.role?.trim().toLowerCase();
+        const currentUsername = user.username?.trim().toLowerCase();
         
         let visibleDocs: Document[];
         if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
             visibleDocs = docs;
         } else {
-            const currentUsername = user.username?.trim().toLowerCase();
             visibleDocs = docs.filter(doc => doc.usuari?.trim().toLowerCase() === currentUsername);
         }
 
@@ -159,7 +154,6 @@ export function InvoicesTab() {
             data: firstDoc.data,
             usuari: firstDoc.usuari,
             fpagament: firstDoc.fpagament,
-            num_factura: firstDoc.num_factura,
             albara: firstDoc.albara,
             estat: firstDoc.estat,
             clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
@@ -204,14 +198,16 @@ export function InvoicesTab() {
         const allUsers: UserData[] = await usersRes.json();
 
         if (!Array.isArray(allDocs) || allDocs.length === 0) {
-          throw new Error("No s'han trobat documents a la font de dades.");
+          throw new Error("No s'han trobat documents a la font de dades. Comprova que la fulla 'documents' del teu Excel no estigui buida.");
         }
         
         processDocuments(allDocs, allUsers);
 
       } catch (e: any) {
         setError((e.message || "Hi ha hagut un error.") + " Mostrant dades d'exemple.");
-        useMockData(user);
+        if (user) {
+          useMockData(user);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -228,7 +224,7 @@ export function InvoicesTab() {
     return (
         <Card>
             <CardContent className="p-10 text-center">
-                <p>Necessites <a href="/login" className="underline text-primary">iniciar sessió</a> per veure les teves factures.</p>
+                <p>Has d'<a href="/login" className="underline text-primary">iniciar sessió</a> per veure les teves factures.</p>
             </CardContent>
         </Card>
     );
@@ -301,6 +297,7 @@ export function InvoicesTab() {
                             <TableRow className="bg-muted">
                                 <TableHead className="w-1/2">Concepte</TableHead>
                                 <TableHead className="text-right">P. Unitari</TableHead>
+
                                 <TableHead className="text-right">Unitats</TableHead>
                                 <TableHead className="text-right">Dte. %</TableHead>
                                 <TableHead className="text-right">IVA %</TableHead>
@@ -394,11 +391,13 @@ export function InvoicesTab() {
                 ))}
             </div>
         ) : (
-            <Card>
-                <CardContent className="p-10 text-center">
-                    <p>No s'han trobat factures.</p>
-                </CardContent>
-            </Card>
+            !isLoading && (
+              <Card>
+                  <CardContent className="p-10 text-center">
+                      <p>No s'han trobat factures per al teu usuari.</p>
+                  </CardContent>
+              </Card>
+            )
         )}
     </div>
   );
