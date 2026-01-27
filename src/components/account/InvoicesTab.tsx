@@ -192,11 +192,15 @@ export function InvoicesTab({ user }: InvoicesTabProps) {
         }
 
         const allDocs: Document[] = await docsRes.json();
+        if (allDocs.length === 0) {
+          throw new Error("No s'han trobat dades a la fulla de càlcul 'documents'.");
+        }
+        
         const allUsers: UserData[] = await usersRes.json();
         processDocuments(allDocs, allUsers, user);
 
       } catch (e: any) {
-        setError("Error de connexió. Mostrant dades d'exemple.");
+        setError("Error de connexió o no s'han trobat dades. Mostrant dades d'exemple.");
         const mockDocs: Document[] = [
           { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
           { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-002', estat: 'Pendent' },
