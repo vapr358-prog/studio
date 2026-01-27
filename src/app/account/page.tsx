@@ -54,10 +54,10 @@ export default function AccountPage() {
           <CakeRecommendationForm flavors={allFlavors} />
         </TabsContent>
         <TabsContent value="invoices" className="mt-6">
-          <InvoicesTab user={user} documentType="invoice" />
+          <InvoicesTab user={user} documentType="albaran" />
         </TabsContent>
         <TabsContent value="albaranes" className="mt-6">
-          <InvoicesTab user={user} documentType="albaran" />
+          <InvoicesTab user={user} documentType="invoice" />
         </TabsContent>
       </Tabs>
     </div>
