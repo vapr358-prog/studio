@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OrderHistory } from "@/components/account/OrderHistory"
 import CakeRecommendationForm from "@/components/account/CakeRecommendationForm"
+import InvoicesTab from "@/components/account/InvoicesTab"; 
 import { orders as allOrders } from "@/lib/data"
 import { allFlavors } from "@/lib/types"
 import type { Order } from '@/lib/types';
 
 type User = {
+  username: string;
   name: string;
   company: string;
   role: string;
@@ -39,12 +41,16 @@ export default function AccountPage() {
       </div>
 
       <Tabs defaultValue="history" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <TabsList className="grid w-full grid-cols-3 max-w-lg">
           <TabsTrigger value="history">Historial de Pedidos</TabsTrigger>
+          <TabsTrigger value="invoices">Facturas</TabsTrigger>
           <TabsTrigger value="recommendations">Para Ti</TabsTrigger>
         </TabsList>
         <TabsContent value="history" className="mt-6">
           <OrderHistory orders={userOrders} />
+        </TabsContent>
+        <TabsContent value="invoices" className="mt-6">
+          <InvoicesTab user={user} />
         </TabsContent>
         <TabsContent value="recommendations" className="mt-6">
           <CakeRecommendationForm flavors={allFlavors} />

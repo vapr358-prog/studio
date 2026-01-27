@@ -16,7 +16,6 @@ const allNavLinks = [
   { href: '/blog', label: 'Blog' },
   { href: '/book', label: 'Reservar' },
   { href: '/tracking', label: 'Seguimiento' },
-  { href: '/documents', label: 'Facturas', requiresAuth: true },
   { href: '/contact', label: 'Contacto' },
 ];
 
@@ -53,7 +52,7 @@ export function Header() {
     if (isOpen) setIsOpen(false);
   };
 
-  const navLinks = allNavLinks.filter(link => !link.requiresAuth || isLoggedIn);
+  const navLinks = allNavLinks.filter(link => !('requiresAuth' in link) || isLoggedIn);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
