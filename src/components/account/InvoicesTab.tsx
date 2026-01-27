@@ -330,9 +330,9 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
         )}
         {invoices.length > 0 ? (
             <div className="space-y-4">
-                {invoices.map(invoice => (
+                {invoices.map((invoice, index) => (
                     <Card 
-                        key={invoice.num_factura} 
+                        key={`${invoice.num_factura}-${index}`}
                         className="hover:shadow-md transition-shadow cursor-pointer"
                         onClick={() => setSelectedInvoice(invoice)}
                     >
