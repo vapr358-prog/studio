@@ -49,6 +49,7 @@ type ProcessedDocument = {
   data: string;
   usuari: string;
   fpagament: string;
+  num_factura?: string;
   albara?: string;
   estat?: string;
   clientData?: UserData;
@@ -157,6 +158,7 @@ export default function InvoicesTab({ user, documentType }: InvoicesTabProps) {
             data: firstDoc.data,
             usuari: firstDoc.usuari,
             fpagament: firstDoc.fpagament,
+            num_factura: firstDoc.num_factura,
             albara: firstDoc.albara,
             estat: firstDoc.estat,
             clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
@@ -228,7 +230,7 @@ export default function InvoicesTab({ user, documentType }: InvoicesTabProps) {
   }
 
   if (selectedDocument) {
-    const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat } = selectedDocument;
+    const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, num_factura, albara } = selectedDocument;
     return (
       <div className="bg-background">
         <div className="max-w-4xl mx-auto">
@@ -256,6 +258,8 @@ export default function InvoicesTab({ user, documentType }: InvoicesTabProps) {
                         <h1 className="font-headline text-4xl text-primary mb-2">{docName}</h1>
                         <div className="space-y-1">
                             <p><span className="font-bold">Nº {docName}:</span> {id}</p>
+                            {isInvoice && albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
+                            {!isInvoice && num_factura && <p><span className="font-bold">Factura associada:</span> {num_factura}</p>}
                             <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
                                 <Badge className={cn('print:hidden', {
@@ -358,7 +362,7 @@ export default function InvoicesTab({ user, documentType }: InvoicesTabProps) {
                             <div className="flex items-center gap-4">
                                 <Badge variant="secondary">{doc.id}</Badge>
                                 <div>
-                                    <p className="font-medium">{doc.usuari}</p>
+                                    <p className="font-medium">{doc.clientData?.nom || doc.usuari}</p>
                                     <p className="text-sm text-muted-foreground">{new Date(doc.data).toLocaleDateString('ca-ES')}</p>
                                 </div>
                             </div>
