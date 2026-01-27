@@ -11,9 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-// Types
 type Document = {
   num_factura: string;
   data: string;
@@ -81,34 +79,40 @@ const SHELL_COMPANY_INFO = {
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
 
-function DocumentList({ user, documentType }: { user: AppUser | null, documentType: 'invoice' | 'albaran' }) {
-  const [documents, setDocuments] = useState<ProcessedDocument[]>([]);
+
+export function InvoicesTab() {
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [invoices, setInvoices] = useState<ProcessedDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDocument, setSelectedDocument] = useState<ProcessedDocument | null>(null);
-
-  const isInvoice = documentType === 'invoice';
-  const groupingKey = isInvoice ? 'num_factura' : 'albara';
-  const docName = isInvoice ? 'Factura' : 'Albarà';
-  const docNamePlural = isInvoice ? 'Factures' : 'Albarans';
+  const [selectedInvoice, setSelectedInvoice] = useState<ProcessedDocument | null>(null);
 
   useEffect(() => {
-    const processDocuments = (docs: Document[], users: UserData[], authUser: AppUser | null) => {
-        const userRole = (authUser?.role)?.toLowerCase();
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        setUser(JSON.parse(storedUser));
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const processDocuments = (docs: Document[], users: UserData[]) => {
+        const userRole = (user.role)?.toLowerCase();
         
         let visibleDocs: Document[];
         if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
             visibleDocs = docs;
-        } else if (authUser) {
-            visibleDocs = docs.filter(doc => doc.usuari === authUser.username);
         } else {
-            visibleDocs = [];
+            visibleDocs = docs.filter(doc => doc.usuari === user.username);
         }
 
-        const relevantDocs = visibleDocs.filter(doc => doc[groupingKey]);
+        const relevantDocs = visibleDocs.filter(doc => doc.num_factura);
 
         const groupedByKey = relevantDocs.reduce((acc, doc) => {
-          const key = doc[groupingKey]!;
+          const key = doc.num_factura!;
           if (!acc[key]) {
             acc[key] = [];
           }
@@ -150,7 +154,7 @@ function DocumentList({ user, documentType }: { user: AppUser | null, documentTy
           const total = baseImposable + totalIva;
 
           return {
-            id: firstDoc[groupingKey]!,
+            id: firstDoc.num_factura!,
             data: firstDoc.data,
             usuari: firstDoc.usuari,
             fpagament: firstDoc.fpagament,
@@ -164,16 +168,24 @@ function DocumentList({ user, documentType }: { user: AppUser | null, documentTy
             total,
           };
         }).sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
-
-        setDocuments(processedDocs);
+        
+        setInvoices(processedDocs);
     }
     
+    const useMockData = (currentUser: AppUser) => {
+        const mockDocs: Document[] = [
+            { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
+            { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-002', estat: 'Pendent' },
+        ];
+        const mockUsers: UserData[] = [
+            { usuari: 'angel', rol: 'client', nom: 'angel', empresa: 'Angel Inc.', fiscalid: 'A12345678', adreca: 'Carrer Fals 123', telefon: '600111222' },
+            { usuari: 'nicol', rol: 'client', nom: 'nicol', empresa: 'Nicol Co.', fiscalid: 'B87654321', adreca: 'Avinguda Veritat 321', telefon: '600333444' },
+            { usuari: 'admin', rol: 'admin', nom: 'admin', empresa: 'Sweet Queen' },
+        ];
+        processDocuments(mockDocs, mockUsers);
+    };
+
     const fetchAndProcessData = async () => {
-      if (!user) {
-        setIsLoading(false);
-        setError("Carregant dades d'usuari...");
-        return;
-      }
       setIsLoading(true);
       setError(null);
       
@@ -189,31 +201,37 @@ function DocumentList({ user, documentType }: { user: AppUser | null, documentTy
 
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
-        processDocuments(allDocs, allUsers, user);
+
+        if (!Array.isArray(allDocs) || allDocs.length === 0) {
+          throw new Error("No s'han trobat documents a la font de dades.");
+        }
+        
+        processDocuments(allDocs, allUsers);
 
       } catch (e: any) {
-        setError("Error de connexió. Mostrant dades d'exemple.");
-        const mockDocs: Document[] = [
-          { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
-          { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-002', estat: 'Pendent' },
-        ];
-        const mockUsers: UserData[] = [
-            { usuari: 'angel', rol: 'client', nom: 'angel', empresa: 'Angel Inc.', fiscalid: 'A12345678', adreca: 'Carrer Fals 123', telefon: '600111222' },
-            { usuari: 'nicol', rol: 'client', nom: 'nicol', empresa: 'Nicol Co.', fiscalid: 'B87654321', adreca: 'Avinguda Veritat 321', telefon: '600333444' },
-            { usuari: 'admin', rol: 'admin', nom: 'admin', empresa: 'Sweet Queen' },
-        ];
-        processDocuments(mockDocs, mockUsers, user);
+        setError((e.message || "Hi ha hagut un error.") + " Mostrant dades d'exemple.");
+        useMockData(user);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchAndProcessData();
-  }, [user, groupingKey]);
+  }, [user]);
   
   const handlePrint = () => {
     window.print();
   };
+
+  if (!user) {
+    return (
+        <Card>
+            <CardContent className="p-10 text-center">
+                <p>Necessites <a href="/login" className="underline text-primary">iniciar sessió</a> per veure les teves factures.</p>
+            </CardContent>
+        </Card>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -225,13 +243,13 @@ function DocumentList({ user, documentType }: { user: AppUser | null, documentTy
     );
   }
 
-  if (selectedDocument) {
-    const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, num_factura, albara } = selectedDocument;
+  if (selectedInvoice) {
+    const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, albara } = selectedInvoice;
     return (
       <div className="bg-background">
         <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-8 print:hidden">
-                <Button variant="ghost" onClick={() => setSelectedDocument(null)}>
+                <Button variant="ghost" onClick={() => setSelectedInvoice(null)}>
                     <ArrowLeft className="mr-2"/>
                     Tornar al llistat
                 </Button>
@@ -251,11 +269,10 @@ function DocumentList({ user, documentType }: { user: AppUser | null, documentTy
                          <p className="text-sm">{SHELL_COMPANY_INFO.phone} | {SHELL_COMPANY_INFO.email}</p>
                     </div>
                     <div className="text-right">
-                        <h1 className="font-headline text-4xl text-primary mb-2">{docName}</h1>
+                        <h1 className="font-headline text-4xl text-primary mb-2">Factura</h1>
                         <div className="space-y-1">
-                            <p><span className="font-bold">Nº {docName}:</span> {id}</p>
-                            {isInvoice && albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
-                            {!isInvoice && num_factura && <p><span className="font-bold">Factura associada:</span> {num_factura}</p>}
+                            <p><span className="font-bold">Nº Factura:</span> {id}</p>
+                            {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
                             <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
                                 <Badge className={cn('print:hidden', {
@@ -346,29 +363,29 @@ function DocumentList({ user, documentType }: { user: AppUser | null, documentTy
                 <AlertDescription>{error}</AlertDescription>
             </Alert>
         )}
-        {documents.length > 0 ? (
+        {invoices.length > 0 ? (
             <div className="space-y-4">
-                {documents.map((doc, index) => (
+                {invoices.map((invoice, index) => (
                     <Card 
-                        key={`${doc.id}-${index}`}
+                        key={`${invoice.id}-${index}`}
                         className="hover:shadow-md transition-shadow cursor-pointer"
-                        onClick={() => setSelectedDocument(doc)}
+                        onClick={() => setSelectedInvoice(invoice)}
                     >
                         <CardContent className="flex items-center justify-between p-6">
                             <div className="flex items-center gap-4">
-                                <Badge variant="secondary">{doc.id}</Badge>
+                                <Badge variant="secondary">{invoice.id}</Badge>
                                 <div>
-                                    <p className="font-medium">{doc.clientData?.nom || doc.usuari}</p>
-                                    <p className="text-sm text-muted-foreground">{new Date(doc.data).toLocaleDateString('ca-ES')}</p>
+                                    <p className="font-medium">{invoice.clientData?.nom || invoice.usuari}</p>
+                                    <p className="text-sm text-muted-foreground">{new Date(invoice.data).toLocaleDateString('ca-ES')}</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                               <p className="font-bold text-lg">{doc.total.toFixed(2)} €</p>
-                               {doc.estat && (
+                               <p className="font-bold text-lg">{invoice.total.toFixed(2)} €</p>
+                               {invoice.estat && (
                                 <Badge className={cn('mt-1', {
-                                    'bg-green-100 text-green-800': doc.estat.toLowerCase() === 'pagada',
-                                    'bg-red-100 text-red-800': doc.estat.toLowerCase() === 'pendent'
-                                })}>{doc.estat}</Badge>
+                                    'bg-green-100 text-green-800': invoice.estat.toLowerCase() === 'pagada',
+                                    'bg-red-100 text-red-800': invoice.estat.toLowerCase() === 'pendent'
+                                })}>{invoice.estat}</Badge>
                                )}
                             </div>
                         </CardContent>
@@ -378,44 +395,10 @@ function DocumentList({ user, documentType }: { user: AppUser | null, documentTy
         ) : (
             <Card>
                 <CardContent className="p-10 text-center">
-                    <p>No s'han trobat {docNamePlural.toLowerCase()}.</p>
+                    <p>No s'han trobat factures.</p>
                 </CardContent>
             </Card>
         )}
     </div>
   );
-}
-
-export default function DocumentsPage() {
-    const [user, setUser] = useState<AppUser | null>(null);
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
-
-    return (
-        <div className="container mx-auto px-4 py-12 md:py-16">
-            <div className="mb-8">
-                <h1 className="font-headline text-4xl md:text-5xl">Els Meus Documents</h1>
-                <p className="text-lg text-muted-foreground">
-                    Consulta les teves factures i albarans.
-                </p>
-            </div>
-            <Tabs defaultValue="invoices" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 max-w-sm">
-                    <TabsTrigger value="invoices">Factures</TabsTrigger>
-                    <TabsTrigger value="albaranes">Albarans</TabsTrigger>
-                </TabsList>
-                <TabsContent value="invoices">
-                    <DocumentList user={user} documentType="invoice" />
-                </TabsContent>
-                <TabsContent value="albaranes">
-                    <DocumentList user={user} documentType="albaran" />
-                </TabsContent>
-            </Tabs>
-        </div>
-    )
 }
