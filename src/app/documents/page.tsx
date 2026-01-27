@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
+// --- Types ---
 type Document = {
   num_factura: string;
   data: string;
@@ -68,16 +69,21 @@ type ProcessedDocument = {
   total: number;
 };
 
+// --- Constants & Configuration ---
+
+// TODO: Replace with your actual SheetDB URLs
+const API_URL_DOCUMENTS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents';
+const API_URL_USUARIS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris';
+
 const SHELL_COMPANY_INFO = {
     name: 'Sweet Queen',
     fiscalId: 'B-12345678',
     address: 'Carrer Alt de Sant Pere 17, Reus, 43201',
     phone: '(+34) 664 477 944',
     email: 'prietoerazovalentina8@gmail.com'
-}
+};
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
-
 
 export default function DocumentsPage() {
   const [user, setUser] = useState<AppUser | null>(null);
@@ -86,6 +92,7 @@ export default function DocumentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<ProcessedDocument | null>(null);
 
+  // Effect to get the logged-in user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -96,11 +103,15 @@ export default function DocumentsPage() {
         localStorage.removeItem('user');
       }
     }
+    // If no user, stop loading as they need to log in
+    else {
+      setIsLoading(false);
+    }
   }, []);
 
+  // Effect to fetch and process documents once the user is known
   useEffect(() => {
     if (!user) {
-      setIsLoading(false);
       return;
     }
 
@@ -177,6 +188,7 @@ export default function DocumentsPage() {
         setInvoices(processedDocs);
     }
     
+    // Mock data for testing purposes
     const useMockData = () => {
         const mockDocs: Document[] = [
             { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
@@ -195,8 +207,8 @@ export default function DocumentsPage() {
       
       try {
         const [docsRes, usersRes] = await Promise.all([
-          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents'),
-          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris'),
+          fetch(API_URL_DOCUMENTS),
+          fetch(API_URL_USUARIS),
         ]);
 
         if (!docsRes.ok || !usersRes.ok) {
@@ -227,6 +239,7 @@ export default function DocumentsPage() {
     window.print();
   };
 
+  // --- Rendering Logic ---
   const renderContent = () => {
     if (isLoading) {
         return (
@@ -252,115 +265,116 @@ export default function DocumentsPage() {
         const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, albara } = selectedInvoice;
         return (
           <div className="bg-background">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-8 print:hidden">
-                    <Button variant="ghost" onClick={() => setSelectedInvoice(null)}>
-                        <ArrowLeft className="mr-2"/>
-                        Tornar al llistat
-                    </Button>
-                    <Button onClick={handlePrint}>
-                        <Printer className="mr-2"/>
-                        Imprimir PDF
-                    </Button>
-                </div>
-    
-                <Card id="zona-factura" className="p-8 shadow-lg bg-white text-black">
-                    <header className="grid grid-cols-2 gap-8 items-start pb-8 border-b">
-                        <div>
-                             <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={60} height={60} className="mb-4"/>
-                             <h2 className="font-bold text-lg">{SHELL_COMPANY_INFO.name}</h2>
-                             <p className="text-sm">{SHELL_COMPANY_INFO.address}</p>
-                             <p className="text-sm">NIF: {SHELL_COMPANY_INFO.fiscalId}</p>
-                             <p className="text-sm">{SHELL_COMPANY_INFO.phone} | {SHELL_COMPANY_INFO.email}</p>
-                        </div>
-                        <div className="text-right">
-                            <h1 className="font-headline text-4xl text-primary mb-2">Factura</h1>
-                            <div className="space-y-1">
-                                <p><span className="font-bold">Nº Factura:</span> {id}</p>
-                                {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
-                                <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
-                                {estat && (
-                                    <Badge className={cn('print:hidden', {
-                                        'bg-green-100 text-green-800': estat.toLowerCase() === 'pagada',
-                                        'bg-red-100 text-red-800': estat.toLowerCase() === 'pendent'
-                                    })}>{estat}</Badge>
-                                )}
-                            </div>
-                        </div>
-                    </header>
-    
-                    <section className="grid grid-cols-2 gap-8 py-8">
-                         <div>
-                            <h3 className="font-bold mb-2 text-muted-foreground">CLIENT:</h3>
-                            <p className="font-bold">{clientData?.empresa || clientData?.nom}</p>
-                            <p>{clientData?.fiscalid}</p>
-                            <p>{clientData?.adreca}</p>
-                            <p>{clientData?.telefon}</p>
-                        </div>
-                    </section>
-    
-                    <section>
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-muted">
-                                    <TableHead className="w-1/2">Concepte</TableHead>
-                                    <TableHead className="text-right">P. Unitari</TableHead>
-                                    <TableHead className="text-right">Unitats</TableHead>
-                                    <TableHead className="text-right">Dte. %</TableHead>
-                                    <TableHead className="text-right">IVA %</TableHead>
-                                    <TableHead className="text-right">Total Net</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {items.map((item, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{item.concepte}</TableCell>
-                                        <TableCell className="text-right">{item.preu_unitari.toFixed(2)} €</TableCell>
-                                        <TableCell className="text-right">{item.unitats}</TableCell>
-                                        <TableCell className="text-right">{item.dte.toFixed(2)} %</TableCell>
-                                        <TableCell className="text-right">{item.iva.toFixed(0)} %</TableCell>
-                                        <TableCell className="text-right font-medium">{item.net.toFixed(2)} €</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </section>
-    
-                    <section className="flex justify-end mt-8">
-                        <div className="w-full md:w-1/2 lg:w-2/5 space-y-4">
-                            <div className="flex justify-between">
-                                <span>Base Imposable</span>
-                                <span>{baseImposable.toFixed(2)} €</span>
-                            </div>
-                            <Separator />
-                            {ivaBreakdown.map(iva => (
-                                <div key={iva.rate} className="flex justify-between">
-                                    <span>Quota IVA ({iva.rate}%) s/ {iva.base.toFixed(2)}€</span>
-                                    <span>{iva.quota.toFixed(2)} €</span>
-                                </div>
-                            ))}
-                            <Separator className="bg-primary h-0.5"/>
-                             <div className="flex justify-between font-bold text-lg">
-                                <span>TOTAL</span>
-                                <span>{total.toFixed(2)} €</span>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <section className="border-t pt-8 mt-8">
-                        <h3 className="font-bold mb-2">Forma de Pagament:</h3>
-                        <p>{fpagament}</p>
-                    </section>
-    
-                    <footer className="text-xs text-muted-foreground mt-12 pt-4 border-t">
-                        <p>{LEGAL_NOTICE}</p>
-                    </footer>
-                </Card>
+            {/* Action buttons (hidden on print) */}
+            <div className="flex justify-between items-center mb-8 print:hidden">
+                <Button variant="ghost" onClick={() => setSelectedInvoice(null)}>
+                    <ArrowLeft className="mr-2"/>
+                    Tornar al llistat
+                </Button>
+                <Button onClick={handlePrint}>
+                    <Printer className="mr-2"/>
+                    Imprimir PDF
+                </Button>
             </div>
+    
+            {/* The actual invoice content to be printed */}
+            <Card id="zona-factura" className="p-8 shadow-lg bg-white text-black">
+                <header className="grid grid-cols-2 gap-8 items-start pb-8 border-b">
+                    <div>
+                         <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={60} height={60} className="mb-4"/>
+                         <h2 className="font-bold text-lg">{SHELL_COMPANY_INFO.name}</h2>
+                         <p className="text-sm">{SHELL_COMPANY_INFO.address}</p>
+                         <p className="text-sm">NIF: {SHELL_COMPANY_INFO.fiscalId}</p>
+                         <p className="text-sm">{SHELL_COMPANY_INFO.phone} | {SHELL_COMPANY_INFO.email}</p>
+                    </div>
+                    <div className="text-right">
+                        <h1 className="font-headline text-4xl text-primary mb-2">Factura</h1>
+                        <div className="space-y-1">
+                            <p><span className="font-bold">Nº Factura:</span> {id}</p>
+                            {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
+                            <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
+                            {estat && (
+                                <Badge className={cn('print:hidden', {
+                                    'bg-green-100 text-green-800': estat.toLowerCase() === 'pagada',
+                                    'bg-red-100 text-red-800': estat.toLowerCase() === 'pendent'
+                                })}>{estat}</Badge>
+                            )}
+                        </div>
+                    </div>
+                </header>
+    
+                <section className="grid grid-cols-2 gap-8 py-8">
+                     <div>
+                        <h3 className="font-bold mb-2 text-muted-foreground">CLIENT:</h3>
+                        <p className="font-bold">{clientData?.empresa || clientData?.nom}</p>
+                        <p>{clientData?.fiscalid}</p>
+                        <p>{clientData?.adreca}</p>
+                        <p>{clientData?.telefon}</p>
+                    </div>
+                </section>
+    
+                <section>
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-muted">
+                                <TableHead className="w-1/2">Concepte</TableHead>
+                                <TableHead className="text-right">P. Unitari</TableHead>
+                                <TableHead className="text-right">Unitats</TableHead>
+                                <TableHead className="text-right">Dte. %</TableHead>
+                                <TableHead className="text-right">IVA %</TableHead>
+                                <TableHead className="text-right">Total Net</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {items.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{item.concepte}</TableCell>
+                                    <TableCell className="text-right">{item.preu_unitari.toFixed(2)} €</TableCell>
+                                    <TableCell className="text-right">{item.unitats}</TableCell>
+                                    <TableCell className="text-right">{item.dte.toFixed(2)} %</TableCell>
+                                    <TableCell className="text-right">{item.iva.toFixed(0)} %</TableCell>
+                                    <TableCell className="text-right font-medium">{item.net.toFixed(2)} €</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </section>
+    
+                <section className="flex justify-end mt-8">
+                    <div className="w-full md:w-1/2 lg:w-2/5 space-y-4">
+                        <div className="flex justify-between">
+                            <span>Base Imposable</span>
+                            <span>{baseImposable.toFixed(2)} €</span>
+                        </div>
+                        <Separator />
+                        {ivaBreakdown.map(iva => (
+                            <div key={iva.rate} className="flex justify-between">
+                                <span>Quota IVA ({iva.rate}%) s/ {iva.base.toFixed(2)}€</span>
+                                <span>{iva.quota.toFixed(2)} €</span>
+                            </div>
+                        ))}
+                        <Separator className="bg-primary h-0.5"/>
+                         <div className="flex justify-between font-bold text-lg">
+                            <span>TOTAL</span>
+                            <span>{total.toFixed(2)} €</span>
+                        </div>
+                    </div>
+                </section>
+                
+                <section className="border-t pt-8 mt-8">
+                    <h3 className="font-bold mb-2">Forma de Pagament:</h3>
+                    <p>{fpagament}</p>
+                </section>
+    
+                <footer className="text-xs text-muted-foreground mt-12 pt-4 border-t">
+                    <p>{LEGAL_NOTICE}</p>
+                </footer>
+            </Card>
           </div>
         );
       }
       
+      // --- List View ---
       return (
         <>
             {error && (
@@ -412,9 +426,10 @@ export default function DocumentsPage() {
       );
   }
 
+  // --- Main Component Return ---
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="mb-8">
+        <div className="mb-8 print:hidden">
             <h1 className="font-headline text-4xl md:text-5xl">Les teves factures</h1>
             <p className="text-lg text-muted-foreground">Consulta i gestiona les teves factures.</p>
         </div>
@@ -422,5 +437,3 @@ export default function DocumentsPage() {
     </div>
   )
 }
-
-    
