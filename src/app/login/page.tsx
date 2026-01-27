@@ -48,8 +48,10 @@ export default function LoginPage() {
           'user',
           JSON.stringify({ username: user.usuari, name: user.nom, company: user.empresa, role: user.rol })
         );
+        // Dispatch event to update header in the same tab
+        window.dispatchEvent(new Event('local-storage'));
         
-        if (user.rol === 'admin') {
+        if (user.rol === 'admin' || user.rol === 'administrador') {
           router.push('/admin/orders');
         } else {
           router.push('/account');
