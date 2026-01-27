@@ -415,10 +415,12 @@ export default function DocumentsPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="mb-8">
-            <h1 className="font-headline text-4xl md:text-5xl">Els teus documents</h1>
+            <h1 className="font-headline text-4xl md:text-5xl">Les teves factures</h1>
             <p className="text-lg text-muted-foreground">Consulta i gestiona les teves factures.</p>
         </div>
         {renderContent()}
     </div>
   )
 }
+
+    
