@@ -10,13 +10,17 @@ import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { useRouter } from 'next/navigation';
 
-const allNavLinks = [
+const baseNavLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/cakes', label: 'Nuestros Pasteles' },
   { href: '/blog', label: 'Blog' },
   { href: '/book', label: 'Reservar' },
   { href: '/tracking', label: 'Seguimiento' },
   { href: '/contact', label: 'Contacto' },
+];
+
+const authenticatedNavLinks = [
+    { href: '/documents', label: 'Documentos' },
 ];
 
 export function Header() {
@@ -52,7 +56,7 @@ export function Header() {
     if (isOpen) setIsOpen(false);
   };
 
-  const navLinks = allNavLinks.filter(link => !('requiresAuth' in link) || isLoggedIn);
+  const navLinks = isLoggedIn ? [...baseNavLinks, ...authenticatedNavLinks] : baseNavLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
