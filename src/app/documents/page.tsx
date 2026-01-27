@@ -91,14 +91,40 @@ export default function DocumentsPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<ProcessedDocument | null>(null);
 
   const parseDMY = (dateString: string): Date => {
-    if (!dateString || !/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString)) {
-      return new Date(dateString); // Fallback for YYYY-MM-DD or other parsable formats
+    if (!dateString) {
+        // Return a date in the far past for sorting purposes if date is invalid
+        return new Date(0);
     }
-    const parts = dateString.split('/');
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in JS Date
-    const year = parseInt(parts[2], 10);
-    return new Date(year, month, day);
+    
+    // Regex to match dd/mm/yyyy or dd/mm/yy
+    const dmyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+    const match = dateString.match(dmyRegex);
+
+    if (match) {
+      const day = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
+      let year = parseInt(match[3], 10);
+
+      // If year is 2 digits, assume 20xx
+      if (year < 100) {
+        year += 2000;
+      }
+      
+      const newDate = new Date(year, month, day);
+      // Check if date is valid
+      if (!isNaN(newDate.getTime())) {
+        return newDate;
+      }
+    }
+    
+    // Fallback for other parsable formats like YYYY-MM-DD
+    const fallbackDate = new Date(dateString);
+    if (!isNaN(fallbackDate.getTime())) {
+        return fallbackDate;
+    }
+
+    // If all parsing fails, return a past date
+    return new Date(0);
   };
 
   // Effect to get the logged-in user from localStorage
@@ -199,8 +225,8 @@ export default function DocumentsPage() {
     
     const useMockData = () => {
         const mockDocs: Document[] = [
-            { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
-            { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-002', estat: 'Pendent' },
+            { num_factura: 'FRA-001', data: '22/01/2026', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
+            { num_factura: 'FRA-002', data: '23/01/2026', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-002', estat: 'Pendent' },
         ];
         const mockUsers: UserData[] = [
             { usuari: 'valentina', rol: 'client', nom: 'Valentina Prieto', empresa: 'Sweet Queen', fiscalid: 'Y1234567Z', adreca: 'Carrer Alt de Sant Pere 17, Reus', telefon: '600111222' },
