@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, Printer } from 'lucide-react';
 import Image from 'next/image';
@@ -44,8 +44,8 @@ type AppUser = {
   role: string;
 }
 
-type Invoice = {
-  num_factura: string;
+type ProcessedDocument = {
+  id: string;
   data: string;
   usuari: string;
   fpagament: string;
@@ -79,20 +79,24 @@ const SHELL_COMPANY_INFO = {
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
 
-
 interface InvoicesTabProps {
     user: AppUser | null;
+    documentType: 'invoice' | 'albaran';
 }
 
-export default function InvoicesTab({ user }: InvoicesTabProps) {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+export default function InvoicesTab({ user, documentType }: InvoicesTabProps) {
+  const [documents, setDocuments] = useState<ProcessedDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<ProcessedDocument | null>(null);
+
+  const isInvoice = documentType === 'invoice';
+  const groupingKey = isInvoice ? 'num_factura' : 'albara';
+  const docName = isInvoice ? 'Factura' : 'Albarà';
+  const docNamePlural = isInvoice ? 'Factures' : 'Albarans';
 
   useEffect(() => {
-    const processInvoices = (docs: Document[], users: UserData[], authUser: AppUser | null) => {
-        const userDetails = users.find(u => u.usuari === authUser?.username);
+    const processDocuments = (docs: Document[], users: UserData[], authUser: AppUser | null) => {
         const userRole = (authUser?.role)?.toLowerCase();
         
         let visibleDocs: Document[];
@@ -104,8 +108,10 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
             visibleDocs = [];
         }
 
-        const groupedByNumFactura = visibleDocs.reduce((acc, doc) => {
-          const key = doc.num_factura;
+        const relevantDocs = visibleDocs.filter(doc => doc[groupingKey]);
+
+        const groupedByKey = relevantDocs.reduce((acc, doc) => {
+          const key = doc[groupingKey]!;
           if (!acc[key]) {
             acc[key] = [];
           }
@@ -113,7 +119,7 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
           return acc;
         }, {} as Record<string, Document[]>);
 
-        const processedInvoices: Invoice[] = Object.values(groupedByNumFactura).map(docs => {
+        const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docs => {
           const firstDoc = docs[0];
           const clientData = users.find(u => u.usuari === firstDoc.usuari);
 
@@ -147,7 +153,7 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
           const total = baseImposable + totalIva;
 
           return {
-            num_factura: firstDoc.num_factura,
+            id: firstDoc[groupingKey]!,
             data: firstDoc.data,
             usuari: firstDoc.usuari,
             fpagament: firstDoc.fpagament,
@@ -161,7 +167,7 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
           };
         }).sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
 
-        setInvoices(processedInvoices);
+        setDocuments(processedDocs);
     }
     
     const fetchAndProcessData = async () => {
@@ -185,27 +191,27 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
 
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
-        processInvoices(allDocs, allUsers, user);
+        processDocuments(allDocs, allUsers, user);
 
       } catch (e: any) {
         setError("Error de connexió. Mostrant dades d'exemple.");
         const mockDocs: Document[] = [
-          { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'albara1', estat: 'Pagada' },
-          { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'albara2', estat: 'Pendent' },
+          { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
+          { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-002', estat: 'Pendent' },
         ];
         const mockUsers: UserData[] = [
             { usuari: 'angel', rol: 'client', nom: 'angel', empresa: 'Angel Inc.', fiscalid: 'A12345678', adreca: 'Carrer Fals 123', telefon: '600111222' },
             { usuari: 'nicol', rol: 'client', nom: 'nicol', empresa: 'Nicol Co.', fiscalid: 'B87654321', adreca: 'Avinguda Veritat 321', telefon: '600333444' },
             { usuari: 'admin', rol: 'admin', nom: 'admin', empresa: 'Sweet Queen' },
         ];
-        processInvoices(mockDocs, mockUsers, user);
+        processDocuments(mockDocs, mockUsers, user);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchAndProcessData();
-  }, [user]);
+  }, [user, groupingKey]);
   
   const handlePrint = () => {
     window.print();
@@ -221,13 +227,13 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
     );
   }
 
-  if (selectedInvoice) {
-    const { num_factura, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat } = selectedInvoice;
+  if (selectedDocument) {
+    const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat } = selectedDocument;
     return (
       <div className="bg-background">
         <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center mb-8 print:hidden">
-                <Button variant="ghost" onClick={() => setSelectedInvoice(null)}>
+                <Button variant="ghost" onClick={() => setSelectedDocument(null)}>
                     <ArrowLeft className="mr-2"/>
                     Tornar al llistat
                 </Button>
@@ -247,9 +253,9 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
                          <p className="text-sm">{SHELL_COMPANY_INFO.phone} | {SHELL_COMPANY_INFO.email}</p>
                     </div>
                     <div className="text-right">
-                        <h1 className="font-headline text-4xl text-primary mb-2">Factura</h1>
+                        <h1 className="font-headline text-4xl text-primary mb-2">{docName}</h1>
                         <div className="space-y-1">
-                            <p><span className="font-bold">Nº Factura:</span> {num_factura}</p>
+                            <p><span className="font-bold">Nº {docName}:</span> {id}</p>
                             <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
                                 <Badge className={cn('print:hidden', {
@@ -263,7 +269,7 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
 
                 <section className="grid grid-cols-2 gap-8 py-8">
                      <div>
-                        <h3 className="font-bold mb-2 text-muted-foreground">FACTURAT A:</h3>
+                        <h3 className="font-bold mb-2 text-muted-foreground">CLIENT:</h3>
                         <p className="font-bold">{clientData?.empresa || clientData?.nom}</p>
                         <p>{clientData?.fiscalid}</p>
                         <p>{clientData?.adreca}</p>
@@ -340,29 +346,29 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
                 <AlertDescription>{error}</AlertDescription>
             </Alert>
         )}
-        {invoices.length > 0 ? (
+        {documents.length > 0 ? (
             <div className="space-y-4">
-                {invoices.map((invoice, index) => (
+                {documents.map((doc, index) => (
                     <Card 
-                        key={`${invoice.num_factura}-${index}`}
+                        key={`${doc.id}-${index}`}
                         className="hover:shadow-md transition-shadow cursor-pointer"
-                        onClick={() => setSelectedInvoice(invoice)}
+                        onClick={() => setSelectedDocument(doc)}
                     >
                         <CardContent className="flex items-center justify-between p-6">
                             <div className="flex items-center gap-4">
-                                <Badge variant="secondary">{invoice.num_factura}</Badge>
+                                <Badge variant="secondary">{doc.id}</Badge>
                                 <div>
-                                    <p className="font-medium">{invoice.usuari}</p>
-                                    <p className="text-sm text-muted-foreground">{new Date(invoice.data).toLocaleDateString('ca-ES')}</p>
+                                    <p className="font-medium">{doc.usuari}</p>
+                                    <p className="text-sm text-muted-foreground">{new Date(doc.data).toLocaleDateString('ca-ES')}</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                               <p className="font-bold text-lg">{invoice.total.toFixed(2)} €</p>
-                               {invoice.estat && (
+                               <p className="font-bold text-lg">{doc.total.toFixed(2)} €</p>
+                               {doc.estat && (
                                 <Badge className={cn('mt-1', {
-                                    'bg-green-100 text-green-800': invoice.estat.toLowerCase() === 'pagada',
-                                    'bg-red-100 text-red-800': invoice.estat.toLowerCase() === 'pendent'
-                                })}>{invoice.estat}</Badge>
+                                    'bg-green-100 text-green-800': doc.estat.toLowerCase() === 'pagada',
+                                    'bg-red-100 text-red-800': doc.estat.toLowerCase() === 'pendent'
+                                })}>{doc.estat}</Badge>
                                )}
                             </div>
                         </CardContent>
@@ -372,7 +378,7 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
         ) : (
             <Card>
                 <CardContent className="p-10 text-center">
-                    <p>No s'han trobat factures.</p>
+                    <p>No s'han trobat {docNamePlural.toLowerCase()}.</p>
                 </CardContent>
             </Card>
         )}
