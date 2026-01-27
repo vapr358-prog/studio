@@ -4,14 +4,13 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 
 type Document = {
   num_factura: string;
@@ -366,7 +365,7 @@ export default function DocumentsPage() {
         <>
             {error && (
                  <Alert variant="destructive" className="mb-4">
-                    <ExclamationTriangleIcon className="h-4 w-4" />
+                    <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>Error de connexió</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
