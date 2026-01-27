@@ -72,7 +72,6 @@ type ProcessedDocument = {
 
 interface InvoicesTabProps {
   user: AppUser | null;
-  documentType: 'invoice' | 'albaran';
 }
 
 const SHELL_COMPANY_INFO = {
@@ -85,16 +84,15 @@ const SHELL_COMPANY_INFO = {
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
 
-export function InvoicesTab({ user, documentType }: InvoicesTabProps) {
+export function InvoicesTab({ user }: InvoicesTabProps) {
   const [documents, setDocuments] = useState<ProcessedDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDocument, setSelectedDocument] = useState<ProcessedDocument | null>(null);
 
-  const isInvoice = documentType === 'invoice';
-  const groupingKey = isInvoice ? 'num_factura' : 'albara';
-  const docName = isInvoice ? 'Factura' : 'Albarà';
-  const docNamePlural = isInvoice ? 'Factures' : 'Albarans';
+  const groupingKey = 'num_factura';
+  const docName = 'Factura';
+  const docNamePlural = 'Factures';
 
   useEffect(() => {
     const processDocuments = (docs: Document[], users: UserData[], authUser: AppUser | null) => {
@@ -215,7 +213,7 @@ export function InvoicesTab({ user, documentType }: InvoicesTabProps) {
     };
 
     fetchAndProcessData();
-  }, [user, groupingKey]);
+  }, [user]);
   
   const handlePrint = () => {
     window.print();
@@ -232,7 +230,7 @@ export function InvoicesTab({ user, documentType }: InvoicesTabProps) {
   }
 
   if (selectedDocument) {
-    const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, num_factura, albara } = selectedDocument;
+    const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, albara } = selectedDocument;
     return (
       <div className="bg-background">
         <div className="max-w-4xl mx-auto">
@@ -260,8 +258,7 @@ export function InvoicesTab({ user, documentType }: InvoicesTabProps) {
                         <h1 className="font-headline text-4xl text-primary mb-2">{docName}</h1>
                         <div className="space-y-1">
                             <p><span className="font-bold">Nº {docName}:</span> {id}</p>
-                            {isInvoice && albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
-                            {!isInvoice && num_factura && <p><span className="font-bold">Factura associada:</span> {num_factura}</p>}
+                            {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
                             <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
                                 <Badge className={cn('print:hidden', {

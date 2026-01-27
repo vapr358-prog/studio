@@ -41,11 +41,10 @@ export default function AccountPage() {
       </div>
 
       <Tabs defaultValue="history" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+        <TabsList className="grid w-full grid-cols-3 max-w-lg">
           <TabsTrigger value="history">Historial de Pedidos</TabsTrigger>
           <TabsTrigger value="recommendations">Para Ti</TabsTrigger>
           <TabsTrigger value="invoices">Facturas</TabsTrigger>
-          <TabsTrigger value="albaranes">Albarans</TabsTrigger>
         </TabsList>
         <TabsContent value="history" className="mt-6">
           <OrderHistory orders={userOrders} />
@@ -54,10 +53,7 @@ export default function AccountPage() {
           <CakeRecommendationForm flavors={allFlavors} />
         </TabsContent>
         <TabsContent value="invoices" className="mt-6">
-          <InvoicesTab user={user} documentType="albaran" />
-        </TabsContent>
-        <TabsContent value="albaranes" className="mt-6">
-          <InvoicesTab user={user} documentType="invoice" />
+          <InvoicesTab user={user} />
         </TabsContent>
       </Tabs>
     </div>
