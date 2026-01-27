@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 // Types based on user description
 type Document = {
@@ -23,6 +24,7 @@ type Document = {
   iva: string;
   dte: string;
   albara?: string;
+  estat?: string;
 };
 
 type UserData = {
@@ -48,6 +50,7 @@ type Invoice = {
   usuari: string;
   fpagament: string;
   albara?: string;
+  estat?: string;
   clientData?: UserData;
   items: {
     concepte: string;
@@ -149,6 +152,7 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
             usuari: firstDoc.usuari,
             fpagament: firstDoc.fpagament,
             albara: firstDoc.albara,
+            estat: firstDoc.estat,
             clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
             items,
             baseImposable,
@@ -186,8 +190,8 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
       } catch (e: any) {
         setError("Error de connexió. Mostrant dades d'exemple.");
         const mockDocs: Document[] = [
-          { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'albara1' },
-          { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'albara2' },
+          { num_factura: 'FRA-001', data: '2026-01-22', usuari: 'angel', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'albara1', estat: 'Pagada' },
+          { num_factura: 'FRA-002', data: '2026-01-23', usuari: 'nicol', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'albara2', estat: 'Pendent' },
         ];
         const mockUsers: UserData[] = [
             { usuari: 'angel', rol: 'client', nom: 'angel', empresa: 'Angel Inc.', fiscalid: 'A12345678', adreca: 'Carrer Fals 123', telefon: '600111222' },
@@ -218,7 +222,7 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
   }
 
   if (selectedInvoice) {
-    const { num_factura, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament } = selectedInvoice;
+    const { num_factura, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat } = selectedInvoice;
     return (
       <div className="bg-background">
         <div className="max-w-4xl mx-auto">
@@ -244,8 +248,16 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
                     </div>
                     <div className="text-right">
                         <h1 className="font-headline text-4xl text-primary mb-2">Factura</h1>
-                        <p><span className="font-bold">Nº Factura:</span> {num_factura}</p>
-                        <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
+                        <div className="space-y-1">
+                            <p><span className="font-bold">Nº Factura:</span> {num_factura}</p>
+                            <p><span className="font-bold">Data:</span> {new Date(data).toLocaleDateString('ca-ES')}</p>
+                            {estat && (
+                                <Badge className={cn('print:hidden', {
+                                    'bg-green-100 text-green-800': estat.toLowerCase() === 'pagada',
+                                    'bg-red-100 text-red-800': estat.toLowerCase() === 'pendent'
+                                })}>{estat}</Badge>
+                            )}
+                        </div>
                     </div>
                 </header>
 
@@ -346,7 +358,12 @@ export default function InvoicesTab({ user }: InvoicesTabProps) {
                             </div>
                             <div className="text-right">
                                <p className="font-bold text-lg">{invoice.total.toFixed(2)} €</p>
-                               <p className="text-sm text-muted-foreground">{invoice.items.length} concepte(s)</p>
+                               {invoice.estat && (
+                                <Badge className={cn('mt-1', {
+                                    'bg-green-100 text-green-800': invoice.estat.toLowerCase() === 'pagada',
+                                    'bg-red-100 text-red-800': invoice.estat.toLowerCase() === 'pendent'
+                                })}>{invoice.estat}</Badge>
+                               )}
                             </div>
                         </CardContent>
                     </Card>
