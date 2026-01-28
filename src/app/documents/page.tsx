@@ -43,7 +43,7 @@ type Invoice = {
     total: number;
     vatRate: number;
   }[];
-  clientData: UserData;
+  clientData: Partial<UserData>;
   subtotal: number;
   vatTotals: { rate: number; base: number; amount: number }[];
   grandTotal: number;
@@ -118,10 +118,10 @@ export default function DocumentsPage() {
           visibleDocuments = documentsData.filter(doc => (doc.usuari || '').toLowerCase().trim() === userIdentifier);
         }
 
-        // Group by invoice number
+        // Group by invoice number, filtering out lines without an invoice number
         const groupedInvoices: Record<string, DocumentLine[]> = visibleDocuments.reduce((acc, doc) => {
           const key = doc.num_factura;
-          if (key) {
+          if (key && String(key).trim() !== '') {
             if (!acc[key]) {
               acc[key] = [];
             }
@@ -138,7 +138,8 @@ export default function DocumentsPage() {
 
         const processedInvoices: Invoice[] = Object.values(groupedInvoices).map(lines => {
           const firstLine = lines[0];
-          const clientData = usersData.find(u => (u.usuari || '').toLowerCase().trim() === (firstLine.usuari || '').toLowerCase().trim()) || {} as UserData;
+          // Provide a fallback empty object for clientData to prevent crashes
+          const clientData = usersData.find(u => (u.usuari || '').toLowerCase().trim() === (firstLine.usuari || '').toLowerCase().trim()) || { usuari: firstLine.usuari };
           
           let subtotal = 0;
           const vatBreakdown: Record<number, { base: number; amount: number }> = {};
@@ -156,19 +157,21 @@ export default function DocumentsPage() {
 
             subtotal += lineNetTotal;
 
-            if (!vatBreakdown[vatRate]) {
-              vatBreakdown[vatRate] = { base: 0, amount: 0 };
+            if (vatRate > 0) {
+              if (!vatBreakdown[vatRate]) {
+                vatBreakdown[vatRate] = { base: 0, amount: 0 };
+              }
+              vatBreakdown[vatRate].base += lineNetTotal;
+              vatBreakdown[vatRate].amount += vatAmount;
             }
-            vatBreakdown[vatRate].base += lineNetTotal;
-            vatBreakdown[vatRate].amount += vatAmount;
             
             return {
-              concept: line.concepte,
+              concept: line.concepte || 'Concepto no disponible',
               unitPrice,
               quantity,
-              discount: discountPercentage,
               total: lineNetTotal,
               vatRate,
+              discount: discountPercentage,
             };
           });
 
@@ -182,16 +185,16 @@ export default function DocumentsPage() {
 
           return {
             id: firstLine.num_factura,
-            date: firstLine.data,
-            clientName: clientData.empresa || clientData.usuari,
-            paymentMethod: firstLine.fpagament,
+            date: firstLine.data || 'Fecha no disponible',
+            clientName: clientData.empresa || clientData.usuari || 'Cliente no identificado',
+            paymentMethod: firstLine.fpagament || 'No especificado',
             lines: invoiceLines,
             clientData,
             subtotal,
             vatTotals,
             grandTotal,
           };
-        }).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+        }).sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
 
         setInvoices(processedInvoices);
 
@@ -277,15 +280,15 @@ function InvoiceList({ invoices, onSelectInvoice }: { invoices: Invoice[], onSel
               <CardHeader>
                 <div className="flex justify-between items-start">
                     <div>
-                        <CardTitle className="font-headline text-2xl">{invoice.id}</CardTitle>
-                        <CardDescription>{invoice.date}</CardDescription>
+                        <CardTitle className="font-headline text-2xl">{invoice.id || 'N/A'}</CardTitle>
+                        <CardDescription>{invoice.date || 'Sin fecha'}</CardDescription>
                     </div>
                     <FileText className="h-6 w-6 text-primary"/>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
                 <p className="text-sm font-medium text-muted-foreground">Cliente</p>
-                <p className="font-semibold">{invoice.clientName}</p>
+                <p className="font-semibold">{invoice.clientName || 'Sin cliente'}</p>
               </CardContent>
               <div className="p-6 pt-0 font-bold text-2xl text-right text-primary">
                 {formatCurrency(invoice.grandTotal)}
@@ -335,19 +338,19 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice, onBack: () => vo
                     </div>
                     <div className="text-right">
                         <h1 className="text-4xl font-bold uppercase text-gray-700">Factura</h1>
-                        <p className="text-gray-500">Nº: <span className="font-semibold text-gray-800">{invoice.id}</span></p>
-                        <p className="text-gray-500">Fecha: <span className="font-semibold text-gray-800">{invoice.date}</span></p>
+                        <p className="text-gray-500">Nº: <span className="font-semibold text-gray-800">{invoice.id || '--'}</span></p>
+                        <p className="text-gray-500">Fecha: <span className="font-semibold text-gray-800">{invoice.date || '--'}</span></p>
                     </div>
                 </header>
 
                 <section className="grid grid-cols-2 gap-8 my-8">
                     <div>
                         <h3 className="text-sm uppercase font-bold text-gray-500 mb-2">Facturar a:</h3>
-                        <p className="font-bold text-lg">{invoice.clientData.empresa || invoice.clientData.usuari}</p>
-                        {invoice.clientData.adreca && <p>{invoice.clientData.adreca}</p>}
-                        {invoice.clientData.fiscalid && <p>NIF/CIF: {invoice.clientData.fiscalid}</p>}
-                        {invoice.clientData.telefon && <p>Tel: {invoice.clientData.telefon}</p>}
-                        <p>{invoice.clientData.usuari}</p>
+                        <p className="font-bold text-lg">{invoice.clientData?.empresa || invoice.clientData?.usuari || 'Cliente no identificado'}</p>
+                        {invoice.clientData?.adreca && <p>{invoice.clientData.adreca}</p>}
+                        {invoice.clientData?.fiscalid && <p>NIF/CIF: {invoice.clientData.fiscalid}</p>}
+                        {invoice.clientData?.telefon && <p>Tel: {invoice.clientData.telefon}</p>}
+                        <p>{invoice.clientData?.usuari || ''}</p>
                     </div>
                 </section>
 
@@ -365,7 +368,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice, onBack: () => vo
                         <TableBody>
                             {invoice.lines.map((line, index) => (
                                 <TableRow key={index} className="border-b">
-                                    <TableCell className="font-medium">{line.concept}</TableCell>
+                                    <TableCell className="font-medium">{line.concept || '--'}</TableCell>
                                     <TableCell className="text-right">{formatCurrency(line.unitPrice)}</TableCell>
                                     <TableCell className="text-right">{line.quantity}</TableCell>
                                     <TableCell className="text-right">{line.discount}%</TableCell>
@@ -396,7 +399,7 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice, onBack: () => vo
                 </section>
 
                 <section className="mt-12">
-                     {invoice.paymentMethod && (
+                     {invoice.paymentMethod && invoice.paymentMethod !== 'No especificado' && (
                         <div className="mb-4">
                             <h4 className="font-bold">Forma de pago:</h4>
                             <p>{invoice.paymentMethod}</p>
@@ -411,3 +414,5 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice, onBack: () => vo
         </div>
     );
 }
+
+    
