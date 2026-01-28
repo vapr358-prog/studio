@@ -152,9 +152,13 @@ export default function DocumentsPage() {
     const processDocuments = (docs: Document[], usersData: UserData[]) => {
         const idBuscado = (user.email || user.username || user.name || "").trim().toLowerCase();
 
-        const currentUserData = usersData.find(u => 
-            (u.usuari || "").trim().toLowerCase() === idBuscado
-        );
+        const currentUserData = usersData.find(u => {
+            const excelUserData = (u.usuari || "").trim().toLowerCase();
+            if (!excelUserData || !idBuscado) return false;
+            // Flexible matching for user role lookup
+            return idBuscado.startsWith(excelUserData) || excelUserData.startsWith(idBuscado);
+        });
+
         const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
         
         let visibleDocs: Document[];
@@ -164,7 +168,10 @@ export default function DocumentsPage() {
         } else {
             visibleDocs = docs.filter(doc => {
                 const excelDocUser = (doc.usuari || "").trim().toLowerCase();
-                return excelDocUser === idBuscado;
+                if (!excelDocUser || !idBuscado) return false;
+                // Flexible matching: Handles cases where one email is a truncated version of the other.
+                // e.g. 'angel@gmail.com' (login) should match 'angel@gmail.co' (in sheet).
+                return idBuscado.startsWith(excelDocUser) || excelDocUser.startsWith(idBuscado);
             });
         }
 
@@ -189,7 +196,9 @@ export default function DocumentsPage() {
           const clientIdentifierInDoc = (firstDoc.usuari || "").trim().toLowerCase();
           const clientData = usersData.find(u => {
               const excelUser = (u.usuari || "").trim().toLowerCase();
-              return excelUser === clientIdentifierInDoc;
+              if (!excelUser || !clientIdentifierInDoc) return false;
+              // Flexible matching for client data lookup
+              return excelUser.startsWith(clientIdentifierInDoc) || clientIdentifierInDoc.startsWith(excelUser);
           });
 
           let baseImposable = 0;
@@ -470,3 +479,5 @@ export default function DocumentsPage() {
     </div>
   )
 }
+
+    
