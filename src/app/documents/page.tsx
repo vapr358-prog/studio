@@ -138,18 +138,31 @@ export default function DocumentsPage() {
     if (!user) return;
 
     const processDocuments = (docs: Document[], usersData: UserData[]) => {
-        const currentUserData = usersData.find(u => u.usuari?.trim().toLowerCase() === user.username.trim().toLowerCase());
+        // 1. Detectamos qué tiene el usuario (puede ser email o username)
+        const currentIdentifier = (user.username || user.name || "").trim().toLowerCase();
+        
+        // 2. Buscamos al usuario en la tabla de 'usuaris'
+        const currentUserData = usersData.find(u => {
+            const excelUser = u.usuari?.trim().toLowerCase();
+            return excelUser === currentIdentifier;
+        });
+
         const userRole = currentUserData?.rol?.trim().toLowerCase();
         
         let visibleDocs: Document[];
+        // 3. Si es admin, ve todo
         if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
             visibleDocs = docs;
         } else {
-            visibleDocs = docs.filter(doc => doc.usuari?.trim().toLowerCase() === user.username.trim().toLowerCase());
+            // 4. FILTRADO FLEXIBLE: Compara si el identificador está contenido o es igual
+            visibleDocs = docs.filter(doc => {
+                const excelDocUser = doc.usuari?.trim().toLowerCase();
+                return excelDocUser === currentIdentifier;
+            });
         }
 
         if (visibleDocs.length === 0) {
-           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${user.username}'. Dades rebudes de SheetDB:`, {docs, usersData});
+           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${currentIdentifier}'. Dades rebudes de SheetDB:`, {docs, usersData});
         }
 
         const groupedByKey = visibleDocs.reduce((acc, doc) => {
