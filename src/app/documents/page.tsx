@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Printer, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Printer, AlertTriangle, Truck, Package, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,6 @@ type Document = {
   iva: string;
   dte: string;
   albara?: string;
-  estat?: string;
 };
 
 type UserData = {
@@ -36,6 +35,12 @@ type UserData = {
   adreca?: string;
   telefon?: string;
   nom?: string;
+};
+
+type TrackingData = {
+  num_factura: string;
+  estat: string;
+  data: string;
 };
 
 type AppUser = {
@@ -52,7 +57,8 @@ type ProcessedDocument = {
   usuari: string;
   fpagament: string;
   albara?: string;
-  estat?: string;
+  estat?: string; // Tracking status
+  estat_pagament?: string; // Payment status from documents sheet
   clientData?: UserData;
   items: {
     concepte: string;
@@ -74,7 +80,7 @@ type ProcessedDocument = {
 // --- Constants & Configuration ---
 const API_URL_DOCUMENTS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents';
 const API_URL_USUARIS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris';
-const API_URL_PRODUCTES = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=productes'; // Although not used in this logic, it's here for context
+const API_URL_SEGUIMIENTO = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=seguimiento';
 
 const SHELL_COMPANY_INFO = {
     name: 'Sweet Queen',
@@ -86,31 +92,32 @@ const SHELL_COMPANY_INFO = {
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
 
-// Helper to parse numbers that may come with a comma
 const parseFloatWithComma = (value: string): number => {
     if (typeof value !== 'string') return Number(value) || 0;
     return parseFloat(value.replace(',', '.')) || 0;
 }
 
-// Helper to parse dates in DD/MM/YYYY or DD/MM/YY format
 const parseDMY = (dateString: string): Date => {
     if (!dateString) return new Date(0);
-    
     const dmyRegex = /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/;
     const match = dateString.match(dmyRegex);
-
     if (match) {
         const day = parseInt(match[1], 10);
         const month = parseInt(match[2], 10) - 1;
         let year = parseInt(match[3], 10);
         if (year < 100) year += 2000;
-        
         const newDate = new Date(Date.UTC(year, month, day));
         if (!isNaN(newDate.getTime())) return newDate;
     }
-    
     const fallbackDate = new Date(dateString);
     return !isNaN(fallbackDate.getTime()) ? fallbackDate : new Date(0);
+};
+
+const statusIcons: { [key: string]: React.ReactNode } = {
+  'en preparacion': <Package className="h-4 w-4 mr-2" />,
+  'en proceso': <Package className="h-4 w-4 mr-2" />,
+  'en transito': <Truck className="h-4 w-4 mr-2" />,
+  'entregado': <CheckCircle className="h-4 w-4 mr-2" />,
 };
 
 
@@ -134,7 +141,7 @@ export default function DocumentsPage() {
         setIsLoading(false);
       }
     } else {
-      setIsLoading(false);
+      setIsLoading(false); // No user, stop loading.
     }
   }, []);
 
@@ -146,7 +153,7 @@ export default function DocumentsPage() {
         return;
     };
 
-    const processDocuments = (docs: Document[], usersData: UserData[]) => {
+    const processDocuments = (docs: Document[], usersData: UserData[], trackingData: TrackingData[]) => {
       const idBuscado = (user.email || user.username || user.name || "").trim().toLowerCase();
       
       if (!idBuscado) {
@@ -164,13 +171,7 @@ export default function DocumentsPage() {
       } else {
           visibleDocs = docs.filter(doc => (doc.usuari || "").trim().toLowerCase() === idBuscado);
       }
-
-      if (visibleDocs.length === 0) {
-         setError(`No se han encontrado facturas. Buscando correspondencia para el ID: ${idBuscado}`);
-         setInvoices([]);
-         return;
-      }
-
+      
       const groupedByKey = visibleDocs.reduce((acc, doc) => {
         const key = (doc.num_factura || "").trim();
         if (!key) return acc;
@@ -179,11 +180,22 @@ export default function DocumentsPage() {
         return acc;
       }, {} as Record<string, Document[]>);
 
+      if (Object.keys(groupedByKey).length === 0) {
+         setError(`No se han encontrado facturas. Buscando correspondencia para el ID: ${idBuscado}`);
+         console.log(`DEBUG: No invoices found for ID '${idBuscado}'. Raw docs received:`, docs);
+         setInvoices([]);
+         return;
+      }
+
       const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docsInGroup => {
         const firstDoc = docsInGroup[0];
         
         const clientIdentifierInDoc = (firstDoc.usuari || "").trim().toLowerCase();
         const clientData = usersData.find(u => (u.usuari || "").trim().toLowerCase() === clientIdentifierInDoc);
+        
+        const trackingStatus = trackingData
+            .filter(t => (t.num_factura || "").trim() === firstDoc.num_factura.trim())
+            .sort((a,b) => parseDMY(b.data).getTime() - parseDMY(a.data).getTime())[0]?.estat;
 
         let baseImposable = 0;
         const ivaMap: Record<string, { base: number; quota: number }> = {};
@@ -218,7 +230,8 @@ export default function DocumentsPage() {
           usuari: firstDoc.usuari,
           fpagament: firstDoc.fpagament,
           albara: firstDoc.albara,
-          estat: firstDoc.estat,
+          estat: trackingStatus, // Tracking status
+          estat_pagament: (docsInGroup.find(d => d.hasOwnProperty('estat')) as any)?.estat, // Payment status
           clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
           items,
           baseImposable,
@@ -235,26 +248,28 @@ export default function DocumentsPage() {
       setError(null);
       
       try {
-        const [docsRes, usersRes] = await Promise.all([
+        const [docsRes, usersRes, trackingRes] = await Promise.all([
           fetch(API_URL_DOCUMENTS),
           fetch(API_URL_USUARIS),
+          fetch(API_URL_SEGUIMIENTO),
         ]);
 
-        if (!docsRes.ok || !usersRes.ok) {
-            throw new Error(`Error en la connexió amb la base de dades. Documents: ${docsRes.statusText}, Usuaris: ${usersRes.statusText}`);
+        if (!docsRes.ok || !usersRes.ok || !trackingRes.ok) {
+            throw new Error(`Error en la connexió amb la base de dades. Documents: ${docsRes.statusText}, Usuaris: ${usersRes.statusText}, Seguiment: ${trackingRes.statusText}`);
         }
 
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
+        const allTracking: TrackingData[] = await trackingRes.json();
         
-        if (!Array.isArray(allDocs) || allDocs.length === 0) {
+        if (!Array.isArray(allDocs)) {
             throw new Error("No s'han trobat dades a la fulla 'documents' o el format és incorrecte.");
         }
-        if (!Array.isArray(allUsers) || allUsers.length === 0) {
+        if (!Array.isArray(allUsers)) {
             throw new Error("No s'han trobat dades a la fulla 'usuaris' o el format és incorrecte.");
         }
         
-        processDocuments(allDocs, allUsers);
+        processDocuments(allDocs, allUsers, allTracking);
 
       } catch (e: any) {
         console.error("Error fetching data:", e);
@@ -281,7 +296,7 @@ export default function DocumentsPage() {
     }
 
     if (selectedInvoice) {
-        const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, albara } = selectedInvoice;
+        const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat_pagament, albara } = selectedInvoice;
         return (
           <div className="bg-background">
             <div className="flex justify-between items-center mb-8 print:hidden">
@@ -291,7 +306,7 @@ export default function DocumentsPage() {
                 </Button>
                 <Button onClick={handlePrint}>
                     <Printer className="mr-2"/>
-                    Imprimir PDF
+                    Imprimir
                 </Button>
             </div>
     
@@ -310,11 +325,11 @@ export default function DocumentsPage() {
                             <p><span className="font-bold">Nº Factura:</span> {id}</p>
                             {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
                             <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
-                            {estat && (
+                            {estat_pagament && (
                                 <Badge className={cn('print:hidden', {
-                                    'bg-green-100 text-green-800': estat.toLowerCase().includes('pagat'),
-                                    'bg-orange-100 text-orange-800': estat.toLowerCase().includes('pendent'),
-                                })}>{estat}</Badge>
+                                    'bg-green-100 text-green-800': estat_pagament.toLowerCase().includes('pagat'),
+                                    'bg-orange-100 text-orange-800': estat_pagament.toLowerCase().includes('pendent'),
+                                })}>{estat_pagament}</Badge>
                             )}
                         </div>
                     </div>
@@ -327,6 +342,7 @@ export default function DocumentsPage() {
                         {clientData?.fiscalid && <p>NIF/CIF: {clientData.fiscalid}</p>}
                         {clientData?.adreca && <p>{clientData.adreca}</p>}
                         {clientData?.telefon && <p>{clientData.telefon}</p>}
+                        <p>{clientData?.usuari}</p>
                     </div>
                 </section>
     
@@ -407,22 +423,31 @@ export default function DocumentsPage() {
                             <TableHead>Nº Factura</TableHead>
                             <TableHead>Data</TableHead>
                             <TableHead>Client</TableHead>
-                            <TableHead>Estat</TableHead>
+                            <TableHead>Estat Pagament</TableHead>
+                            <TableHead>Estat Enviament</TableHead>
                             <TableHead className="text-right">Total</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {invoices.map((invoice) => (
                             <TableRow key={invoice.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedInvoice(invoice)}>
-                              <TableCell className="font-medium">{invoice.id}</TableCell>
+                              <TableCell className="font-medium text-primary">{invoice.id}</TableCell>
                               <TableCell>{parseDMY(invoice.data).toLocaleDateString('ca-ES')}</TableCell>
                               <TableCell>{invoice.clientData?.nom || invoice.usuari}</TableCell>
                               <TableCell>
-                                {invoice.estat && (
+                                {invoice.estat_pagament && (
                                   <Badge className={cn({
-                                    'bg-green-100 text-green-800 border-green-200': invoice.estat.toLowerCase().includes('pagat'),
-                                    'bg-orange-100 text-orange-800 border-orange-200': invoice.estat.toLowerCase().includes('pendent'),
-                                  })} variant="outline">{invoice.estat}</Badge>
+                                    'bg-green-100 text-green-800 border-green-200': invoice.estat_pagament.toLowerCase().includes('pagat'),
+                                    'bg-orange-100 text-orange-800 border-orange-200': invoice.estat_pagament.toLowerCase().includes('pendent'),
+                                  })} variant="outline">{invoice.estat_pagament}</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {invoice.estat && (
+                                   <Badge variant="secondary" className="capitalize flex items-center w-fit">
+                                      {statusIcons[invoice.estat.toLowerCase()]}
+                                      {invoice.estat}
+                                   </Badge>
                                 )}
                               </TableCell>
                               <TableCell className="text-right font-bold">{invoice.total.toFixed(2)} €</TableCell>
@@ -449,7 +474,7 @@ export default function DocumentsPage() {
     <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="mb-8 print:hidden">
             <h1 className="font-headline text-4xl md:text-5xl">Les teves factures</h1>
-            <p className="text-lg text-muted-foreground">Consulta i gestiona les teves factures.</p>
+            <p className="text-lg text-muted-foreground">Consulta i gestiona les teves factures i enviaments.</p>
         </div>
         {renderContent()}
     </div>
