@@ -325,7 +325,7 @@ export default function DocumentsPage() {
                             {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
                             <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
-                                <Badge className={cn('print-hidden', {
+                                <Badge className={cn('print:hidden', {
                                     'bg-green-100 text-green-800': estat.toLowerCase().includes('pagat'),
                                     'bg-orange-100 text-orange-800': estat.toLowerCase().includes('pendent'),
                                 })}>{estat}</Badge>
