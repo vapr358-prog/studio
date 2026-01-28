@@ -91,11 +91,12 @@ body {
   .print-hidden {
     display: none !important;
   }
-  body * { 
-    visibility: hidden; 
+  body * {
+    visibility: hidden;
   }
-  #zona-factura, #zona-factura * { 
-    visibility: visible; 
+  #zona-factura,
+  #zona-factura * {
+    visibility: visible;
   }
   #zona-factura {
     position: absolute;
