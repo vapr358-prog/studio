@@ -25,6 +25,7 @@ type Document = {
   iva: string;
   dte: string;
   albara?: string;
+  estat?: string; // Payment status is also in this sheet with a column 'estat'
 };
 
 type UserData = {
@@ -231,7 +232,7 @@ export default function DocumentsPage() {
           fpagament: firstDoc.fpagament,
           albara: firstDoc.albara,
           estat: trackingStatus, // Tracking status
-          estat_pagament: (docsInGroup.find(d => d.hasOwnProperty('estat')) as any)?.estat, // Payment status
+          estat_pagament: firstDoc.estat, // Payment status
           clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
           items,
           baseImposable,
