@@ -1,20 +1,14 @@
 'use client';
-
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Printer, AlertTriangle, Truck, Package, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, Printer, ArrowLeft, AlertCircle } from 'lucide-react';
 
-// --- Types ---
-type Document = {
-  id: string;
+type DocumentLine = {
   num_factura: string;
   data: string;
   usuari: string;
@@ -24,463 +18,361 @@ type Document = {
   unitats: string;
   iva: string;
   dte: string;
-  albara?: string;
-  estat?: string; // Payment status is also in this sheet with a column 'estat'
+  estat: 'Pagat' | 'Pendent';
 };
 
-type UserData = {
+type User = {
   usuari: string;
-  rol: string;
-  empresa?: string;
-  fiscalid?: string;
-  adreca?: string;
-  telefon?: string;
-  nom?: string;
+  rol: 'admin' | 'administrador' | 'treballador' | 'client';
+  empresa: string;
+  fiscalid: string;
+  adreca: string;
+  telefon: string;
+  nom: string;
 };
 
-type TrackingData = {
+type Shipment = {
   num_factura: string;
-  estat: string;
-  data: string;
+  status: string;
 };
 
-type AppUser = {
-  username: string;
-  name: string;
-  email?: string;
-  company: string;
-  role: string;
-}
-
-type ProcessedDocument = {
-  id: string;
+type Invoice = {
+  num_factura: string;
   data: string;
-  usuari: string;
   fpagament: string;
-  albara?: string;
-  estat?: string; // Tracking status
-  estat_pagament?: string; // Payment status from documents sheet
-  clientData?: UserData;
-  items: {
+  estat: 'Pagat' | 'Pendent';
+  clientData: User | null;
+  shipmentStatus: string;
+  lines: {
     concepte: string;
     preu_unitari: number;
     unitats: number;
     iva: number;
     dte: number;
-    net: number;
+    total: number;
   }[];
   baseImposable: number;
-  ivaBreakdown: {
-    rate: number;
-    base: number;
-    quota: number;
-  }[];
+  ivaDesglose: { [key: number]: { base: number; quota: number } };
   total: number;
 };
 
-// --- Constants & Configuration ---
-const API_URL_DOCUMENTS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents';
-const API_URL_USUARIS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris';
-const API_URL_SEGUIMIENTO = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=seguimiento';
-
-const SHELL_COMPANY_INFO = {
-    name: 'Sweet Queen',
-    fiscalId: 'B-12345678',
-    address: 'Carrer Alt de Sant Pere 17, Reus, 43201',
-    phone: '(+34) 664 477 944',
-    email: 'prietoerazovalentina8@gmail.com'
+// Helper Functions
+const safeParseFloat = (str: string | number) => {
+  if (typeof str === 'number') return str;
+  if (typeof str !== 'string') return 0;
+  return parseFloat(str.replace(',', '.')) || 0;
 };
 
-const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
-
-const parseFloatWithComma = (value: string): number => {
-    if (typeof value !== 'string') return Number(value) || 0;
-    return parseFloat(value.replace(',', '.')) || 0;
-}
-
-const parseDMY = (dateString: string): Date => {
-    if (!dateString) return new Date(0);
-    const dmyRegex = /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/;
-    const match = dateString.match(dmyRegex);
-    if (match) {
-        const day = parseInt(match[1], 10);
-        const month = parseInt(match[2], 10) - 1;
-        let year = parseInt(match[3], 10);
-        if (year < 100) year += 2000;
-        const newDate = new Date(Date.UTC(year, month, day));
-        if (!isNaN(newDate.getTime())) return newDate;
-    }
-    const fallbackDate = new Date(dateString);
-    return !isNaN(fallbackDate.getTime()) ? fallbackDate : new Date(0);
+const formatDate = (dateStr: string) => {
+  if (!dateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr || '';
+  const [day, month, year] = dateStr.split('/');
+  try {
+    return new Date(`${year}-${month}-${day}`).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch (e) {
+    return dateStr;
+  }
 };
 
-const statusIcons: { [key: string]: React.ReactNode } = {
-  'en preparacion': <Package className="h-4 w-4 mr-2" />,
-  'en proceso': <Package className="h-4 w-4 mr-2" />,
-  'en transito': <Truck className="h-4 w-4 mr-2" />,
-  'entregado': <CheckCircle className="h-4 w-4 mr-2" />,
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
 };
-
 
 export default function DocumentsPage() {
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [invoices, setInvoices] = useState<ProcessedDocument[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [selectedInvoice, setSelectedInvoice] = useState<ProcessedDocument | null>(null);
-  
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string; role: string } | null>(null);
+
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    async function loadInvoices() {
       try {
-        const parsedUser: AppUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (e) {
-        console.error("Failed to parse user from localStorage", e);
-        localStorage.removeItem('user');
-        setError("Error en la sessió d'usuari. Si us plau, torna a iniciar sessió.");
-        setIsLoading(false);
-      }
-    } else {
-      setIsLoading(false); // No user, stop loading.
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!user) {
-        if (!isLoading) {
-            setError("Has d'iniciar sessió per veure les teves factures.");
-        }
-        return;
-    };
-
-    const processDocuments = (docs: Document[], usersData: UserData[], trackingData: TrackingData[]) => {
-      const idBuscado = (user.email || user.username || user.name || "").trim().toLowerCase();
-      
-      if (!idBuscado) {
-          setError("No s'ha pogut identificar l'usuari per buscar factures. Revisa la teva sessió.");
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = (storedUser.email || storedUser.username || storedUser.name || '').toLowerCase().trim();
+        
+        if (!userId) {
+          setError("No s'ha pogut identificar l'usuari. Si us plau, inicia sessió de nou.");
+          setLoading(false);
           return;
-      }
+        }
 
-      const currentUserData = usersData.find(u => (u.usuari || "").trim().toLowerCase() === idBuscado);
-      const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
-      
-      let visibleDocs: Document[];
-      
-      if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
-          visibleDocs = docs;
-      } else {
-          visibleDocs = docs.filter(doc => (doc.usuari || "").trim().toLowerCase() === idBuscado);
-      }
-      
-      const groupedByKey = visibleDocs.reduce((acc, doc) => {
-        const key = (doc.num_factura || "").trim();
-        if (!key) return acc;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(doc);
-        return acc;
-      }, {} as Record<string, Document[]>);
-
-      if (Object.keys(groupedByKey).length === 0) {
-         setError(`No s'han trobat factures. Buscant correspondència per al ID: ${idBuscado}`);
-         console.log(`DEBUG: No invoices found for ID '${idBuscado}'. Raw docs received:`, docs);
-         setInvoices([]);
-         return;
-      }
-
-      const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docsInGroup => {
-        const firstDoc = docsInGroup[0];
-        
-        const clientIdentifierInDoc = (firstDoc.usuari || "").trim().toLowerCase();
-        const clientData = usersData.find(u => (u.usuari || "").trim().toLowerCase() === clientIdentifierInDoc);
-        
-        const trackingStatus = trackingData
-            .filter(t => (t.num_factura || "").trim() === firstDoc.num_factura.trim())
-            .sort((a,b) => parseDMY(b.data).getTime() - parseDMY(a.data).getTime())[0]?.estat;
-
-        let baseImposable = 0;
-        const ivaMap: Record<string, { base: number; quota: number }> = {};
-
-        const items = docsInGroup.map(d => {
-          const preu_unitari = parseFloatWithComma(d.preu_unitari);
-          const unitats = parseFloatWithComma(d.unitats);
-          const dte = parseFloatWithComma(d.dte);
-          const iva = parseFloatWithComma(d.iva);
-
-          const net = (preu_unitari * unitats) * (1 - dte / 100);
-          baseImposable += net;
-          
-          if (!ivaMap[iva]) ivaMap[iva] = { base: 0, quota: 0 };
-          ivaMap[iva].base += net;
-          ivaMap[iva].quota += net * (iva / 100);
-          
-          return { concepte: d.concepte, preu_unitari, unitats, iva, dte, net };
-        });
-
-        const ivaBreakdown = Object.entries(ivaMap).map(([rate, values]) => ({
-          rate: parseFloat(rate),
-          ...values
-        }));
-        
-        const totalIva = ivaBreakdown.reduce((sum, item) => sum + item.quota, 0);
-        const total = baseImposable + totalIva;
-
-        return {
-          id: firstDoc.num_factura.trim(),
-          data: firstDoc.data,
-          usuari: firstDoc.usuari,
-          fpagament: firstDoc.fpagament,
-          albara: firstDoc.albara,
-          estat: trackingStatus, // Tracking status
-          estat_pagament: firstDoc.estat, // Payment status
-          clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
-          items,
-          baseImposable,
-          ivaBreakdown,
-          total,
-        };
-      }).sort((a, b) => parseDMY(b.data).getTime() - parseDMY(a.data).getTime());
-      
-      setInvoices(processedDocs);
-    }
-    
-    const fetchAndProcessData = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const [docsRes, usersRes, trackingRes] = await Promise.all([
-          fetch(API_URL_DOCUMENTS),
-          fetch(API_URL_USUARIS),
-          fetch(API_URL_SEGUIMIENTO),
+        const [docsRes, usersRes, shipmentsRes] = await Promise.all([
+          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents'),
+          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris'),
+          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=seguimiento'),
         ]);
 
-        if (!docsRes.ok || !usersRes.ok || !trackingRes.ok) {
-            throw new Error(`Error en la connexió amb la base de dades. Documents: ${docsRes.statusText}, Usuaris: ${usersRes.statusText}, Seguiment: ${trackingRes.statusText}`);
+        if (!docsRes.ok || !usersRes.ok || !shipmentsRes.ok) {
+          throw new Error('Error en la connexió amb la base de dades.');
         }
 
-        const allDocs: Document[] = await docsRes.json();
-        const allUsers: UserData[] = await usersRes.json();
-        const allTracking: TrackingData[] = await trackingRes.json();
-        
-        if (!Array.isArray(allDocs)) {
-            throw new Error("No s'han trobat dades a la fulla 'documents' o el format és incorrecte.");
-        }
-        if (!Array.isArray(allUsers)) {
-            throw new Error("No s'han trobat dades a la fulla 'usuaris' o el format és incorrecte.");
-        }
-        if (!Array.isArray(allTracking)) {
-            throw new Error("No s'han trobat dades a la fulla 'seguimiento' o el format és incorrecte.");
-        }
-        
-        processDocuments(allDocs, allUsers, allTracking);
+        const allDocs: DocumentLine[] = await docsRes.json();
+        const allUsers: User[] = await usersRes.json();
+        const allShipments: Shipment[] = await shipmentsRes.json();
 
-      } catch (e: any) {
-        console.error("Error fetching data:", e);
-        setError(e.message || "Hi ha hagut un error en carregar les dades de facturació.");
+        const userAccount = allUsers.find(u => (u.usuari || '').toLowerCase().trim() === userId);
+        const userRole = userAccount?.rol?.toLowerCase().trim() || 'client';
+        setCurrentUser({ id: userId, role: userRole });
+
+        const isAdmin = ['admin', 'administrador', 'treballador'].includes(userRole);
+        const filteredDocs = isAdmin
+          ? allDocs
+          : allDocs.filter(d => (d.usuari || '').toLowerCase().trim().startsWith(userId));
+
+        if (filteredDocs.length === 0) {
+          setError(`No s'han trobat factures. Buscant correspondència per a l'ID: ${userId}`);
+          setInvoices([]);
+          setLoading(false);
+          return;
+        }
+        
+        const groupedInvoices = filteredDocs.reduce((acc, doc) => {
+          if (!doc.num_factura) return acc;
+          acc[doc.num_factura] = acc[doc.num_factura] || [];
+          acc[doc.num_factura].push(doc);
+          return acc;
+        }, {} as Record<string, DocumentLine[]>);
+
+        const processedInvoices: Invoice[] = Object.values(groupedInvoices).map(group => {
+          const firstLine = group[0];
+          const clientData = allUsers.find(u => (u.usuari || '').toLowerCase().trim().startsWith((firstLine.usuari || '').toLowerCase().trim())) || null;
+          const shipment = allShipments.find(s => s.num_factura === firstLine.num_factura);
+
+          const lines = group.map(line => {
+            const preu = safeParseFloat(line.preu_unitari);
+            const unitats = safeParseFloat(line.unitats);
+            const dte = safeParseFloat(line.dte);
+            const total = (preu * unitats) * (1 - dte / 100);
+            return {
+              concepte: line.concepte,
+              preu_unitari: preu,
+              unitats: unitats,
+              iva: safeParseFloat(line.iva),
+              dte: dte,
+              total: total,
+            };
+          });
+
+          const baseImposable = lines.reduce((sum, line) => sum + line.total, 0);
+          
+          const ivaDesglose = lines.reduce((acc, line) => {
+            const ivaType = line.iva;
+            if (!acc[ivaType]) acc[ivaType] = { base: 0, quota: 0 };
+            acc[ivaType].base += line.total;
+            acc[ivaType].quota += line.total * (ivaType / 100);
+            return acc;
+          }, {} as Invoice['ivaDesglose']);
+
+          const totalIva = Object.values(ivaDesglose).reduce((sum, iva) => sum + iva.quota, 0);
+          const total = baseImposable + totalIva;
+
+          return {
+            num_factura: firstLine.num_factura,
+            data: firstLine.data,
+            fpagament: firstLine.fpagament,
+            estat: firstLine.estat,
+            clientData,
+            shipmentStatus: shipment?.status || 'Sense informació',
+            lines,
+            baseImposable,
+            ivaDesglose,
+            total,
+          };
+        }).sort((a, b) => {
+            try {
+                const dateA = new Date(a.data.split('/').reverse().join('-')).getTime();
+                const dateB = new Date(b.data.split('/').reverse().join('-')).getTime();
+                return dateB - dateA;
+            } catch (e) {
+                return 0;
+            }
+        });
+
+        setInvoices(processedInvoices);
+
+      } catch (e) {
+        console.error(e);
+        setError('Ha ocorregut un error en carregar les dades. Intenta-ho de nou més tard.');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
-    };
-
-    fetchAndProcessData();
-  }, [user]);
-  
-  const handlePrint = () => window.print();
-
-  const renderContent = () => {
-    if (isLoading) {
-        return (
-            <div className="space-y-4">
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-            </div>
-        );
     }
 
-    if (selectedInvoice) {
-        const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat_pagament, albara } = selectedInvoice;
-        return (
-          <div className="bg-background">
-            <div className="flex justify-between items-center mb-8 print:hidden">
-                <Button variant="ghost" onClick={() => setSelectedInvoice(null)}>
-                    <ArrowLeft className="mr-2"/>
-                    Tornar al llistat
-                </Button>
-                <Button onClick={handlePrint}>
-                    <Printer className="mr-2"/>
-                    Imprimir
-                </Button>
-            </div>
-    
-            <Card id="zona-factura" className="p-8 shadow-lg bg-white text-black max-w-[800px] mx-auto">
-                <header className="grid grid-cols-2 gap-8 items-start pb-8 border-b">
-                    <div>
-                         <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={60} height={60} className="mb-4"/>
-                         <h2 className="font-bold text-lg">{SHELL_COMPANY_INFO.name}</h2>
-                         <p className="text-sm">{SHELL_COMPANY_INFO.address}</p>
-                         <p className="text-sm">NIF: {SHELL_COMPANY_INFO.fiscalId}</p>
-                         <p className="text-sm">{SHELL_COMPANY_INFO.phone} | {SHELL_COMPANY_INFO.email}</p>
-                    </div>
-                    <div className="text-right">
-                        <h1 className="font-headline text-4xl text-primary mb-2">Factura</h1>
-                        <div className="space-y-1">
-                            <p><span className="font-bold">Nº Factura:</span> {id}</p>
-                            {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
-                            <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
-                            {estat_pagament && (
-                                <Badge className={cn('print:hidden', {
-                                    'bg-green-100 text-green-800': estat_pagament.toLowerCase().includes('pagat'),
-                                    'bg-orange-100 text-orange-800': estat_pagament.toLowerCase().includes('pendent'),
-                                })}>{estat_pagament}</Badge>
-                            )}
-                        </div>
-                    </div>
-                </header>
-    
-                <section className="grid grid-cols-2 gap-8 py-8">
-                     <div>
-                        <h3 className="font-bold mb-2 text-muted-foreground">CLIENT:</h3>
-                        <p className="font-bold">{clientData?.empresa || clientData?.nom || clientData?.usuari}</p>
-                        {clientData?.fiscalid && <p>NIF/CIF: {clientData.fiscalid}</p>}
-                        {clientData?.adreca && <p>{clientData.adreca}</p>}
-                        {clientData?.telefon && <p>{clientData.telefon}</p>}
-                        <p>{clientData?.usuari}</p>
-                    </div>
-                </section>
-    
-                <section>
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-muted">
-                                <TableHead className="w-1/2">Concepte</TableHead>
-                                <TableHead className="text-right">P. Unitari</TableHead>
-                                <TableHead className="text-right">Unitats</TableHead>
-                                <TableHead className="text-right">Dte. %</TableHead>
-                                <TableHead className="text-right">Total Net</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {items.map((item, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{item.concepte}</TableCell>
-                                    <TableCell className="text-right">{item.preu_unitari.toFixed(2)} €</TableCell>
-                                    <TableCell className="text-right">{item.unitats}</TableCell>
-                                    <TableCell className="text-right">{item.dte.toFixed(2)} %</TableCell>
-                                    <TableCell className="text-right font-medium">{item.net.toFixed(2)} €</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </section>
-    
-                <section className="flex justify-end mt-8">
-                    <div className="w-full md:w-1/2 lg:w-2/5 space-y-4">
-                        <div className="flex justify-between">
-                            <span>Base Imposable</span>
-                            <span>{baseImposable.toFixed(2)} €</span>
-                        </div>
-                        <Separator />
-                        {ivaBreakdown.map(iva => (
-                            <div key={iva.rate} className="flex justify-between">
-                                <span>Quota IVA ({iva.rate}%) s/ {iva.base.toFixed(2)}€</span>
-                                <span>{iva.quota.toFixed(2)} €</span>
-                            </div>
-                        ))}
-                        <Separator className="bg-primary h-0.5"/>
-                         <div className="flex justify-between font-bold text-lg">
-                            <span>TOTAL</span>
-                            <span>{total.toFixed(2)} €</span>
-                        </div>
-                    </div>
-                </section>
-                
-                <section className="border-t pt-8 mt-8">
-                    <h3 className="font-bold mb-2">Forma de Pagament:</h3>
-                    <p>{fpagament}</p>
-                </section>
-    
-                <footer className="text-xs text-muted-foreground mt-12 pt-4 border-t">
-                    <p>{LEGAL_NOTICE}</p>
-                </footer>
-            </Card>
-          </div>
-        );
-      }
-      
-      return (
-        <>
-            {error && (
-                 <Alert variant="destructive" className="mb-4">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Avís</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            )}
-            {!error && invoices.length > 0 ? (
-                 <Card>
-                    <CardContent className="p-0">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nº Factura</TableHead>
-                            <TableHead>Data</TableHead>
-                            <TableHead>Client</TableHead>
-                            <TableHead>Estat Pagament</TableHead>
-                            <TableHead>Estat Enviament</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {invoices.map((invoice) => (
-                            <TableRow key={invoice.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedInvoice(invoice)}>
-                              <TableCell className="font-medium text-primary">{invoice.id}</TableCell>
-                              <TableCell>{parseDMY(invoice.data).toLocaleDateString('ca-ES')}</TableCell>
-                              <TableCell>{invoice.clientData?.nom || invoice.usuari}</TableCell>
-                              <TableCell>
-                                {invoice.estat_pagament && (
-                                  <Badge className={cn({
-                                    'bg-green-100 text-green-800 border-green-200': invoice.estat_pagament.toLowerCase().includes('pagat'),
-                                    'bg-orange-100 text-orange-800 border-orange-200': invoice.estat_pagament.toLowerCase().includes('pendent'),
-                                  })} variant="outline">{invoice.estat_pagament}</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {invoice.estat && (
-                                   <Badge variant="secondary" className="capitalize flex items-center w-fit">
-                                      {statusIcons[invoice.estat.toLowerCase()]}
-                                      {invoice.estat}
-                                   </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-right font-bold">{invoice.total.toFixed(2)} €</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                 </Card>
-            ) : (
-                !isLoading && !error && (
-                  <Card>
-                      <CardContent className="p-10 text-center text-muted-foreground">
-                          <p>No s'ha trobat cap factura.</p>
-                      </CardContent>
-                  </Card>
-                )
-            )}
-        </>
-      );
+    loadInvoices();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
   }
 
+  if (error && invoices.length === 0) {
+    return (
+       <div className="container mx-auto px-4 py-12 md:py-16">
+         <Alert variant="destructive" className="max-w-2xl mx-auto">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+        </Alert>
+       </div>
+    );
+  }
+
+  if (selectedInvoice) {
+    return (
+      <div className="bg-gray-100 p-4 sm:p-8 print:bg-white print:p-0">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center mb-6 print:hidden">
+            <Button variant="outline" onClick={() => setSelectedInvoice(null)}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Tornar al llistat
+            </Button>
+            <Button onClick={() => window.print()}>
+              <Printer className="mr-2 h-4 w-4" />
+              Imprimir PDF
+            </Button>
+          </div>
+          <div id="zona-factura" className="bg-white p-8 sm:p-12 rounded-lg shadow-lg print:shadow-none print:rounded-none">
+            <header className="flex justify-between items-start pb-8 border-b-2 border-gray-100">
+              <div>
+                <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={80} height={80} className="mb-4" />
+                <h2 className="text-xl font-bold text-gray-800">Sweet Queen</h2>
+                <p className="text-sm text-gray-500">Carrer Alt de Sant Pere 17, Reus, 43201</p>
+                <p className="text-sm text-gray-500">prietoerazovalentina8@gmail.com</p>
+              </div>
+              <div className="text-right">
+                <h1 className="text-3xl font-bold text-primary">FACTURA</h1>
+                <p className="text-gray-600">Nº: {selectedInvoice.num_factura}</p>
+                <p className="text-gray-600">Data: {formatDate(selectedInvoice.data)}</p>
+              </div>
+            </header>
+            
+            <section className="grid grid-cols-2 gap-8 my-8">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Facturar a:</h3>
+                <p className="font-bold text-gray-800">{selectedInvoice.clientData?.empresa || selectedInvoice.clientData?.nom}</p>
+                <p className="text-gray-600">{selectedInvoice.clientData?.adreca}</p>
+                <p className="text-gray-600">NIF: {selectedInvoice.clientData?.fiscalid}</p>
+                <p className="text-gray-600">Tel: {selectedInvoice.clientData?.telefon}</p>
+              </div>
+              <div className="text-right">
+                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Mètode de Pagament:</h3>
+                 <p className="font-medium text-gray-700">{selectedInvoice.fpagament}</p>
+              </div>
+            </section>
+
+            <section>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-1/2">Concepte</TableHead>
+                    <TableHead className="text-right">Preu</TableHead>
+                    <TableHead className="text-right">Unitats</TableHead>
+                    <TableHead className="text-right">Desc. %</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedInvoice.lines.map((line, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{line.concepte}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(line.preu_unitari)}</TableCell>
+                      <TableCell className="text-right">{line.unitats}</TableCell>
+                      <TableCell className="text-right">{line.dte}%</TableCell>
+                      <TableCell className="text-right">{formatCurrency(line.total)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </section>
+
+            <section className="flex justify-end mt-8">
+              <div className="w-full max-w-sm">
+                <div className="flex justify-between py-2 border-b">
+                  <span className="text-gray-600">Base Imposable:</span>
+                  <span className="font-medium">{formatCurrency(selectedInvoice.baseImposable)}</span>
+                </div>
+                {Object.entries(selectedInvoice.ivaDesglose).map(([iva, { quota }]) => (
+                  <div key={iva} className="flex justify-between py-2 border-b">
+                    <span className="text-gray-600">IVA ({iva}%):</span>
+                    <span className="font-medium">{formatCurrency(quota)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between py-3 bg-primary/10 px-4 mt-4 rounded-md">
+                  <span className="text-lg font-bold text-primary">TOTAL:</span>
+                  <span className="text-lg font-bold text-primary">{formatCurrency(selectedInvoice.total)}</span>
+                </div>
+              </div>
+            </section>
+
+            <footer className="mt-12 pt-8 border-t text-xs text-gray-500 text-center">
+              <p>Gràcies per la seva confiança.</p>
+              <p className="mt-2">Sweet Queen | NIF: Y1234567Z | Registre Mercantil de Tarragona, Tom XXX, Foli XX, Full T-XXXXX.</p>
+              <p>De conformitat amb el que estableix la Llei Orgànica 15/1999 de Protecció de Dades de Caràcter Personal, l'informem que les seves dades han estat incorporades a un fitxer sota la nostra responsabilitat, amb la finalitat de gestionar aquesta transacció comercial.</p>
+            </footer>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="mb-8 print:hidden">
-            <h1 className="font-headline text-4xl md:text-5xl">Les teves factures</h1>
-            <p className="text-lg text-muted-foreground">Consulta i gestiona les teves factures i enviaments.</p>
-        </div>
-        {renderContent()}
+      <div className="mb-8">
+        <h1 className="font-headline text-4xl md:text-5xl">Les meves Factures</h1>
+        <p className="text-lg text-muted-foreground">Consulta i gestiona les teves factures.</p>
+      </div>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle>Historial de Factures</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nº Factura</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-center">Estat Pagament</TableHead>
+                <TableHead className="text-center">Estat Enviament</TableHead>
+                <TableHead className="text-right">Accions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {invoices.map((invoice) => (
+                <TableRow key={invoice.num_factura}>
+                  <TableCell className="font-medium">{invoice.num_factura}</TableCell>
+                  <TableCell>{formatDate(invoice.data)}</TableCell>
+                  <TableCell>{invoice.clientData?.empresa || invoice.clientData?.nom || invoice.clientData?.usuari}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(invoice.total)}</TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant={invoice.estat === 'Pagat' ? 'default' : 'secondary'} className={invoice.estat === 'Pagat' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}>
+                        {invoice.estat}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="secondary">{invoice.shipmentStatus}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="outline" size="sm" onClick={() => setSelectedInvoice(invoice)}>
+                      Veure
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
