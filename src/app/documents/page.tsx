@@ -92,42 +92,35 @@ export default function DocumentsPage() {
 
   const parseDMY = (dateString: string): Date => {
     if (!dateString) {
-        // Return a date in the far past for sorting purposes if date is invalid
         return new Date(0);
     }
     
-    // Regex to match dd/mm/yyyy or dd/mm/yy
     const dmyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
     const match = dateString.match(dmyRegex);
 
     if (match) {
       const day = parseInt(match[1], 10);
-      const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
+      const month = parseInt(match[2], 10) - 1;
       let year = parseInt(match[3], 10);
 
-      // If year is 2 digits, assume 20xx
       if (year < 100) {
         year += 2000;
       }
       
       const newDate = new Date(year, month, day);
-      // Check if date is valid
       if (!isNaN(newDate.getTime())) {
         return newDate;
       }
     }
     
-    // Fallback for other parsable formats like YYYY-MM-DD
     const fallbackDate = new Date(dateString);
     if (!isNaN(fallbackDate.getTime())) {
         return fallbackDate;
     }
 
-    // If all parsing fails, return a past date
     return new Date(0);
   };
 
-  // Effect to get the logged-in user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -138,13 +131,11 @@ export default function DocumentsPage() {
         localStorage.removeItem('user');
       }
     }
-    // If no user, stop loading as they need to log in
     else {
       setIsLoading(false);
     }
   }, []);
 
-  // Effect to fetch and process documents once the user is known
   useEffect(() => {
     if (!user) {
       return;
@@ -161,10 +152,11 @@ export default function DocumentsPage() {
             visibleDocs = docs.filter(doc => doc.usuari?.trim().toLowerCase() === user.username.trim().toLowerCase());
         }
 
-        const relevantDocs = visibleDocs.filter(doc => doc.num_factura);
-
-        const groupedByKey = relevantDocs.reduce((acc, doc) => {
-          const key = doc.num_factura!;
+        const groupedByKey = visibleDocs.reduce((acc, doc) => {
+          const key = doc.num_factura?.trim();
+          if (!key) {
+            return acc;
+          }
           if (!acc[key]) {
             acc[key] = [];
           }
@@ -206,7 +198,7 @@ export default function DocumentsPage() {
           const total = baseImposable + totalIva;
 
           return {
-            id: firstDoc.num_factura!,
+            id: firstDoc.num_factura!.trim(),
             data: firstDoc.data,
             usuari: firstDoc.usuari,
             fpagament: firstDoc.fpagament,
@@ -245,15 +237,21 @@ export default function DocumentsPage() {
           fetch(API_URL_USUARIS),
         ]);
 
-        if (!docsRes.ok || !usersRes.ok) {
-          throw new Error('Error en la connexió amb la base de dades.');
+        if (!docsRes.ok) {
+          throw new Error(`Error en la connexió amb la base de dades (documents): ${docsRes.statusText}`);
+        }
+        if (!usersRes.ok) {
+          throw new Error(`Error en la connexió amb la base de dades (usuaris): ${usersRes.statusText}`);
         }
 
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
-
+        
         if (!Array.isArray(allDocs) || allDocs.length === 0) {
-          throw new Error("No s'han trobat documents a la font de dades. Comprova que la fulla 'documents' del teu Excel no estigui buida.");
+          throw new Error("No s'han trobat dades a la fulla 'documents' del teu Excel.");
+        }
+        if (!Array.isArray(allUsers) || allUsers.length === 0) {
+          throw new Error("No s'han trobat dades a la fulla 'usuaris' del teu Excel.");
         }
         
         processDocuments(allDocs, allUsers);
@@ -273,7 +271,6 @@ export default function DocumentsPage() {
     window.print();
   };
 
-  // --- Rendering Logic ---
   const renderContent = () => {
     if (isLoading) {
         return (
@@ -299,7 +296,6 @@ export default function DocumentsPage() {
         const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, albara } = selectedInvoice;
         return (
           <div className="bg-background">
-            {/* Action buttons (hidden on print) */}
             <div className="flex justify-between items-center mb-8 print:hidden">
                 <Button variant="ghost" onClick={() => setSelectedInvoice(null)}>
                     <ArrowLeft className="mr-2"/>
@@ -311,7 +307,6 @@ export default function DocumentsPage() {
                 </Button>
             </div>
     
-            {/* The actual invoice content to be printed */}
             <Card id="zona-factura" className="p-8 shadow-lg bg-white text-black">
                 <header className="grid grid-cols-2 gap-8 items-start pb-8 border-b">
                     <div>
@@ -408,7 +403,6 @@ export default function DocumentsPage() {
         );
       }
       
-      // --- List View ---
       return (
         <>
             {error && (
@@ -460,7 +454,6 @@ export default function DocumentsPage() {
       );
   }
 
-  // --- Main Component Return ---
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="mb-8 print:hidden">
