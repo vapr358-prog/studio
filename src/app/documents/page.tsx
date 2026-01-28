@@ -74,6 +74,7 @@ type ProcessedDocument = {
 // --- Constants & Configuration ---
 const API_URL_DOCUMENTS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents';
 const API_URL_USUARIS = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris';
+const API_URL_PRODUCTES = 'https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=productes'; // Although not used in this logic, it's here for context
 
 const SHELL_COMPANY_INFO = {
     name: 'Sweet Queen',
@@ -104,11 +105,10 @@ const parseDMY = (dateString: string): Date => {
         let year = parseInt(match[3], 10);
         if (year < 100) year += 2000;
         
-        const newDate = new Date(Date.UTC(year, month, day)); // Use UTC to avoid timezone issues
+        const newDate = new Date(Date.UTC(year, month, day));
         if (!isNaN(newDate.getTime())) return newDate;
     }
     
-    // Fallback for other formats, assuming UTC
     const fallbackDate = new Date(dateString);
     return !isNaN(fallbackDate.getTime()) ? fallbackDate : new Date(0);
 };
@@ -126,9 +126,6 @@ export default function DocumentsPage() {
     if (storedUser) {
       try {
         const parsedUser: AppUser = JSON.parse(storedUser);
-        if (!parsedUser.email) {
-            parsedUser.email = parsedUser.username;
-        }
         setUser(parsedUser);
       } catch (e) {
         console.error("Failed to parse user from localStorage", e);
@@ -150,112 +147,92 @@ export default function DocumentsPage() {
     };
 
     const processDocuments = (docs: Document[], usersData: UserData[]) => {
-        const idBuscado = (user.email || user.username || user.name || "").trim().toLowerCase();
+      const idBuscado = (user.email || user.username || user.name || "").trim().toLowerCase();
+      
+      if (!idBuscado) {
+          setError("No s'ha pogut identificar l'usuari per buscar factures. Revisa la teva sessió.");
+          return;
+      }
 
-        const currentUserData = usersData.find(u => {
-            const excelUserData = (u.usuari || "").trim().toLowerCase();
-            if (!excelUserData || !idBuscado) return false;
-            // Flexible matching for user role lookup
-            return idBuscado.startsWith(excelUserData) || excelUserData.startsWith(idBuscado);
+      const currentUserData = usersData.find(u => (u.usuari || "").trim().toLowerCase() === idBuscado);
+      const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
+      
+      let visibleDocs: Document[];
+      
+      if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
+          visibleDocs = docs;
+      } else {
+          visibleDocs = docs.filter(doc => (doc.usuari || "").trim().toLowerCase() === idBuscado);
+      }
+
+      if (visibleDocs.length === 0) {
+         setError(`No se han encontrado facturas. Buscando correspondencia para el ID: ${idBuscado}`);
+         setInvoices([]);
+         return;
+      }
+
+      const groupedByKey = visibleDocs.reduce((acc, doc) => {
+        const key = (doc.num_factura || "").trim();
+        if (!key) return acc;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(doc);
+        return acc;
+      }, {} as Record<string, Document[]>);
+
+      const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docsInGroup => {
+        const firstDoc = docsInGroup[0];
+        
+        const clientIdentifierInDoc = (firstDoc.usuari || "").trim().toLowerCase();
+        const clientData = usersData.find(u => (u.usuari || "").trim().toLowerCase() === clientIdentifierInDoc);
+
+        let baseImposable = 0;
+        const ivaMap: Record<string, { base: number; quota: number }> = {};
+
+        const items = docsInGroup.map(d => {
+          const preu_unitari = parseFloatWithComma(d.preu_unitari);
+          const unitats = parseFloatWithComma(d.unitats);
+          const dte = parseFloatWithComma(d.dte);
+          const iva = parseFloatWithComma(d.iva);
+
+          const net = (preu_unitari * unitats) * (1 - dte / 100);
+          baseImposable += net;
+          
+          if (!ivaMap[iva]) ivaMap[iva] = { base: 0, quota: 0 };
+          ivaMap[iva].base += net;
+          ivaMap[iva].quota += net * (iva / 100);
+          
+          return { concepte: d.concepte, preu_unitari, unitats, iva, dte, net };
         });
 
-        const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
+        const ivaBreakdown = Object.entries(ivaMap).map(([rate, values]) => ({
+          rate: parseFloat(rate),
+          ...values
+        }));
         
-        let visibleDocs: Document[];
-        
-        if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
-            visibleDocs = docs;
-        } else {
-            visibleDocs = docs.filter(doc => {
-                const excelDocUser = (doc.usuari || "").trim().toLowerCase();
-                if (!excelDocUser || !idBuscado) return false;
-                // Flexible matching: Handles cases where one email is a truncated version of the other.
-                // e.g. 'angel@gmail.com' (login) should match 'angel@gmail.co' (in sheet).
-                return idBuscado.startsWith(excelDocUser) || excelDocUser.startsWith(idBuscado);
-            });
-        }
+        const totalIva = ivaBreakdown.reduce((sum, item) => sum + item.quota, 0);
+        const total = baseImposable + totalIva;
 
-        if (visibleDocs.length === 0) {
-           setError(`No se han encontrado facturas. Buscando correspondencia para el ID: ${idBuscado}`);
-           console.log(`DEBUG: No s'han trobat factures per a l'ID '${idBuscado}'. Dades rebudes de SheetDB:`, {docs, usersData});
-           setInvoices([]);
-           return;
-        }
-
-        const groupedByKey = visibleDocs.reduce((acc, doc) => {
-          const key = (doc.num_factura || "").trim();
-          if (!key) return acc;
-          if (!acc[key]) acc[key] = [];
-          acc[key].push(doc);
-          return acc;
-        }, {} as Record<string, Document[]>);
-
-        const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docs => {
-          const firstDoc = docs[0];
-          
-          const clientIdentifierInDoc = (firstDoc.usuari || "").trim().toLowerCase();
-          const clientData = usersData.find(u => {
-              const excelUser = (u.usuari || "").trim().toLowerCase();
-              if (!excelUser || !clientIdentifierInDoc) return false;
-              // Flexible matching for client data lookup
-              return excelUser.startsWith(clientIdentifierInDoc) || clientIdentifierInDoc.startsWith(excelUser);
-          });
-
-          let baseImposable = 0;
-          const ivaMap: Record<string, { base: number; quota: number }> = {};
-
-          const items = docs.map(d => {
-            const preu_unitari = parseFloatWithComma(d.preu_unitari);
-            const unitats = parseFloatWithComma(d.unitats);
-            const dte = parseFloatWithComma(d.dte);
-            const iva = parseFloatWithComma(d.iva);
-
-            const net = (preu_unitari * unitats) * (1 - dte / 100);
-            baseImposable += net;
-            
-            if (!ivaMap[iva]) ivaMap[iva] = { base: 0, quota: 0 };
-            ivaMap[iva].base += net;
-            ivaMap[iva].quota += net * (iva / 100);
-            
-            return { concepte: d.concepte, preu_unitari, unitats, iva, dte, net };
-          });
-
-          const ivaBreakdown = Object.entries(ivaMap).map(([rate, values]) => ({
-            rate: parseFloat(rate),
-            ...values
-          }));
-          
-          const totalIva = ivaBreakdown.reduce((sum, item) => sum + item.quota, 0);
-          const total = baseImposable + totalIva;
-
-          return {
-            id: firstDoc.num_factura.trim(),
-            data: firstDoc.data,
-            usuari: firstDoc.usuari,
-            fpagament: firstDoc.fpagament,
-            albara: firstDoc.albara,
-            estat: firstDoc.estat,
-            clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
-            items,
-            baseImposable,
-            ivaBreakdown,
-            total,
-          };
-        }).sort((a, b) => parseDMY(b.data).getTime() - parseDMY(a.data).getTime());
-        
-        setInvoices(processedDocs);
+        return {
+          id: firstDoc.num_factura.trim(),
+          data: firstDoc.data,
+          usuari: firstDoc.usuari,
+          fpagament: firstDoc.fpagament,
+          albara: firstDoc.albara,
+          estat: firstDoc.estat,
+          clientData: clientData || { usuari: firstDoc.usuari, nom: firstDoc.usuari, rol: 'client' },
+          items,
+          baseImposable,
+          ivaBreakdown,
+          total,
+        };
+      }).sort((a, b) => parseDMY(b.data).getTime() - parseDMY(a.data).getTime());
+      
+      setInvoices(processedDocs);
     }
     
     const fetchAndProcessData = async () => {
       setIsLoading(true);
       setError(null);
-      
-      const idBuscado = (user.email || user.username || user.name || "").trim();
-      if (!idBuscado) {
-          setError("No es pot identificar l'usuari. Si us plau, revisa la teva sessió.");
-          setIsLoading(false);
-          return;
-      }
       
       try {
         const [docsRes, usersRes] = await Promise.all([
@@ -270,10 +247,10 @@ export default function DocumentsPage() {
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
         
-        if (!Array.isArray(allDocs)) {
+        if (!Array.isArray(allDocs) || allDocs.length === 0) {
             throw new Error("No s'han trobat dades a la fulla 'documents' o el format és incorrecte.");
         }
-        if (!Array.isArray(allUsers)) {
+        if (!Array.isArray(allUsers) || allUsers.length === 0) {
             throw new Error("No s'han trobat dades a la fulla 'usuaris' o el format és incorrecte.");
         }
         
@@ -334,7 +311,7 @@ export default function DocumentsPage() {
                             {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
                             <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
-                                <Badge className={cn('print-hidden', {
+                                <Badge className={cn('print:hidden', {
                                     'bg-green-100 text-green-800': estat.toLowerCase().includes('pagat'),
                                     'bg-orange-100 text-orange-800': estat.toLowerCase().includes('pendent'),
                                 })}>{estat}</Badge>
@@ -412,7 +389,6 @@ export default function DocumentsPage() {
         );
       }
       
-      // List View or Error/Empty state
       return (
         <>
             {error && (
@@ -479,5 +455,3 @@ export default function DocumentsPage() {
     </div>
   )
 }
-
-    
