@@ -139,31 +139,29 @@ export default function DocumentsPage() {
     if (!user) return;
 
     const processDocuments = (docs: Document[], usersData: UserData[]) => {
-        // 1. El identificador del usuario es el email/username
-        const currentIdentifier = (user.username || "").trim().toLowerCase();
-        
-        // 2. Buscamos al usuario en la tabla de 'usuaris' para obtener su rol
-        const currentUserData = usersData.find(u => 
-            (u.usuari || "").trim().toLowerCase() === currentIdentifier
-        );
+        const currentUserEmail = (user.username || "").trim().toLowerCase();
 
+        const currentUserData = usersData.find(u => 
+            (u.usuari || "").trim().toLowerCase() === currentUserEmail
+        );
         const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
         
         let visibleDocs: Document[];
-        // 3. Filtrado de documentos según el rol
+        
         if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
             visibleDocs = docs;
         } else {
-            visibleDocs = docs.filter(doc => 
-                (doc.usuari || "").trim().toLowerCase() === currentIdentifier
-            );
+            visibleDocs = docs.filter(doc => {
+                const excelDocUser = (doc.usuari || "").trim().toLowerCase();
+                if (!excelDocUser) return false;
+                return currentUserEmail.startsWith(excelDocUser);
+            });
         }
 
         if (visibleDocs.length === 0) {
-           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${currentIdentifier}'. Dades rebudes de SheetDB:`, {docs, usersData});
+           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${currentUserEmail}' amb la lògica de filtre flexible. Dades rebudes de SheetDB:`, {docs, usersData});
         }
 
-        // Agrupar por 'num_factura' limpiando espacios
         const groupedByKey = visibleDocs.reduce((acc, doc) => {
           const key = (doc.num_factura || "").trim();
           if (!key) return acc;
