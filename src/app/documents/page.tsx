@@ -83,44 +83,42 @@ const SHELL_COMPANY_INFO = {
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
 
+// Helper para parsear números que pueden venir con coma
+const parseFloatWithComma = (value: string): number => {
+    if (typeof value !== 'string') return Number(value) || 0;
+    return parseFloat(value.replace(',', '.')) || 0;
+}
+
+// Helper para parsear fechas en formato DD/MM/YYYY o DD/MM/YY
+const parseDMY = (dateString: string): Date => {
+    if (!dateString) return new Date(0);
+    
+    const dmyRegex = /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/;
+    const match = dateString.match(dmyRegex);
+
+    if (match) {
+        const day = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10) - 1;
+        let year = parseInt(match[3], 10);
+        if (year < 100) year += 2000;
+        
+        const newDate = new Date(year, month, day);
+        if (!isNaN(newDate.getTime())) return newDate;
+    }
+    
+    // Fallback para otros formatos
+    const fallbackDate = new Date(dateString);
+    return !isNaN(fallbackDate.getTime()) ? fallbackDate : new Date(0);
+};
+
+
 export default function DocumentsPage() {
   const [user, setUser] = useState<AppUser | null>(null);
   const [invoices, setInvoices] = useState<ProcessedDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<ProcessedDocument | null>(null);
-
-  const parseDMY = (dateString: string): Date => {
-    if (!dateString) {
-        return new Date(0);
-    }
-    
-    const dmyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
-    const match = dateString.match(dmyRegex);
-
-    if (match) {
-      const day = parseInt(match[1], 10);
-      const month = parseInt(match[2], 10) - 1;
-      let year = parseInt(match[3], 10);
-
-      if (year < 100) {
-        year += 2000;
-      }
-      
-      const newDate = new Date(year, month, day);
-      if (!isNaN(newDate.getTime())) {
-        return newDate;
-      }
-    }
-    
-    const fallbackDate = new Date(dateString);
-    if (!isNaN(fallbackDate.getTime())) {
-        return fallbackDate;
-    }
-
-    return new Date(0);
-  };
-
+  
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -129,17 +127,15 @@ export default function DocumentsPage() {
       } catch (e) {
         console.error("Failed to parse user from localStorage", e);
         localStorage.removeItem('user');
+        setIsLoading(false);
       }
-    }
-    else {
+    } else {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     const processDocuments = (docs: Document[], usersData: UserData[]) => {
         const currentUserData = usersData.find(u => u.usuari?.trim().toLowerCase() === user.username.trim().toLowerCase());
@@ -152,14 +148,14 @@ export default function DocumentsPage() {
             visibleDocs = docs.filter(doc => doc.usuari?.trim().toLowerCase() === user.username.trim().toLowerCase());
         }
 
+        if (visibleDocs.length === 0) {
+           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${user.username}'. Dades rebudes de SheetDB:`, {docs, usersData});
+        }
+
         const groupedByKey = visibleDocs.reduce((acc, doc) => {
           const key = doc.num_factura?.trim();
-          if (!key) {
-            return acc;
-          }
-          if (!acc[key]) {
-            acc[key] = [];
-          }
+          if (!key) return acc;
+          if (!acc[key]) acc[key] = [];
           acc[key].push(doc);
           return acc;
         }, {} as Record<string, Document[]>);
@@ -172,17 +168,15 @@ export default function DocumentsPage() {
           const ivaMap: Record<string, { base: number; quota: number }> = {};
 
           const items = docs.map(d => {
-            const preu_unitari = parseFloat(d.preu_unitari) || 0;
-            const unitats = parseFloat(d.unitats) || 0;
-            const dte = parseFloat(d.dte) || 0;
-            const iva = parseFloat(d.iva) || 0;
+            const preu_unitari = parseFloatWithComma(d.preu_unitari);
+            const unitats = parseFloatWithComma(d.unitats);
+            const dte = parseFloatWithComma(d.dte);
+            const iva = parseFloatWithComma(d.iva);
 
             const net = (preu_unitari * unitats) * (1 - dte / 100);
             baseImposable += net;
             
-            if (!ivaMap[iva]) {
-                ivaMap[iva] = { base: 0, quota: 0 };
-            }
+            if (!ivaMap[iva]) ivaMap[iva] = { base: 0, quota: 0 };
             ivaMap[iva].base += net;
             ivaMap[iva].quota += net * (iva / 100);
             
@@ -198,7 +192,7 @@ export default function DocumentsPage() {
           const total = baseImposable + totalIva;
 
           return {
-            id: firstDoc.num_factura!.trim(),
+            id: firstDoc.num_factura.trim(),
             data: firstDoc.data,
             usuari: firstDoc.usuari,
             fpagament: firstDoc.fpagament,
@@ -217,8 +211,8 @@ export default function DocumentsPage() {
     
     const useMockData = (currentUser: AppUser) => {
         const mockDocs: Document[] = [
-            { num_factura: 'FRA-MOCK-001', data: '22/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta red velvet (Mostra)', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-001', estat: 'Pagada' },
-            { num_factura: 'FRA-MOCK-002', data: '23/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta tres leches (Mostra)', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-002', estat: 'Pendent' },
+            { num_factura: 'FRA-MOCK-001', data: '22/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta red velvet (Mostra)', preu_unitari: '45,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-001', estat: 'Pagada' },
+            { num_factura: 'FRA-MOCK-002', data: '23/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta tres leches (Mostra)', preu_unitari: '50,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-002', estat: 'Pendent' },
         ];
         const mockUsers: UserData[] = [
             { usuari: currentUser.username, rol: currentUser.role, nom: currentUser.name, empresa: 'Sweet Queen', fiscalid: 'Y1234567Z', adreca: 'Carrer Alt de Sant Pere 17, Reus', telefon: '600111222' },
@@ -237,30 +231,20 @@ export default function DocumentsPage() {
           fetch(API_URL_USUARIS),
         ]);
 
-        if (!docsRes.ok) {
-          throw new Error(`Error en la connexió amb la base de dades (documents): ${docsRes.statusText}`);
-        }
-        if (!usersRes.ok) {
-          throw new Error(`Error en la connexió amb la base de dades (usuaris): ${usersRes.statusText}`);
-        }
+        if (!docsRes.ok) throw new Error(`Error en la connexió amb la base de dades (documents): ${docsRes.statusText}`);
+        if (!usersRes.ok) throw new Error(`Error en la connexió amb la base de dades (usuaris): ${usersRes.statusText}`);
 
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
         
-        if (!Array.isArray(allDocs) || allDocs.length === 0) {
-          throw new Error("No s'han trobat dades a la fulla 'documents' del teu Excel. Assegura't que no estigui buida.");
-        }
-        if (!Array.isArray(allUsers) || allUsers.length === 0) {
-          throw new Error("No s'han trobat dades a la fulla 'usuaris' del teu Excel. Assegura't que no estigui buida.");
-        }
+        if (!Array.isArray(allDocs) || allDocs.length === 0) throw new Error("No s'han trobat dades a la fulla 'documents'. Assegura't que no estigui buida.");
+        if (!Array.isArray(allUsers) || allUsers.length === 0) throw new Error("No s'han trobat dades a la fulla 'usuaris'. Assegura't que no estigui buida.");
         
         processDocuments(allDocs, allUsers);
 
       } catch (e: any) {
         setError((e.message || "Hi ha hagut un error.") + " Mostrant dades d'exemple.");
-        if (user) {
-          useMockData(user);
-        }
+        if (user) useMockData(user);
       } finally {
         setIsLoading(false);
       }
@@ -269,9 +253,7 @@ export default function DocumentsPage() {
     fetchAndProcessData();
   }, [user]);
   
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   const renderContent = () => {
     if (isLoading) {
@@ -338,9 +320,9 @@ export default function DocumentsPage() {
                      <div>
                         <h3 className="font-bold mb-2 text-muted-foreground">CLIENT:</h3>
                         <p className="font-bold">{clientData?.empresa || clientData?.nom}</p>
-                        <p>{clientData?.fiscalid}</p>
-                        <p>{clientData?.adreca}</p>
-                        <p>{clientData?.telefon}</p>
+                        {clientData?.fiscalid && <p>NIF/CIF: {clientData.fiscalid}</p>}
+                        {clientData?.adreca && <p>{clientData.adreca}</p>}
+                        {clientData?.telefon && <p>{clientData.telefon}</p>}
                     </div>
                 </section>
     
@@ -416,9 +398,9 @@ export default function DocumentsPage() {
             )}
             {invoices.length > 0 ? (
                 <div className="space-y-4">
-                    {invoices.map((invoice, index) => (
+                    {invoices.map((invoice) => (
                         <Card 
-                            key={`${invoice.id}-${index}`}
+                            key={invoice.id}
                             className="hover:shadow-md transition-shadow cursor-pointer"
                             onClick={() => setSelectedInvoice(invoice)}
                         >
@@ -435,7 +417,7 @@ export default function DocumentsPage() {
                                    {invoice.estat && (
                                     <Badge className={cn('mt-1', {
                                         'bg-green-100 text-green-800': invoice.estat.toLowerCase() === 'pagada',
-                                        'bg-red-100 text-red-800': invoice.estat.toLowerCase() === 'pendent'
+                                        'bg-yellow-100 text-yellow-800': invoice.estat.toLowerCase() === 'pendent'
                                     })}>{invoice.estat}</Badge>
                                    )}
                                 </div>
@@ -446,7 +428,7 @@ export default function DocumentsPage() {
             ) : (
                 !isLoading && (
                   <Card>
-                      <CardContent className="p-10 text-center">
+                      <CardContent className="p-10 text-center text-muted-foreground">
                           <p>No s'han trobat factures per al teu usuari.</p>
                       </CardContent>
                   </Card>
@@ -466,5 +448,3 @@ export default function DocumentsPage() {
     </div>
   )
 }
-
-    
