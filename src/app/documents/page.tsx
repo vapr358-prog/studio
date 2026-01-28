@@ -429,7 +429,7 @@ export default function DocumentsPage() {
                 !isLoading && (
                   <Card>
                       <CardContent className="p-10 text-center text-muted-foreground">
-                          <p>No s'han trobat factures per al teu usuari.</p>
+                          <p>No s'han trobat factures per al teu usuari: {user.username}</p>
                       </CardContent>
                   </Card>
                 )
