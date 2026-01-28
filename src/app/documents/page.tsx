@@ -83,48 +83,47 @@ export default function DocumentsPage() {
           return;
         }
 
-        // Set user ID for debugging messages
         setCurrentUser({ id: idBuscado, role: 'client' });
 
-        // 2. Fetch all users to determine the current user's role
-        const usersRes = await fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris');
-        if (!usersRes.ok) {
-          throw new Error('No se pudo conectar con la base de datos de usuarios.');
+        // 2. Fetch ALL necessary data concurrently for robustness
+        const [usersRes, docsRes] = await Promise.all([
+          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris'),
+          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents')
+        ]);
+
+        if (!usersRes.ok || !docsRes.ok) {
+          throw new Error('No se pudo conectar con la base de datos. Por favor, inténtelo de nuevo más tarde.');
         }
+
         const allUsers: UserData[] = await usersRes.json();
+        const allDocLines: DocumentLine[] = await docsRes.json();
+
+        // 3. Determine User Role from the fetched user list
         const userProfile = allUsers.find(u => (u.usuari || "").toLowerCase().trim() === idBuscado);
         const userRole = (userProfile?.rol || 'client').toLowerCase().trim();
-
-        // Update user state with the correct role
         setCurrentUser({ id: idBuscado, role: userRole });
 
-        // 3. Fetch document lines based on user role
-        let docLines: DocumentLine[];
+        // 4. Filter documents based on role (CLIENT-SIDE)
+        let relevantDocLines: DocumentLine[];
         const isAdmin = ['admin', 'administrador', 'treballador'].includes(userRole);
         
         if (isAdmin) {
-          // Admin/Worker: Fetch all documents
-          const docsRes = await fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents');
-           if (!docsRes.ok) throw new Error('No se pudo cargar la lista completa de documentos.');
-          docLines = await docsRes.json();
+          relevantDocLines = allDocLines;
         } else {
-          // Client: Search for documents matching their user ID
-          const searchUrl = `https://sheetdb.io/api/v1/tvh7feay2rpct/search?usuari=${encodeURIComponent(idBuscado)}&sheet=documents`;
-          const docsRes = await fetch(searchUrl);
-          if (!docsRes.ok) throw new Error(`Error al buscar documentos para el usuario ${idBuscado}.`);
-          docLines = await docsRes.json();
+          // Robust client-side filtering is more reliable than API search
+          relevantDocLines = allDocLines.filter(line => (line.usuari || "").toLowerCase().trim() === idBuscado);
         }
 
-        // 4. Process lines into structured invoices
-        if (docLines.length > 0) {
-           const processedInvoices = processInvoices(docLines, allUsers);
+        // 5. Process the relevant lines into structured invoices
+        if (relevantDocLines.length > 0) {
+           const processedInvoices = processInvoices(relevantDocLines, allUsers);
            setInvoices(processedInvoices);
         } else {
-          setInvoices([]); // Clear invoices if no documents are found
+          setInvoices([]); // Clear invoices if no documents are found for the user
         }
 
       } catch (e: any) {
-        console.error("Error en loadInvoiceData:", e);
+        console.error("Error detallado en loadInvoiceData:", e);
         setError(e.message || "Ocurrió un error inesperado al cargar los datos.");
       } finally {
         setLoading(false);
@@ -139,7 +138,6 @@ export default function DocumentsPage() {
   // --- Helper functions for data processing ---
   const safeParseFloat = (str: any) => {
     if (typeof str !== 'string' && typeof str !== 'number') return 0;
-    // Attempt to replace comma with dot for European number format
     const cleanedStr = String(str).replace(',', '.');
     const num = parseFloat(cleanedStr);
     return isNaN(num) ? 0 : num;
@@ -159,7 +157,7 @@ export default function DocumentsPage() {
 
       const items = linesForInvoice.map(line => {
         const unitPrice = safeParseFloat(line.preu_unitari);
-        const quantity = safeParseFloat(line.unitats) || 1; // Default to 1 if not specified
+        const quantity = safeParseFloat(line.unitats) || 1;
         const discount = safeParseFloat(line.dte);
         const lineTotal = (unitPrice * quantity) * (1 - discount / 100);
         return {
@@ -202,7 +200,7 @@ export default function DocumentsPage() {
         vatBreakdown,
         total,
       };
-    }).sort((a, b) => b.invoiceNumber.localeCompare(a.invoiceNumber)); // Sort by most recent invoice
+    }).sort((a, b) => b.invoiceNumber.localeCompare(a.invoiceNumber));
   };
 
   // --- Rendering Logic ---
