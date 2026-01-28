@@ -215,13 +215,13 @@ export default function DocumentsPage() {
         setInvoices(processedDocs);
     }
     
-    const useMockData = () => {
+    const useMockData = (currentUser: AppUser) => {
         const mockDocs: Document[] = [
-            { num_factura: 'FRA-001', data: '22/01/2026', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta red velvet', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-001', estat: 'Pagada' },
-            { num_factura: 'FRA-002', data: '23/01/2026', usuari: 'valentina', fpagament: 'Efectiu', concepte: 'Tarta tres leches', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-002', estat: 'Pendent' },
+            { num_factura: 'FRA-MOCK-001', data: '22/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta red velvet (Mostra)', preu_unitari: '45', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-001', estat: 'Pagada' },
+            { num_factura: 'FRA-MOCK-002', data: '23/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta tres leches (Mostra)', preu_unitari: '50', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-002', estat: 'Pendent' },
         ];
         const mockUsers: UserData[] = [
-            { usuari: 'valentina', rol: 'client', nom: 'Valentina Prieto', empresa: 'Sweet Queen', fiscalid: 'Y1234567Z', adreca: 'Carrer Alt de Sant Pere 17, Reus', telefon: '600111222' },
+            { usuari: currentUser.username, rol: currentUser.role, nom: currentUser.name, empresa: 'Sweet Queen', fiscalid: 'Y1234567Z', adreca: 'Carrer Alt de Sant Pere 17, Reus', telefon: '600111222' },
             { usuari: 'admin', rol: 'admin', nom: 'admin', empresa: 'Sweet Queen' },
         ];
         processDocuments(mockDocs, mockUsers);
@@ -248,17 +248,19 @@ export default function DocumentsPage() {
         const allUsers: UserData[] = await usersRes.json();
         
         if (!Array.isArray(allDocs) || allDocs.length === 0) {
-          throw new Error("No s'han trobat dades a la fulla 'documents' del teu Excel.");
+          throw new Error("No s'han trobat dades a la fulla 'documents' del teu Excel. Assegura't que no estigui buida.");
         }
         if (!Array.isArray(allUsers) || allUsers.length === 0) {
-          throw new Error("No s'han trobat dades a la fulla 'usuaris' del teu Excel.");
+          throw new Error("No s'han trobat dades a la fulla 'usuaris' del teu Excel. Assegura't que no estigui buida.");
         }
         
         processDocuments(allDocs, allUsers);
 
       } catch (e: any) {
         setError((e.message || "Hi ha hagut un error.") + " Mostrant dades d'exemple.");
-        useMockData();
+        if (user) {
+          useMockData(user);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -464,3 +466,5 @@ export default function DocumentsPage() {
     </div>
   )
 }
+
+    
