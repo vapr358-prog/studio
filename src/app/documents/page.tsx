@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 
 // --- Types ---
 type Document = {
+  id: string;
   num_factura: string;
   data: string;
   usuari: string;
@@ -138,35 +139,33 @@ export default function DocumentsPage() {
     if (!user) return;
 
     const processDocuments = (docs: Document[], usersData: UserData[]) => {
-        // 1. Detectamos qué tiene el usuario (puede ser email o username)
-        const currentIdentifier = (user.username || user.name || "").trim().toLowerCase();
+        // 1. El identificador del usuario es el email/username
+        const currentIdentifier = (user.username || "").trim().toLowerCase();
         
-        // 2. Buscamos al usuario en la tabla de 'usuaris'
-        const currentUserData = usersData.find(u => {
-            const excelUser = u.usuari?.trim().toLowerCase();
-            return excelUser === currentIdentifier;
-        });
+        // 2. Buscamos al usuario en la tabla de 'usuaris' para obtener su rol
+        const currentUserData = usersData.find(u => 
+            (u.usuari || "").trim().toLowerCase() === currentIdentifier
+        );
 
-        const userRole = currentUserData?.rol?.trim().toLowerCase();
+        const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
         
         let visibleDocs: Document[];
-        // 3. Si es admin, ve todo
+        // 3. Filtrado de documentos según el rol
         if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
             visibleDocs = docs;
         } else {
-            // 4. FILTRADO FLEXIBLE: Compara si el identificador está contenido o es igual
-            visibleDocs = docs.filter(doc => {
-                const excelDocUser = doc.usuari?.trim().toLowerCase();
-                return excelDocUser === currentIdentifier;
-            });
+            visibleDocs = docs.filter(doc => 
+                (doc.usuari || "").trim().toLowerCase() === currentIdentifier
+            );
         }
 
         if (visibleDocs.length === 0) {
            console.log(`DEBUG: No s'han trobat factures per a l'usuari '${currentIdentifier}'. Dades rebudes de SheetDB:`, {docs, usersData});
         }
 
+        // Agrupar por 'num_factura' limpiando espacios
         const groupedByKey = visibleDocs.reduce((acc, doc) => {
-          const key = doc.num_factura?.trim();
+          const key = (doc.num_factura || "").trim();
           if (!key) return acc;
           if (!acc[key]) acc[key] = [];
           acc[key].push(doc);
@@ -175,7 +174,7 @@ export default function DocumentsPage() {
 
         const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docs => {
           const firstDoc = docs[0];
-          const clientData = usersData.find(u => u.usuari?.trim().toLowerCase() === firstDoc.usuari?.trim().toLowerCase());
+          const clientData = usersData.find(u => (u.usuari || "").trim().toLowerCase() === (firstDoc.usuari || "").trim().toLowerCase());
 
           let baseImposable = 0;
           const ivaMap: Record<string, { base: number; quota: number }> = {};
@@ -223,9 +222,10 @@ export default function DocumentsPage() {
     }
     
     const useMockData = (currentUser: AppUser) => {
+        setError("Error de connexió. Mostrant dades d'exemple.");
         const mockDocs: Document[] = [
-            { num_factura: 'FRA-MOCK-001', data: '22/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta red velvet (Mostra)', preu_unitari: '45,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-001', estat: 'Pagada' },
-            { num_factura: 'FRA-MOCK-002', data: '23/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta tres leches (Mostra)', preu_unitari: '50,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-002', estat: 'Pendent' },
+            { id: '1', num_factura: 'FRA-MOCK-001', data: '22/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta red velvet (Mostra)', preu_unitari: '45,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-001', estat: 'Pagada' },
+            { id: '2', num_factura: 'FRA-MOCK-002', data: '23/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta tres leches (Mostra)', preu_unitari: '50,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-002', estat: 'Pendent' },
         ];
         const mockUsers: UserData[] = [
             { usuari: currentUser.username, rol: currentUser.role, nom: currentUser.name, empresa: 'Sweet Queen', fiscalid: 'Y1234567Z', adreca: 'Carrer Alt de Sant Pere 17, Reus', telefon: '600111222' },
@@ -244,20 +244,26 @@ export default function DocumentsPage() {
           fetch(API_URL_USUARIS),
         ]);
 
-        if (!docsRes.ok) throw new Error(`Error en la connexió amb la base de dades (documents): ${docsRes.statusText}`);
-        if (!usersRes.ok) throw new Error(`Error en la connexió amb la base de dades (usuaris): ${usersRes.statusText}`);
+        if (!docsRes.ok || !usersRes.ok) {
+            throw new Error(`Error en la connexió amb la base de dades. Documents: ${docsRes.statusText}, Usuaris: ${usersRes.statusText}`);
+        }
 
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
         
-        if (!Array.isArray(allDocs) || allDocs.length === 0) throw new Error("No s'han trobat dades a la fulla 'documents'. Assegura't que no estigui buida.");
-        if (!Array.isArray(allUsers) || allUsers.length === 0) throw new Error("No s'han trobat dades a la fulla 'usuaris'. Assegura't que no estigui buida.");
+        if (!Array.isArray(allDocs) || allDocs.length === 0) {
+            throw new Error("No s'han trobat dades a la fulla 'documents' o està buida.");
+        }
+        if (!Array.isArray(allUsers) || allUsers.length === 0) {
+            throw new Error("No s'han trobat dades a la fulla 'usuaris' o està buida.");
+        }
         
         processDocuments(allDocs, allUsers);
 
       } catch (e: any) {
-        setError((e.message || "Hi ha hagut un error.") + " Mostrant dades d'exemple.");
+        console.error("Error fetching data:", e);
         if (user) useMockData(user);
+        else setError("Hi ha hagut un error en carregar les dades.");
       } finally {
         setIsLoading(false);
       }
@@ -321,8 +327,8 @@ export default function DocumentsPage() {
                             <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
                                 <Badge className={cn('print:hidden', {
-                                    'bg-green-100 text-green-800': estat.toLowerCase() === 'pagada',
-                                    'bg-red-100 text-red-800': estat.toLowerCase() === 'pendent'
+                                    'bg-green-100 text-green-800': estat.toLowerCase().includes('pagad'),
+                                    'bg-yellow-100 text-yellow-800': estat.toLowerCase().includes('pendent'),
                                 })}>{estat}</Badge>
                             )}
                         </div>
@@ -332,7 +338,7 @@ export default function DocumentsPage() {
                 <section className="grid grid-cols-2 gap-8 py-8">
                      <div>
                         <h3 className="font-bold mb-2 text-muted-foreground">CLIENT:</h3>
-                        <p className="font-bold">{clientData?.empresa || clientData?.nom}</p>
+                        <p className="font-bold">{clientData?.empresa || clientData?.nom || clientData?.usuari}</p>
                         {clientData?.fiscalid && <p>NIF/CIF: {clientData.fiscalid}</p>}
                         {clientData?.adreca && <p>{clientData.adreca}</p>}
                         {clientData?.telefon && <p>{clientData.telefon}</p>}
@@ -405,7 +411,7 @@ export default function DocumentsPage() {
             {error && (
                  <Alert variant="destructive" className="mb-4">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Error de connexió</AlertTitle>
+                    <AlertTitle>Avís</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
@@ -429,8 +435,8 @@ export default function DocumentsPage() {
                                    <p className="font-bold text-lg">{invoice.total.toFixed(2)} €</p>
                                    {invoice.estat && (
                                     <Badge className={cn('mt-1', {
-                                        'bg-green-100 text-green-800': invoice.estat.toLowerCase() === 'pagada',
-                                        'bg-yellow-100 text-yellow-800': invoice.estat.toLowerCase() === 'pendent'
+                                        'bg-green-100 text-green-800': invoice.estat.toLowerCase().includes('pagad'),
+                                        'bg-yellow-100 text-yellow-800': invoice.estat.toLowerCase().includes('pendent'),
                                     })}>{invoice.estat}</Badge>
                                    )}
                                 </div>
