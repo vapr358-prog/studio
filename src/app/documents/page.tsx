@@ -9,10 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-// --- Interfaces para una estructura de datos clara ---
+// --- Interfaces for clear data structure ---
 interface UserData {
   usuari: string;
   rol: string;
+  nom: string;
   empresa: string;
   fiscalid: string;
   adreca: string;
@@ -58,7 +59,7 @@ interface Invoice {
   total: number;
 }
 
-// --- Componente Principal de Facturación ---
+// --- Main Invoicing Component ---
 export default function DocumentsPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,43 +70,48 @@ export default function DocumentsPage() {
   useEffect(() => {
     async function loadInvoiceData() {
       try {
+        // 1. Identify Logged-in User (robustly)
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-        const idBuscado = (storedUser.email || storedUser.username || storedUser.name || "").toLowerCase().trim();
+        const idBuscado = (storedUser.username || "").toLowerCase().trim();
 
         if (!idBuscado) {
           setError("No se pudo identificar al usuario. Por favor, inicie sesión de nuevo.");
           setLoading(false);
           return;
         }
-
+        
+        // 2. Fetch all necessary data concurrently
         const [docsRes, usersRes] = await Promise.all([
           fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents'),
           fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris'),
         ]);
 
         if (!docsRes.ok || !usersRes.ok) {
-          throw new Error('Error al conectar con la base de datos.');
+          throw new Error('Error al conectar con la base de datos (SheetDB).');
         }
 
         const docLines: DocumentLine[] = await docsRes.json();
         const users: UserData[] = await usersRes.json();
-
-        const userProfile = users.find(u => u.usuari.toLowerCase().trim() === idBuscado);
-        const userRole = userProfile?.rol.toLowerCase().trim() || 'client';
+        
+        // 3. Determine user role for permissions
+        const userProfile = users.find(u => (u.usuari || "").toLowerCase().trim() === idBuscado);
+        const userRole = (userProfile?.rol || 'client').toLowerCase().trim();
         setCurrentUser({ id: idBuscado, role: userRole });
 
+        // 4. Filter documents based on role
         let filteredLines: DocumentLine[];
         if (['admin', 'administrador', 'treballador'].includes(userRole)) {
           filteredLines = docLines;
         } else {
-          filteredLines = docLines.filter(line => line.usuari.toLowerCase().trim() === idBuscado);
+          filteredLines = docLines.filter(line => (line.usuari || "").toLowerCase().trim() === idBuscado);
         }
 
-        if (filteredLines.length === 0) {
-          setInvoices([]);
-        } else {
+        // 5. Process lines into structured invoices
+        if (filteredLines.length > 0) {
            const processedInvoices = processInvoices(filteredLines, users);
            setInvoices(processedInvoices);
+        } else {
+          setInvoices([]); // Ensure invoices are cleared if no lines are found
         }
 
       } catch (e: any) {
@@ -120,8 +126,11 @@ export default function DocumentsPage() {
 
   const handlePrint = () => window.print();
   
-  // --- Funciones auxiliares de procesamiento ---
-  const safeParseFloat = (str: string) => parseFloat(String(str).replace(',', '.')) || 0;
+  // --- Helper functions for data processing ---
+  const safeParseFloat = (str: string) => {
+    if (typeof str !== 'string') return 0;
+    return parseFloat(str.replace(',', '.')) || 0;
+  }
 
   const processInvoices = (lines: DocumentLine[], users: UserData[]): Invoice[] => {
     const groupedByInvoiceNumber = lines.reduce((acc, line) => {
@@ -132,8 +141,8 @@ export default function DocumentsPage() {
 
     return Object.values(groupedByInvoiceNumber).map(linesForInvoice => {
       const firstLine = linesForInvoice[0];
-      const clientEmail = firstLine.usuari.toLowerCase().trim();
-      const clientInfo = users.find(u => u.usuari.toLowerCase().trim() === clientEmail) || {} as UserData;
+      const clientEmail = (firstLine.usuari || "").toLowerCase().trim();
+      const clientInfo = users.find(u => (u.usuari || "").toLowerCase().trim() === clientEmail) || {} as UserData;
 
       const items = linesForInvoice.map(line => {
         const unitPrice = safeParseFloat(line.preu_unitari);
@@ -167,9 +176,9 @@ export default function DocumentsPage() {
         invoiceNumber: firstLine.num_factura,
         date: firstLine.data,
         paymentMethod: firstLine.fpagament,
-        status: firstLine.estat,
+        status: firstLine.estat || 'Pendent',
         clientData: {
-          name: clientInfo.empresa || clientInfo.usuari,
+          name: clientInfo.empresa || clientInfo.nom || clientInfo.usuari,
           fiscalId: clientInfo.fiscalid,
           address: clientInfo.adreca,
           phone: clientInfo.telefon,
@@ -180,14 +189,15 @@ export default function DocumentsPage() {
         vatBreakdown,
         total,
       };
-    });
+    }).sort((a, b) => b.invoiceNumber.localeCompare(a.invoiceNumber)); // Sort by most recent invoice
   };
 
-  // --- Renderizado ---
+  // --- Rendering Logic ---
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-4 text-muted-foreground">Cargando tus documentos...</p>
       </div>
     );
   }
@@ -197,21 +207,21 @@ export default function DocumentsPage() {
       <div className="container mx-auto p-8">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Error de Carga</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  // --- Vista de Detalle de Factura (Imprimible) ---
+  // --- Detailed Invoice View (Printable) ---
   if (selectedInvoice) {
     return (
       <div className="bg-muted/30 min-h-screen py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="print-hidden mb-8 flex justify-between items-center">
+          <div className="print-hidden mb-8 flex justify-between items-center gap-4">
             <Button variant="ghost" onClick={() => setSelectedInvoice(null)}>
-              <ArrowLeft className="mr-2" /> Volver a la lista
+              <ArrowLeft className="mr-2" /> Volver al listado
             </Button>
             <Button onClick={handlePrint}>
               <Printer className="mr-2" /> Imprimir / Guardar PDF
@@ -230,7 +240,7 @@ export default function DocumentsPage() {
                 </div>
                 <div className="text-right">
                   <h2 className="text-3xl font-semibold text-foreground uppercase tracking-wider">Factura</h2>
-                  <p className="text-lg text-primary font-mono">{selectedInvoice.invoiceNumber}</p>
+                  <p className="text-lg text-primary font-mono font-bold">{selectedInvoice.invoiceNumber}</p>
                 </div>
               </div>
             </CardHeader>
@@ -239,13 +249,19 @@ export default function DocumentsPage() {
                 <div>
                     <p className="text-sm text-muted-foreground font-bold">FACTURAR A:</p>
                     <p className="font-semibold text-lg">{selectedInvoice.clientData.name}</p>
-                    <p>{selectedInvoice.clientData.address}</p>
-                    <p>NIF: {selectedInvoice.clientData.fiscalId}</p>
-                    <p>{selectedInvoice.clientData.email}</p>
+                    <p className="text-muted-foreground">{selectedInvoice.clientData.address}</p>
+                    <p className="text-muted-foreground">NIF: {selectedInvoice.clientData.fiscalId}</p>
+                    <p className="text-muted-foreground">{selectedInvoice.clientData.email}</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-sm text-muted-foreground"><span className="font-bold">Fecha:</span> {selectedInvoice.date}</p>
-                    <p className="text-sm text-muted-foreground"><span className="font-bold">Método de pago:</span> {selectedInvoice.paymentMethod}</p>
+                    <p><span className="font-bold">Fecha:</span> {selectedInvoice.date}</p>
+                    <p><span className="font-bold">Método pago:</span> {selectedInvoice.paymentMethod}</p>
+                    <Badge className={cn(
+                        'mt-2 text-xs font-bold uppercase tracking-widest',
+                        selectedInvoice.status === 'Pagat' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                    )}>
+                        {selectedInvoice.status}
+                    </Badge>
                 </div>
                 </div>
 
@@ -254,17 +270,17 @@ export default function DocumentsPage() {
                     <TableRow className="bg-muted/50">
                     <TableHead>Concepto</TableHead>
                     <TableHead className="text-right">Cant.</TableHead>
-                    <TableHead className="text-right">P. Unit.</TableHead>
+                    <TableHead className="text-right">P. Unitario</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {selectedInvoice.items.map((item, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} className="[&_td]:py-3">
                         <TableCell className="font-medium">{item.concept}</TableCell>
                         <TableCell className="text-right">{item.quantity}</TableCell>
                         <TableCell className="text-right">{item.unitPrice.toFixed(2)} €</TableCell>
-                        <TableCell className="text-right">{item.netTotal.toFixed(2)} €</TableCell>
+                        <TableCell className="text-right font-medium">{item.netTotal.toFixed(2)} €</TableCell>
                     </TableRow>
                     ))}
                 </TableBody>
@@ -273,7 +289,7 @@ export default function DocumentsPage() {
                 <Separator className="my-8" />
 
                 <div className="flex justify-end">
-                  <div className="w-full max-w-sm space-y-4">
+                  <div className="w-full max-w-sm space-y-3">
                       <div className="flex justify-between">
                           <span className="text-muted-foreground">Base Imponible:</span>
                           <span className="font-medium">{selectedInvoice.subtotal.toFixed(2)} €</span>
@@ -286,15 +302,15 @@ export default function DocumentsPage() {
                       ))}
                       <Separator />
                       <div className="flex justify-between text-xl font-bold text-primary">
-                          <span>TOTAL:</span>
+                          <span>TOTAL A PAGAR:</span>
                           <span>{selectedInvoice.total.toFixed(2)} €</span>
                       </div>
                   </div>
                 </div>
             </CardContent>
-            <CardContent className="px-8 pt-4 pb-8 text-xs text-muted-foreground">
+            <CardContent className="px-8 pt-8 pb-8 text-xs text-muted-foreground border-t">
               <h3 className="font-bold mb-2 text-foreground">Información Legal</h3>
-              <p>De conformidad con lo dispuesto en el RGPD, le informamos que sus datos personales han sido incorporados en un fichero bajo la responsabilidad de Sweet Queen con la finalidad de gestionar la relación comercial.</p>
+              <p>De conformidad con lo dispuesto en el RGPD, le informamos que sus datos personales han sido incorporados en un fichero bajo la responsabilidad de Sweet Queen con la finalidad de gestionar la relación comercial. Registro Mercantil de Tarragona, Tomo 1234, Libro 0, Folio 56, Hoja T-7890, Inscripción 1ª.</p>
             </CardContent>
           </Card>
         </div>
@@ -302,53 +318,52 @@ export default function DocumentsPage() {
     );
   }
 
-  // --- Vista de Lista de Facturas ---
+  // --- Invoice List View ---
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-12">
+    <div className="min-h-screen bg-gray-50/50 p-4 sm:p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-primary mb-2">Mis Documentos</h1>
-        <p className="text-gray-600 mb-8 font-medium">Aquí puedes consultar y gestionar tus facturas.</p>
+        <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Mis Documentos</h1>
+            <p className="text-gray-500 mt-1">Consulta y gestiona tus facturas.</p>
+        </div>
 
         {invoices.length === 0 ? (
-          <Alert>
-             <AlertCircle className="h-4 w-4" />
-             <AlertTitle>No se encontraron facturas</AlertTitle>
-             <AlertDescription>
-              {currentUser ? `Buscando correspondencia para el ID: ${currentUser.id}` : 'No se pudo identificar al usuario.'}
+          <Alert variant="default" className="bg-amber-50 border-amber-200">
+             <AlertCircle className="h-4 w-4 !text-amber-600" />
+             <AlertTitle className="!text-amber-800">No se encontraron facturas</AlertTitle>
+             <AlertDescription className="!text-amber-700">
+              {currentUser ? `Estamos buscando documentos para el usuario: "${currentUser.id}". Si crees que esto es un error, por favor, contacta con nosotros.` : 'No se pudo identificar al usuario.'}
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="grid gap-6">
-            {invoices.map((invoice, index) => (
+          <div className="space-y-4">
+            {invoices.map((invoice) => (
               <Card 
-                key={index} 
-                className="hover:border-primary transition-all group overflow-hidden cursor-pointer"
+                key={invoice.invoiceNumber} 
+                className="hover:border-primary/80 transition-all group overflow-hidden cursor-pointer shadow-sm hover:shadow-md"
                 onClick={() => setSelectedInvoice(invoice)}
               >
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-800 uppercase tracking-tight">Factura {invoice.invoiceNumber}</h2>
-                      <p className="text-gray-400 text-sm mt-1 font-medium">{invoice.date}</p>
-                       <p className="text-gray-500 text-sm mt-1 font-medium">{invoice.clientData.name}</p>
-                      <div className="mt-3">
-                         <Badge className={cn(
+                <CardContent className="p-4 sm:p-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-center">
+                    <div className="font-medium">
+                      <p className="text-sm text-muted-foreground">Factura</p>
+                      <p className="text-gray-800 font-bold tracking-wide">{invoice.invoiceNumber}</p>
+                    </div>
+                     <div>
+                      <p className="text-sm text-muted-foreground">Fecha</p>
+                      <p className="text-gray-600">{invoice.date}</p>
+                    </div>
+                     <div className="flex justify-start sm:justify-center">
+                        <Badge className={cn(
                            'text-xs font-bold uppercase tracking-widest',
                            invoice.status === 'Pagat' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
                          )}>
                           {invoice.status}
                         </Badge>
                       </div>
-                    </div>
-                     <div className="bg-pink-50 p-3 rounded-full group-hover:bg-primary transition-colors">
-                      <FileText className="text-primary group-hover:text-white" size={24} />
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-end mt-8">
-                     <Button variant="link" className="p-0 h-auto text-primary">Ver Factura</Button>
-                    <div className="text-right">
-                      <p className="text-3xl font-black text-primary">{invoice.total.toFixed(2)} €</p>
+                     <div className="text-left sm:text-right col-span-2 sm:col-span-1">
+                      <p className="text-sm text-muted-foreground">Total</p>
+                      <p className="text-2xl font-black text-primary">{invoice.total.toFixed(2)} €</p>
                     </div>
                   </div>
                 </CardContent>
@@ -360,3 +375,4 @@ export default function DocumentsPage() {
     </div>
   );
 }
+    
