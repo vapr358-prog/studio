@@ -344,12 +344,11 @@ export default function DocumentsPage() {
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-center">Estat Pagament</TableHead>
                 <TableHead className="text-center">Estat Enviament</TableHead>
-                <TableHead className="text-right">Accions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {invoices.map((invoice) => (
-                <TableRow key={invoice.num_factura}>
+                <TableRow key={invoice.num_factura} onClick={() => setSelectedInvoice(invoice)} className="cursor-pointer">
                   <TableCell className="font-medium">{invoice.num_factura}</TableCell>
                   <TableCell>{formatDate(invoice.data)}</TableCell>
                   <TableCell>{invoice.clientData?.empresa || invoice.clientData?.nom || invoice.clientData?.usuari}</TableCell>
@@ -361,11 +360,6 @@ export default function DocumentsPage() {
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="secondary">{invoice.shipmentStatus}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline" size="sm" onClick={() => setSelectedInvoice(invoice)}>
-                      Veure
-                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
