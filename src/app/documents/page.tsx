@@ -149,11 +149,11 @@ export default function DocumentsPage() {
         return;
     };
 
-    const processDocuments = (docs: Document[], usersData: UserData[], idBuscado: string) => {
-        const idBuscadoLower = idBuscado.toLowerCase().trim();
+    const processDocuments = (docs: Document[], usersData: UserData[]) => {
+        const idBuscado = (user.email || user.username || user.name || "").trim().toLowerCase();
 
         const currentUserData = usersData.find(u => 
-            (u.usuari || "").trim().toLowerCase() === idBuscadoLower
+            (u.usuari || "").trim().toLowerCase() === idBuscado
         );
         const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
         
@@ -164,7 +164,7 @@ export default function DocumentsPage() {
         } else {
             visibleDocs = docs.filter(doc => {
                 const excelDocUser = (doc.usuari || "").trim().toLowerCase();
-                return excelDocUser === idBuscadoLower;
+                return excelDocUser === idBuscado;
             });
         }
 
@@ -268,7 +268,7 @@ export default function DocumentsPage() {
             throw new Error("No s'han trobat dades a la fulla 'usuaris' o el format és incorrecte.");
         }
         
-        processDocuments(allDocs, allUsers, idBuscado);
+        processDocuments(allDocs, allUsers);
 
       } catch (e: any) {
         console.error("Error fetching data:", e);
@@ -325,7 +325,7 @@ export default function DocumentsPage() {
                             {albara && <p><span className="font-bold">Albarà associat:</span> {albara}</p>}
                             <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
-                                <Badge className={cn('print:hidden', {
+                                <Badge className={cn('print-hidden', {
                                     'bg-green-100 text-green-800': estat.toLowerCase().includes('pagat'),
                                     'bg-orange-100 text-orange-800': estat.toLowerCase().includes('pendent'),
                                 })}>{estat}</Badge>
