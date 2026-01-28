@@ -139,10 +139,11 @@ export default function DocumentsPage() {
     if (!user) return;
 
     const processDocuments = (docs: Document[], usersData: UserData[]) => {
-        const currentUserEmail = (user.username || "").trim().toLowerCase();
+        const currentUserIdentifier = (user.username || "").trim().toLowerCase();
+        const currentUserName = (user.name || "").trim().toLowerCase();
 
         const currentUserData = usersData.find(u => 
-            (u.usuari || "").trim().toLowerCase() === currentUserEmail
+            (u.usuari || "").trim().toLowerCase() === currentUserIdentifier
         );
         const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
         
@@ -154,12 +155,26 @@ export default function DocumentsPage() {
             visibleDocs = docs.filter(doc => {
                 const excelDocUser = (doc.usuari || "").trim().toLowerCase();
                 if (!excelDocUser) return false;
-                return currentUserEmail.startsWith(excelDocUser);
+
+                // Check 1: Direct match against the user's full name (for entries like 'Valentina Prieto')
+                if (currentUserName && excelDocUser === currentUserName) {
+                    return true;
+                }
+
+                // Check 2: Match the part of the email before the '@' symbol.
+                // This handles variations like 'user@gmail.com' vs 'user@gmail.co'
+                const currentUserBase = currentUserIdentifier.split('@')[0];
+                const excelUserBase = excelDocUser.split('@')[0];
+                if (currentUserBase && excelUserBase && currentUserBase === excelUserBase) {
+                    return true;
+                }
+                
+                return false;
             });
         }
 
         if (visibleDocs.length === 0) {
-           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${currentUserEmail}' amb la lògica de filtre flexible. Dades rebudes de SheetDB:`, {docs, usersData});
+           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${currentUserIdentifier}' amb el nom '${currentUserName}'. Dades rebudes de SheetDB:`, {docs, usersData});
         }
 
         const groupedByKey = visibleDocs.reduce((acc, doc) => {
@@ -172,7 +187,15 @@ export default function DocumentsPage() {
 
         const processedDocs: ProcessedDocument[] = Object.values(groupedByKey).map(docs => {
           const firstDoc = docs[0];
-          const clientData = usersData.find(u => (u.usuari || "").trim().toLowerCase() === (firstDoc.usuari || "").trim().toLowerCase());
+          
+          const clientIdentifierInDoc = (firstDoc.usuari || "").trim().toLowerCase();
+          const clientData = usersData.find(u => {
+              const excelUser = (u.usuari || "").trim().toLowerCase();
+              const excelUserName = (u.nom || "").trim().toLowerCase();
+              if (excelUser === clientIdentifierInDoc) return true;
+              if (excelUserName && excelUserName === clientIdentifierInDoc) return true;
+              return false;
+          });
 
           let baseImposable = 0;
           const ivaMap: Record<string, { base: number; quota: number }> = {};
