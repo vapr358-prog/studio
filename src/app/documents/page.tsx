@@ -83,8 +83,6 @@ export default function DocumentsPage() {
           return;
         }
 
-        setCurrentUser({ id: idBuscado, role: 'client' });
-
         // 2. Fetch ALL necessary data concurrently for robustness
         const [usersRes, docsRes] = await Promise.all([
           fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris'),
