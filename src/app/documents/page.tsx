@@ -118,13 +118,6 @@ export default function DocumentsPage() {
           visibleDocuments = documentsData.filter(doc => (doc.usuari || '').toLowerCase().trim() === userIdentifier);
         }
 
-        if (visibleDocuments.length === 0) {
-          setError(`No se encontraron facturas para el usuario: ${userIdentifier}`);
-          setInvoices([]);
-          setLoading(false);
-          return;
-        }
-
         // Group by invoice number
         const groupedInvoices: Record<string, DocumentLine[]> = visibleDocuments.reduce((acc, doc) => {
           const key = doc.num_factura;
@@ -136,6 +129,12 @@ export default function DocumentsPage() {
           }
           return acc;
         }, {} as Record<string, DocumentLine[]>);
+
+        if (Object.keys(groupedInvoices).length === 0) {
+            setInvoices([]);
+            setLoading(false);
+            return;
+        }
 
         const processedInvoices: Invoice[] = Object.values(groupedInvoices).map(lines => {
           const firstLine = lines[0];
@@ -233,6 +232,29 @@ export default function DocumentsPage() {
   if (selectedInvoice) {
     return <InvoiceDetail invoice={selectedInvoice} onBack={() => setSelectedInvoice(null)} />;
   }
+  
+  if (invoices.length === 0) {
+     return (
+       <div className="container mx-auto px-4 py-12 md:py-16">
+         <div className="mb-8">
+            <h1 className="font-headline text-4xl md:text-5xl">Mis Documentos</h1>
+            <p className="text-lg text-muted-foreground">Aquí encontrarás todas tus facturas.</p>
+         </div>
+         <Alert variant="destructive" className="max-w-2xl mx-auto">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No se encontraron facturas</AlertTitle>
+          <AlertDescription>
+            <p>No hemos podido encontrar ninguna factura para el identificador de usuario: <strong>{currentUserIdentifier || 'desconocido'}</strong>.</p>
+            <p className="mt-2">Por favor, comprueba lo siguiente:</p>
+            <ul className="list-disc list-inside mt-1 text-xs">
+              <li>Has iniciado sesión con el usuario correcto.</li>
+              <li>La columna "usuari" en tu hoja de cálculo "documents" contiene exactamente este identificador para tus facturas (sin espacios extra ni errores de tipeo).</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
 
   return <InvoiceList invoices={invoices} onSelectInvoice={setSelectedInvoice} />;
 }
@@ -245,7 +267,6 @@ function InvoiceList({ invoices, onSelectInvoice }: { invoices: Invoice[], onSel
         <h1 className="font-headline text-4xl md:text-5xl">Mis Documentos</h1>
         <p className="text-lg text-muted-foreground">Aquí encontrarás todas tus facturas.</p>
       </div>
-      {invoices.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {invoices.map((invoice) => (
             <Card 
@@ -272,9 +293,6 @@ function InvoiceList({ invoices, onSelectInvoice }: { invoices: Invoice[], onSel
             </Card>
           ))}
         </div>
-      ) : (
-        <p>No hay facturas disponibles.</p>
-      )}
     </div>
   );
 }
