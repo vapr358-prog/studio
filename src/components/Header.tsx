@@ -17,6 +17,7 @@ const baseNavLinks = [
   { href: '/book', label: 'Reservar' },
   { href: '/tracking', label: 'Seguimiento' },
   { href: '/contact', label: 'Contacto' },
+  { href: '/invoice', label: 'Factura' },
 ];
 
 const authenticatedNavLinks: { href: string; label: string }[] = [
