@@ -87,11 +87,11 @@ body {
   }
 
   @media print {
-    body * {
-      visibility: hidden;
+    body * { 
+      visibility: hidden; 
     }
-    #zona-factura, #zona-factura * {
-      visibility: visible;
+    #zona-factura, #zona-factura * { 
+      visibility: visible; 
     }
     #zona-factura {
       position: absolute;
@@ -99,9 +99,6 @@ body {
       top: 0;
       width: 100%;
       margin: 0;
-      padding: 0;
-      border: none;
-      box-shadow: none;
     }
   }
 }

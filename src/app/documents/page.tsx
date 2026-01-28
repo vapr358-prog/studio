@@ -41,6 +41,7 @@ type UserData = {
 type AppUser = {
   username: string;
   name: string;
+  email?: string;
   company: string;
   role: string;
 }
@@ -84,13 +85,13 @@ const SHELL_COMPANY_INFO = {
 
 const LEGAL_NOTICE = 'Inscrita en el Registre Mercantil de Tarragona, Tom 123, Foli 45, Full T-6789. En compliment de la LOPD, les seves dades seran incloses en un fitxer propietat de Sweet Queen amb la finalitat de gestionar la facturació. Pot exercir els seus drets a prietoerazovalentina8@gmail.com.';
 
-// Helper para parsear números que pueden venir con coma
+// Helper to parse numbers that may come with a comma
 const parseFloatWithComma = (value: string): number => {
     if (typeof value !== 'string') return Number(value) || 0;
     return parseFloat(value.replace(',', '.')) || 0;
 }
 
-// Helper para parsear fechas en formato DD/MM/YYYY o DD/MM/YY
+// Helper to parse dates in DD/MM/YYYY or DD/MM/YY format
 const parseDMY = (dateString: string): Date => {
     if (!dateString) return new Date(0);
     
@@ -103,11 +104,11 @@ const parseDMY = (dateString: string): Date => {
         let year = parseInt(match[3], 10);
         if (year < 100) year += 2000;
         
-        const newDate = new Date(year, month, day);
+        const newDate = new Date(Date.UTC(year, month, day)); // Use UTC to avoid timezone issues
         if (!isNaN(newDate.getTime())) return newDate;
     }
     
-    // Fallback para otros formatos
+    // Fallback for other formats, assuming UTC
     const fallbackDate = new Date(dateString);
     return !isNaN(fallbackDate.getTime()) ? fallbackDate : new Date(0);
 };
@@ -124,10 +125,15 @@ export default function DocumentsPage() {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser: AppUser = JSON.parse(storedUser);
+        if (!parsedUser.email) {
+            parsedUser.email = parsedUser.username;
+        }
+        setUser(parsedUser);
       } catch (e) {
         console.error("Failed to parse user from localStorage", e);
         localStorage.removeItem('user');
+        setError("Error en la sessió d'usuari. Si us plau, torna a iniciar sessió.");
         setIsLoading(false);
       }
     } else {
@@ -136,14 +142,18 @@ export default function DocumentsPage() {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+        if (!isLoading) {
+            setError("Has d'iniciar sessió per veure les teves factures.");
+        }
+        return;
+    };
 
-    const processDocuments = (docs: Document[], usersData: UserData[]) => {
-        const currentUserIdentifier = (user.username || "").trim().toLowerCase();
-        const currentUserName = (user.name || "").trim().toLowerCase();
+    const processDocuments = (docs: Document[], usersData: UserData[], idBuscado: string) => {
+        const idBuscadoLower = idBuscado.toLowerCase().trim();
 
         const currentUserData = usersData.find(u => 
-            (u.usuari || "").trim().toLowerCase() === currentUserIdentifier
+            (u.usuari || "").trim().toLowerCase() === idBuscadoLower
         );
         const userRole = (currentUserData?.rol || "client").trim().toLowerCase();
         
@@ -154,27 +164,15 @@ export default function DocumentsPage() {
         } else {
             visibleDocs = docs.filter(doc => {
                 const excelDocUser = (doc.usuari || "").trim().toLowerCase();
-                if (!excelDocUser) return false;
-
-                // Check 1: Direct match against the user's full name (for entries like 'Valentina Prieto')
-                if (currentUserName && excelDocUser === currentUserName) {
-                    return true;
-                }
-
-                // Check 2: Match the part of the email before the '@' symbol.
-                // This handles variations like 'user@gmail.com' vs 'user@gmail.co'
-                const currentUserBase = currentUserIdentifier.split('@')[0];
-                const excelUserBase = excelDocUser.split('@')[0];
-                if (currentUserBase && excelUserBase && currentUserBase === excelUserBase) {
-                    return true;
-                }
-                
-                return false;
+                return excelDocUser === idBuscadoLower;
             });
         }
 
         if (visibleDocs.length === 0) {
-           console.log(`DEBUG: No s'han trobat factures per a l'usuari '${currentUserIdentifier}' amb el nom '${currentUserName}'. Dades rebudes de SheetDB:`, {docs, usersData});
+           setError(`No se han encontrado facturas. Buscando correspondencia para el ID: ${idBuscado}`);
+           console.log(`DEBUG: No s'han trobat factures per a l'ID '${idBuscado}'. Dades rebudes de SheetDB:`, {docs, usersData});
+           setInvoices([]);
+           return;
         }
 
         const groupedByKey = visibleDocs.reduce((acc, doc) => {
@@ -191,10 +189,7 @@ export default function DocumentsPage() {
           const clientIdentifierInDoc = (firstDoc.usuari || "").trim().toLowerCase();
           const clientData = usersData.find(u => {
               const excelUser = (u.usuari || "").trim().toLowerCase();
-              const excelUserName = (u.nom || "").trim().toLowerCase();
-              if (excelUser === clientIdentifierInDoc) return true;
-              if (excelUserName && excelUserName === clientIdentifierInDoc) return true;
-              return false;
+              return excelUser === clientIdentifierInDoc;
           });
 
           let baseImposable = 0;
@@ -242,22 +237,16 @@ export default function DocumentsPage() {
         setInvoices(processedDocs);
     }
     
-    const useMockData = (currentUser: AppUser) => {
-        setError("Error de connexió. Mostrant dades d'exemple.");
-        const mockDocs: Document[] = [
-            { id: '1', num_factura: 'FRA-MOCK-001', data: '22/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta red velvet (Mostra)', preu_unitari: '45,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-001', estat: 'Pagada' },
-            { id: '2', num_factura: 'FRA-MOCK-002', data: '23/01/2026', usuari: currentUser.username, fpagament: 'Efectiu', concepte: 'Tarta tres leches (Mostra)', preu_unitari: '50,00', unitats: '1', iva: '21', dte: '0', albara: 'ALB-MOCK-002', estat: 'Pendent' },
-        ];
-        const mockUsers: UserData[] = [
-            { usuari: currentUser.username, rol: currentUser.role, nom: currentUser.name, empresa: 'Sweet Queen', fiscalid: 'Y1234567Z', adreca: 'Carrer Alt de Sant Pere 17, Reus', telefon: '600111222' },
-            { usuari: 'admin', rol: 'admin', nom: 'admin', empresa: 'Sweet Queen' },
-        ];
-        processDocuments(mockDocs, mockUsers);
-    };
-
     const fetchAndProcessData = async () => {
       setIsLoading(true);
       setError(null);
+      
+      const idBuscado = (user.email || user.username || user.name || "").trim();
+      if (!idBuscado) {
+          setError("No es pot identificar l'usuari. Si us plau, revisa la teva sessió.");
+          setIsLoading(false);
+          return;
+      }
       
       try {
         const [docsRes, usersRes] = await Promise.all([
@@ -272,19 +261,18 @@ export default function DocumentsPage() {
         const allDocs: Document[] = await docsRes.json();
         const allUsers: UserData[] = await usersRes.json();
         
-        if (!Array.isArray(allDocs) || allDocs.length === 0) {
-            throw new Error("No s'han trobat dades a la fulla 'documents' o està buida.");
+        if (!Array.isArray(allDocs)) {
+            throw new Error("No s'han trobat dades a la fulla 'documents' o el format és incorrecte.");
         }
-        if (!Array.isArray(allUsers) || allUsers.length === 0) {
-            throw new Error("No s'han trobat dades a la fulla 'usuaris' o està buida.");
+        if (!Array.isArray(allUsers)) {
+            throw new Error("No s'han trobat dades a la fulla 'usuaris' o el format és incorrecte.");
         }
         
-        processDocuments(allDocs, allUsers);
+        processDocuments(allDocs, allUsers, idBuscado);
 
       } catch (e: any) {
         console.error("Error fetching data:", e);
-        if (user) useMockData(user);
-        else setError("Hi ha hagut un error en carregar les dades.");
+        setError(e.message || "Hi ha hagut un error en carregar les dades de facturació.");
       } finally {
         setIsLoading(false);
       }
@@ -305,16 +293,6 @@ export default function DocumentsPage() {
             </div>
         );
     }
-  
-    if (!user) {
-        return (
-            <Card>
-                <CardContent className="p-10 text-center">
-                    <p>Has d'<a href="/login" className="underline text-primary">iniciar sessió</a> per veure les teves factures.</p>
-                </CardContent>
-            </Card>
-        );
-    }
 
     if (selectedInvoice) {
         const { id, data, clientData, items, baseImposable, ivaBreakdown, total, fpagament, estat, albara } = selectedInvoice;
@@ -331,7 +309,7 @@ export default function DocumentsPage() {
                 </Button>
             </div>
     
-            <Card id="zona-factura" className="p-8 shadow-lg bg-white text-black">
+            <Card id="zona-factura" className="p-8 shadow-lg bg-white text-black max-w-[800px] mx-auto">
                 <header className="grid grid-cols-2 gap-8 items-start pb-8 border-b">
                     <div>
                          <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={60} height={60} className="mb-4"/>
@@ -348,8 +326,8 @@ export default function DocumentsPage() {
                             <p><span className="font-bold">Data:</span> {parseDMY(data).toLocaleDateString('ca-ES')}</p>
                             {estat && (
                                 <Badge className={cn('print:hidden', {
-                                    'bg-green-100 text-green-800': estat.toLowerCase().includes('pagad'),
-                                    'bg-yellow-100 text-yellow-800': estat.toLowerCase().includes('pendent'),
+                                    'bg-green-100 text-green-800': estat.toLowerCase().includes('pagat'),
+                                    'bg-orange-100 text-orange-800': estat.toLowerCase().includes('pendent'),
                                 })}>{estat}</Badge>
                             )}
                         </div>
@@ -374,7 +352,6 @@ export default function DocumentsPage() {
                                 <TableHead className="text-right">P. Unitari</TableHead>
                                 <TableHead className="text-right">Unitats</TableHead>
                                 <TableHead className="text-right">Dte. %</TableHead>
-                                <TableHead className="text-right">IVA %</TableHead>
                                 <TableHead className="text-right">Total Net</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -385,7 +362,6 @@ export default function DocumentsPage() {
                                     <TableCell className="text-right">{item.preu_unitari.toFixed(2)} €</TableCell>
                                     <TableCell className="text-right">{item.unitats}</TableCell>
                                     <TableCell className="text-right">{item.dte.toFixed(2)} %</TableCell>
-                                    <TableCell className="text-right">{item.iva.toFixed(0)} %</TableCell>
                                     <TableCell className="text-right font-medium">{item.net.toFixed(2)} €</TableCell>
                                 </TableRow>
                             ))}
@@ -427,6 +403,7 @@ export default function DocumentsPage() {
         );
       }
       
+      // List View or Error/Empty state
       return (
         <>
             {error && (
@@ -436,40 +413,45 @@ export default function DocumentsPage() {
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
-            {invoices.length > 0 ? (
-                <div className="space-y-4">
-                    {invoices.map((invoice) => (
-                        <Card 
-                            key={invoice.id}
-                            className="hover:shadow-md transition-shadow cursor-pointer"
-                            onClick={() => setSelectedInvoice(invoice)}
-                        >
-                            <CardContent className="flex items-center justify-between p-6">
-                                <div className="flex items-center gap-4">
-                                    <Badge variant="secondary">{invoice.id}</Badge>
-                                    <div>
-                                        <p className="font-medium">{invoice.clientData?.nom || invoice.usuari}</p>
-                                        <p className="text-sm text-muted-foreground">{parseDMY(invoice.data).toLocaleDateString('ca-ES')}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                   <p className="font-bold text-lg">{invoice.total.toFixed(2)} €</p>
-                                   {invoice.estat && (
-                                    <Badge className={cn('mt-1', {
-                                        'bg-green-100 text-green-800': invoice.estat.toLowerCase().includes('pagad'),
-                                        'bg-yellow-100 text-yellow-800': invoice.estat.toLowerCase().includes('pendent'),
-                                    })}>{invoice.estat}</Badge>
-                                   )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+            {!error && invoices.length > 0 ? (
+                 <Card>
+                    <CardContent className="p-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nº Factura</TableHead>
+                            <TableHead>Data</TableHead>
+                            <TableHead>Client</TableHead>
+                            <TableHead>Estat</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {invoices.map((invoice) => (
+                            <TableRow key={invoice.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedInvoice(invoice)}>
+                              <TableCell className="font-medium">{invoice.id}</TableCell>
+                              <TableCell>{parseDMY(invoice.data).toLocaleDateString('ca-ES')}</TableCell>
+                              <TableCell>{invoice.clientData?.nom || invoice.usuari}</TableCell>
+                              <TableCell>
+                                {invoice.estat && (
+                                  <Badge className={cn({
+                                    'bg-green-100 text-green-800 border-green-200': invoice.estat.toLowerCase().includes('pagat'),
+                                    'bg-orange-100 text-orange-800 border-orange-200': invoice.estat.toLowerCase().includes('pendent'),
+                                  })} variant="outline">{invoice.estat}</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right font-bold">{invoice.total.toFixed(2)} €</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                 </Card>
             ) : (
-                !isLoading && (
+                !isLoading && !error && (
                   <Card>
                       <CardContent className="p-10 text-center text-muted-foreground">
-                          <p>No s'han trobat factures per al teu usuari: {user.username}</p>
+                          <p>No s'ha trobat cap factura.</p>
                       </CardContent>
                   </Card>
                 )
