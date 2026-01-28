@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FileText, ArrowLeft, Printer, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,8 +69,11 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     async function loadInvoiceData() {
+      setLoading(true);
+      setError(null);
+      
       try {
-        // 1. Identify Logged-in User (robustly)
+        // 1. Identify Logged-in User from localStorage
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
         const idBuscado = (storedUser.username || "").toLowerCase().trim();
 
@@ -79,42 +82,49 @@ export default function DocumentsPage() {
           setLoading(false);
           return;
         }
-        
-        // 2. Fetch all necessary data concurrently
-        const [docsRes, usersRes] = await Promise.all([
-          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents'),
-          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris'),
-        ]);
 
-        if (!docsRes.ok || !usersRes.ok) {
-          throw new Error('Error al conectar con la base de datos (SheetDB).');
+        // Set user ID for debugging messages
+        setCurrentUser({ id: idBuscado, role: 'client' });
+
+        // 2. Fetch all users to determine the current user's role
+        const usersRes = await fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris');
+        if (!usersRes.ok) {
+          throw new Error('No se pudo conectar con la base de datos de usuarios.');
         }
-
-        const docLines: DocumentLine[] = await docsRes.json();
-        const users: UserData[] = await usersRes.json();
-        
-        // 3. Determine user role for permissions
-        const userProfile = users.find(u => (u.usuari || "").toLowerCase().trim() === idBuscado);
+        const allUsers: UserData[] = await usersRes.json();
+        const userProfile = allUsers.find(u => (u.usuari || "").toLowerCase().trim() === idBuscado);
         const userRole = (userProfile?.rol || 'client').toLowerCase().trim();
+
+        // Update user state with the correct role
         setCurrentUser({ id: idBuscado, role: userRole });
 
-        // 4. Filter documents based on role
-        let filteredLines: DocumentLine[];
-        if (['admin', 'administrador', 'treballador'].includes(userRole)) {
-          filteredLines = docLines;
+        // 3. Fetch document lines based on user role
+        let docLines: DocumentLine[];
+        const isAdmin = ['admin', 'administrador', 'treballador'].includes(userRole);
+        
+        if (isAdmin) {
+          // Admin/Worker: Fetch all documents
+          const docsRes = await fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents');
+           if (!docsRes.ok) throw new Error('No se pudo cargar la lista completa de documentos.');
+          docLines = await docsRes.json();
         } else {
-          filteredLines = docLines.filter(line => (line.usuari || "").toLowerCase().trim() === idBuscado);
+          // Client: Search for documents matching their user ID
+          const searchUrl = `https://sheetdb.io/api/v1/tvh7feay2rpct/search?usuari=${encodeURIComponent(idBuscado)}&sheet=documents`;
+          const docsRes = await fetch(searchUrl);
+          if (!docsRes.ok) throw new Error(`Error al buscar documentos para el usuario ${idBuscado}.`);
+          docLines = await docsRes.json();
         }
 
-        // 5. Process lines into structured invoices
-        if (filteredLines.length > 0) {
-           const processedInvoices = processInvoices(filteredLines, users);
+        // 4. Process lines into structured invoices
+        if (docLines.length > 0) {
+           const processedInvoices = processInvoices(docLines, allUsers);
            setInvoices(processedInvoices);
         } else {
-          setInvoices([]); // Ensure invoices are cleared if no lines are found
+          setInvoices([]); // Clear invoices if no documents are found
         }
 
       } catch (e: any) {
+        console.error("Error en loadInvoiceData:", e);
         setError(e.message || "Ocurrió un error inesperado al cargar los datos.");
       } finally {
         setLoading(false);
@@ -127,9 +137,12 @@ export default function DocumentsPage() {
   const handlePrint = () => window.print();
   
   // --- Helper functions for data processing ---
-  const safeParseFloat = (str: string) => {
-    if (typeof str !== 'string') return 0;
-    return parseFloat(str.replace(',', '.')) || 0;
+  const safeParseFloat = (str: any) => {
+    if (typeof str !== 'string' && typeof str !== 'number') return 0;
+    // Attempt to replace comma with dot for European number format
+    const cleanedStr = String(str).replace(',', '.');
+    const num = parseFloat(cleanedStr);
+    return isNaN(num) ? 0 : num;
   }
 
   const processInvoices = (lines: DocumentLine[], users: UserData[]): Invoice[] => {
@@ -146,7 +159,7 @@ export default function DocumentsPage() {
 
       const items = linesForInvoice.map(line => {
         const unitPrice = safeParseFloat(line.preu_unitari);
-        const quantity = safeParseFloat(line.unitats);
+        const quantity = safeParseFloat(line.unitats) || 1; // Default to 1 if not specified
         const discount = safeParseFloat(line.dte);
         const lineTotal = (unitPrice * quantity) * (1 - discount / 100);
         return {
@@ -375,4 +388,5 @@ export default function DocumentsPage() {
     </div>
   );
 }
+
     
