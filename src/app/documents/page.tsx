@@ -94,9 +94,10 @@ export default function DocumentsPage() {
       setCurrentUserIdentifier(userIdentifier);
 
       try {
+        const cacheBuster = `&_cache_bust=${new Date().getTime()}`;
         const [usersRes, documentsRes] = await Promise.all([
-          fetch(`${SHEETS_URL}?sheet=usuaris`),
-          fetch(`${SHEETS_URL}?sheet=documents`),
+          fetch(`${SHEETS_URL}?sheet=usuaris${cacheBuster}`),
+          fetch(`${SHEETS_URL}?sheet=documents${cacheBuster}`),
         ]);
 
         if (!usersRes.ok || !documentsRes.ok) {
@@ -184,7 +185,7 @@ export default function DocumentsPage() {
           const grandTotal = subtotal + totalVatAmount;
 
           return {
-            id: firstLine.num_factura,
+            id: firstLine.num_factura || 'N/A',
             date: firstLine.data || 'Fecha no disponible',
             clientName: clientData.empresa || clientData.usuari || 'Cliente no identificado',
             paymentMethod: firstLine.fpagament || 'No especificado',
@@ -414,5 +415,3 @@ function InvoiceDetail({ invoice, onBack }: { invoice: Invoice, onBack: () => vo
         </div>
     );
 }
-
-    
