@@ -182,7 +182,7 @@ export default function DocumentsPage() {
       }, {} as Record<string, Document[]>);
 
       if (Object.keys(groupedByKey).length === 0) {
-         setError(`No se han encontrado facturas. Buscando correspondencia para el ID: ${idBuscado}`);
+         setError(`No s'han trobat factures. Buscant correspondència per al ID: ${idBuscado}`);
          console.log(`DEBUG: No invoices found for ID '${idBuscado}'. Raw docs received:`, docs);
          setInvoices([]);
          return;
@@ -268,6 +268,9 @@ export default function DocumentsPage() {
         }
         if (!Array.isArray(allUsers)) {
             throw new Error("No s'han trobat dades a la fulla 'usuaris' o el format és incorrecte.");
+        }
+        if (!Array.isArray(allTracking)) {
+            throw new Error("No s'han trobat dades a la fulla 'seguimiento' o el format és incorrecte.");
         }
         
         processDocuments(allDocs, allUsers, allTracking);
