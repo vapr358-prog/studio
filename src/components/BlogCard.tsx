@@ -19,8 +19,8 @@ export function BlogCard({ post }: BlogCardProps) {
           <Image
             src={post.image.url}
             alt={post.title}
-            width={500}
-            height={300}
+            width={800}
+            height={450}
             className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
             data-ai-hint={post.image.hint}
           />
