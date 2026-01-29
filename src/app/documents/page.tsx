@@ -29,6 +29,14 @@ type AppUser = {
   name: string;
 };
 
+const calculateInvoiceTotals = (invoice: Invoice) => {
+    const baseImponible = parseFloat(invoice.preu_unitari) || 0; // Assuming units=1, dte=0
+    const ivaPercentage = parseFloat(invoice.iva) || 21; // Default to 21%
+    const ivaAmount = baseImponible * (ivaPercentage / 100);
+    const totalPrice = baseImponible + ivaAmount;
+    return { baseImponible, ivaPercentage, ivaAmount, totalPrice };
+}
+
 export default function DocumentsPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -95,7 +103,7 @@ export default function DocumentsPage() {
 
   // --- Detail View ---
   if (selectedInvoice) {
-    const totalPrice = parseFloat(selectedInvoice.preu_unitari) || 0;
+    const { baseImponible, ivaPercentage, ivaAmount, totalPrice } = calculateInvoiceTotals(selectedInvoice);
     
     return (
       <div className="container mx-auto px-4 py-12 bg-gray-50 flex flex-col items-center">
@@ -135,13 +143,13 @@ export default function DocumentsPage() {
               <thead>
                 <tr className="bg-muted">
                   <th className="p-3 font-semibold">Concepto</th>
-                  <th className="p-3 font-semibold text-right">Precio Total</th>
+                  <th className="p-3 font-semibold text-right">Importe</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b">
                   <td className="p-3">{selectedInvoice.concepte || 'Concepto no especificado'}</td>
-                  <td className="p-3 text-right">{totalPrice.toFixed(2)} €</td>
+                  <td className="p-3 text-right">{baseImponible.toFixed(2)} €</td>
                 </tr>
               </tbody>
             </table>
@@ -149,8 +157,16 @@ export default function DocumentsPage() {
           
           <footer className="mt-8 pt-8 border-t">
              <div className="flex justify-end">
-                <div className="w-full max-w-xs space-y-2 text-right">
-                    <div className="flex justify-between font-semibold">
+                <div className="w-full max-w-sm space-y-2 text-right">
+                    <div className="flex justify-between">
+                        <span>Base Imponible:</span>
+                        <span>{baseImponible.toFixed(2)} €</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>IVA ({ivaPercentage}%):</span>
+                        <span>{ivaAmount.toFixed(2)} €</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2 text-primary">
                         <span>TOTAL:</span>
                         <span>{totalPrice.toFixed(2)} €</span>
                     </div>
@@ -180,24 +196,27 @@ export default function DocumentsPage() {
 
       {invoices.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {invoices.map((invoice) => (
-            <Card key={invoice.id} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>{invoice.num_factura || 'N/A'}</span>
-                  <span className="text-sm font-normal text-muted-foreground">{invoice.data || 'N/A'}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <p className="text-4xl font-bold text-primary">{parseFloat(invoice.preu_unitari || '0').toFixed(2)}€</p>
-              </CardContent>
-              <CardFooter>
-                 <Button className="w-full" onClick={() => setSelectedInvoice(invoice)}>
-                  Ver Factura
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+          {invoices.map((invoice) => {
+            const { totalPrice } = calculateInvoiceTotals(invoice);
+            return (
+                <Card key={invoice.id} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader>
+                    <CardTitle className="flex justify-between items-center">
+                    <span>{invoice.num_factura || 'N/A'}</span>
+                    <span className="text-sm font-normal text-muted-foreground">{invoice.data || 'N/A'}</span>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <p className="text-4xl font-bold text-primary">{totalPrice.toFixed(2)}€</p>
+                </CardContent>
+                <CardFooter>
+                    <Button className="w-full" onClick={() => setSelectedInvoice(invoice)}>
+                    Ver Factura
+                    </Button>
+                </CardFooter>
+                </Card>
+            );
+          })}
         </div>
       ) : (
          <div className="text-center text-muted-foreground mt-16">
