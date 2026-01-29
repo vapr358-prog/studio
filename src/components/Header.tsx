@@ -19,7 +19,7 @@ const baseNavLinks = [
   { href: '/contact', label: 'Contacto' },
 ];
 
-const authenticatedNavLinks = [{ href: '/documents', label: 'Documentos' }];
+const authenticatedNavLinks = [{ href: '/documents', label: 'Facturas' }];
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
