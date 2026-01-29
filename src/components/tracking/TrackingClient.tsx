@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Search, MapPin, Calendar, Truck, CheckCircle, PackageCheck } from 'lucide-react';
 import type { Shipment } from '@/lib/types';
+import { SHEETDB_API_URL } from '@/lib/config';
+import { CardHeader, CardTitle } from '../ui/card';
 
 const statusConfig = {
   'EN PREPARACION': {
@@ -54,7 +56,7 @@ export default function TrackingClient() {
     setHasSearched(true);
 
     try {
-      const response = await fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct/search?tracking_code=${trackingCode}`);
+      const response = await fetch(`${SHEETDB_API_URL}/search?tracking_code=${trackingCode}`);
       if (!response.ok) {
         throw new Error('Hubo un problema al contactar el servicio de seguimiento.');
       }

@@ -1,6 +1,7 @@
 
 'use client';
 import { useState, useEffect } from 'react';
+import { SHEETDB_API_URL } from '@/lib/config';
 
 export default function DiagnosticPage() {
   const [data, setData] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function DiagnosticPage() {
         setUser(storedUser);
 
         // Intentamos leer la hoja de documentos
-        const res = await fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents');
+        const res = await fetch(`${SHEETDB_API_URL}?sheet=documents`);
         const json = await res.json();
         setData(json);
       } catch (e) {

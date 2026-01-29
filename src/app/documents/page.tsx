@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { FileText, ArrowLeft, Printer, AlertTriangle } from 'lucide-react';
+import { SHEETDB_API_URL } from '@/lib/config';
 
 export default function MisDocumentos() {
   const [facturasFiltradas, setFacturasFiltradas] = useState<any[]>([]);
@@ -23,8 +24,8 @@ export default function MisDocumentos() {
         setUserEmail(email);
 
         const [resDocs, resUsers] = await Promise.all([
-          fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents`, { cache: 'no-store' }),
-          fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris`, { cache: 'no-store' })
+          fetch(`${SHEETDB_API_URL}?sheet=documents`, { cache: 'no-store' }),
+          fetch(`${SHEETDB_API_URL}?sheet=usuaris`, { cache: 'no-store' })
         ]);
 
         if (!resDocs.ok || !resUsers.ok) {

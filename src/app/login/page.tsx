@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LogIn } from 'lucide-react';
+import { SHEETDB_API_URL } from '@/lib/config';
 
 export default function LoginPage() {
   const [usuario, setUsuario] = useState('');
@@ -30,7 +31,7 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
-        `https://sheetdb.io/api/v1/tvh7feay2rpct/search?usuari=${encodeURIComponent(
+        `${SHEETDB_API_URL}/search?usuari=${encodeURIComponent(
           usuario
         )}&password=${encodeURIComponent(contrasena)}&sheet=usuaris`
       );
