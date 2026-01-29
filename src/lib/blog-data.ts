@@ -88,7 +88,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'el-secreto-del-red-velvet-perfecto',
     title: 'El Secreto del Red Velvet Perfecto',
     excerpt: 'Desvelamos los secretos detrás de nuestro pastel más icónico. La textura, el color y el glaseado que lo hacen inolvidable.',
-    date: '2024-06-02',
+    date: '2023-03-20',
     author: 'Chef Pastelero',
     image: getImage('red-velvet'),
     content: `
