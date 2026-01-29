@@ -14,7 +14,7 @@ body {
     --card-foreground: 333 45% 25%;
     --popover: 336 80% 96%;
     --popover-foreground: 333 45% 25%;
-    --primary: 341 89% 51%;
+    --primary: 337 90% 50%;
     --primary-foreground: 0 0% 98%;
     --secondary: 333 82% 90%;
     --secondary-foreground: 333 45% 25%;
@@ -26,7 +26,7 @@ body {
     --destructive-foreground: 0 0% 98%;
     --border: 333 82% 88%;
     --input: 333 82% 88%;
-    --ring: 341 89% 51%;
+    --ring: 337 90% 50%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -88,24 +88,30 @@ body {
 }
 
 @media print {
+  /* Amaga-ho tot per defecte */
   body * {
     visibility: hidden;
   }
-  #zona-factura,
-  #zona-factura * {
+  
+  /* Fes visible només la factura i els seus fills */
+  #zona-factura, #zona-factura * {
     visibility: visible;
   }
+
+  /* Posicionament absolut per sobre de tot */
   #zona-factura {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 0;
-    border: none;
-    box-shadow: none;
+    padding: 20px;
+    background-color: white !important;
+    z-index: 9999; /* Importantissim per evitar fulls blancs a sobre */
   }
-  .print-hidden {
+
+  /* Amaga la botonera */
+  .no-print {
     display: none !important;
   }
 }

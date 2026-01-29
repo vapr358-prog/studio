@@ -14,6 +14,7 @@ export default function MisDocumentos() {
       try {
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
         const email = (storedUser.email || storedUser.username || "").toLowerCase().trim();
+
         if (!email) {
           setError("No se pudo identificar al usuario. Por favor, inicia sesión de nuevo.");
           setLoading(false);
@@ -21,10 +22,9 @@ export default function MisDocumentos() {
         }
         setUserEmail(email);
 
-        const cacheBust = `&_cache_bust=${new Date().getTime()}`;
         const [resDocs, resUsers] = await Promise.all([
-          fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents${cacheBust}`),
-          fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris${cacheBust}`)
+          fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents`, { cache: 'no-store' }),
+          fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris`, { cache: 'no-store' })
         ]);
 
         if (!resDocs.ok || !resUsers.ok) {
@@ -43,10 +43,11 @@ export default function MisDocumentos() {
 
         const facturasDelUsuario = docs
           .filter(doc => {
+            if (!doc.num_factura) return false;
             if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
-              return doc.num_factura; 
+              return true; 
             }
-            return (doc.usuari || "").toLowerCase().trim() === email && doc.num_factura;
+            return (doc.usuari || "").toLowerCase().trim() === email;
           })
           .map(doc => {
             const datosCliente = users.find(u => (u.usuari || "").toLowerCase().trim() === (doc.usuari || "").toLowerCase().trim());
@@ -112,8 +113,8 @@ export default function MisDocumentos() {
   if (facturaSeleccionada) {
     const p = calcIva(facturaSeleccionada);
     return (
-      <div className="min-h-screen bg-white p-8">
-        <div className="max-w-4xl mx-auto mb-8 flex justify-between print-hidden">
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto mb-8 flex justify-between no-print">
           <button onClick={() => setFacturaSeleccionada(null)} className="flex items-center gap-2 text-gray-500 font-bold hover:text-[#d23669]">
             <ArrowLeft size={20} /> VOLVER AL LISTADO
           </button>
@@ -122,7 +123,7 @@ export default function MisDocumentos() {
           </button>
         </div>
 
-        <div id="zona-factura" className="max-w-4xl mx-auto border p-16 rounded-xl shadow-sm print:border-0 print:shadow-none print:p-0">
+        <div id="zona-factura" className="max-w-4xl mx-auto border bg-white p-16 rounded-xl shadow-sm print:border-0 print:shadow-none print:p-0">
           <div className="flex justify-between mb-12">
             <div>
               <h1 className="text-4xl font-black text-[#d23669]">FACTURA</h1>
@@ -138,9 +139,9 @@ export default function MisDocumentos() {
           <div className="grid grid-cols-2 gap-10 py-10 border-y border-gray-50 mb-10">
             <div>
               <p className="text-[10px] font-black text-[#d23669] mb-3 uppercase tracking-widest">Factura a:</p>
-              <p className="font-bold uppercase text-gray-800 text-lg">{facturaSeleccionada.nom_cli}</p>
-              <p className="text-gray-600 text-sm">{facturaSeleccionada.dir_cli}</p>
-              <p className="text-gray-600 text-sm font-mono mt-1">NIF: {facturaSeleccionada.nif_cli}</p>
+              <p className="font-bold uppercase text-gray-800 text-lg">{facturaSeleccionada.nom_cli || 'Cliente no disponible'}</p>
+              <p className="text-gray-600 text-sm">{facturaSeleccionada.dir_cli || 'Dirección no disponible'}</p>
+              <p className="text-gray-600 text-sm font-mono mt-1">NIF: {facturaSeleccionada.nif_cli || 'NIF no disponible'}</p>
             </div>
             <div className="text-right">
                <p className="text-[10px] font-bold text-gray-400 uppercase">Fecha de Emisión:</p>
