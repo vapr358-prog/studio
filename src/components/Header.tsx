@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -66,7 +67,7 @@ export function Header() {
         
         <div className="flex flex-1 items-center justify-end">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-6 text-sm font-medium">
+          <nav className="hidden lg:flex gap-6 text-sm font-medium">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -79,7 +80,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2 ml-6">
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-2">
               <Button variant="ghost" size="icon" aria-label="Carrito de compras">
                 <ShoppingBag className="h-5 w-5" />
               </Button>
@@ -113,7 +114,7 @@ export function Header() {
 
             {/* Mobile Navigation */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild className="md:hidden">
+              <SheetTrigger asChild className="lg:hidden">
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Abrir menú</span>
