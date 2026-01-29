@@ -113,76 +113,91 @@ export function Header() {
             </div>
 
             {/* Mobile Navigation */}
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild className="lg:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Abrir menú</span>
+            <div className="flex items-center gap-2 lg:hidden">
+              {isLoggedIn ? (
+                <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
+                  <Link href="/account">
+                    <User className="h-5 w-5" />
+                  </Link>
                 </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-                <div className="flex flex-col h-full">
-                  <div className="flex justify-between items-center border-b pb-4">
-                      <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-                          <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={32} height={32} />
-                          <span className="font-headline text-xl font-bold text-primary whitespace-nowrap">Sweet Queen</span>
-                      </Link>
-                      <SheetClose asChild>
-                          <Button variant="ghost" size="icon">
-                              <X className="h-6 w-6" />
-                              <span className="sr-only">Cerrar menú</span>
-                          </Button>
-                      </SheetClose>
-                  </div>
-                  <nav className="flex flex-col gap-4 mt-8">
-                    {navLinks.map((link) => (
-                      <SheetClose key={link.href} asChild>
-                        <Link
-                          href={link.href}
-                          className="text-lg font-medium transition-colors hover:text-primary"
-                        >
-                          {link.label}
+              ) : (
+                <Button variant="ghost" size="icon" asChild aria-label="Acceder">
+                  <Link href="/login">
+                    <LogIn className="h-5 w-5" />
+                  </Link>
+                </Button>
+              )}
+              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Abrir menú</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                  <div className="flex flex-col h-full">
+                    <div className="flex justify-between items-center border-b pb-4">
+                        <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
+                            <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={32} height={32} />
+                            <span className="font-headline text-xl font-bold text-primary whitespace-nowrap">Sweet Queen</span>
                         </Link>
-                      </SheetClose>
-                    ))}
-                  </nav>
-                  <div className="mt-auto border-t pt-4 flex flex-col gap-4">
-                    {isLoggedIn ? (
-                      <>
-                        <div className="flex items-center justify-center gap-4">
-                          <Button variant="ghost" size="icon" asChild aria-label="Carrito de compras">
-                            <Link href="#" onClick={() => setIsOpen(false)}>
-                              <ShoppingBag className="h-5 w-5" />
-                            </Link>
-                          </Button>
-                          <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
-                            <Link href="/account" onClick={() => setIsOpen(false)}>
-                              <User className="h-5 w-5" />
-                            </Link>
-                          </Button>
-                        </div>
                         <SheetClose asChild>
-                          <Button onClick={handleLogout} variant="ghost" className="w-full text-lg">
-                              <LogOut className="mr-2 h-5 w-5" />
-                              Salir
-                          </Button>
+                            <Button variant="ghost" size="icon">
+                                <X className="h-6 w-6" />
+                                <span className="sr-only">Cerrar menú</span>
+                            </Button>
                         </SheetClose>
-                      </>
-                    ) : (
-                      <SheetClose asChild>
-                        <Link
-                            href="/login"
-                            className="flex items-center justify-center w-full text-lg font-medium transition-colors hover:text-primary"
+                    </div>
+                    <nav className="flex flex-col gap-4 mt-8">
+                      {navLinks.map((link) => (
+                        <SheetClose key={link.href} asChild>
+                          <Link
+                            href={link.href}
+                            className="text-lg font-medium transition-colors hover:text-primary"
                           >
-                            <LogIn className="mr-2 h-5 w-5" />
-                            Acceder
+                            {link.label}
                           </Link>
-                      </SheetClose>
-                    )}
+                        </SheetClose>
+                      ))}
+                    </nav>
+                    <div className="mt-auto border-t pt-4 flex flex-col gap-4">
+                      {isLoggedIn ? (
+                        <>
+                          <div className="flex items-center justify-center gap-4">
+                            <Button variant="ghost" size="icon" asChild aria-label="Carrito de compras">
+                              <Link href="#" onClick={() => setIsOpen(false)}>
+                                <ShoppingBag className="h-5 w-5" />
+                              </Link>
+                            </Button>
+                            <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
+                              <Link href="/account" onClick={() => setIsOpen(false)}>
+                                <User className="h-5 w-5" />
+                              </Link>
+                            </Button>
+                          </div>
+                          <SheetClose asChild>
+                            <Button onClick={handleLogout} variant="ghost" className="w-full text-lg">
+                                <LogOut className="mr-2 h-5 w-5" />
+                                Salir
+                            </Button>
+                          </SheetClose>
+                        </>
+                      ) : (
+                        <SheetClose asChild>
+                          <Link
+                              href="/login"
+                              className="flex items-center justify-center w-full text-lg font-medium transition-colors hover:text-primary"
+                            >
+                              <LogIn className="mr-2 h-5 w-5" />
+                              Acceder
+                            </Link>
+                        </SheetClose>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
