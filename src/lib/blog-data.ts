@@ -85,20 +85,6 @@ export const blogPosts: BlogPost[] = [
     `
   },
   {
-    slug: 'nuestra-historia-dulce',
-    title: 'Nuestra Historia Dulce: El Comienzo de Sweet Queen',
-    excerpt: 'Todo comenzó en una pequeña cocina, con la pasión de una abuela y sus recetas secretas. Descubre cómo nació Sweet Queen y nuestra misión de endulzar tus días.',
-    date: '2024-05-10',
-    author: 'La Fundadora',
-    image: getImage('blog-history'),
-    content: `
-      <p>En el corazón de Sweet Queen late una historia de amor familiar que se remonta a generaciones. Todo comenzó en la cocina de mi abuela, un lugar mágico donde los aromas de vainilla y canela llenaban el aire y cada pastel contaba una historia.</p>
-      <p>Desde niña, me fascinaba verla transformar ingredientes simples en obras de arte comestibles. Sus manos, expertas y cariñosas, amasaban, horneaban y decoraban con una dedicación que iba más allá de la simple repostería. Era una forma de expresar amor.</p>
-      <p>Heredé su recetario, un tesoro lleno de anotaciones y secretos, y con él, el sueño de compartir esa misma alegría con el mundo. Así nació Sweet Queen, no solo como una pastelería, sino como un homenaje a esa tradición, a ese calor de hogar y a la creencia de que un buen pastel puede hacer cualquier momento especial.</p>
-      <p>Hoy, cada pastel que sale de nuestro obrador lleva un trocito de esa historia. Utilizamos ingredientes de la más alta calidad, técnicas artesanales y, por supuesto, la receta secreta de la abuela: una generosa pizca de amor. Gracias por ser parte de nuestro dulce viaje.</p>
-    `,
-  },
-  {
     slug: 'el-secreto-del-red-velvet-perfecto',
     title: 'El Secreto del Red Velvet Perfecto',
     excerpt: 'Desvelamos los secretos detrás de nuestro pastel más icónico. La textura, el color y el glaseado que lo hacen inolvidable.',
