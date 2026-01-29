@@ -32,8 +32,24 @@ export default function MisDocumentos() {
             throw new Error("No se pudo conectar con la base de datos. Inténtalo más tarde.");
         }
 
-        const docs = await resDocs.json();
-        const users = await resUsers.json();
+        const docsData = await resDocs.json();
+        const usersData = await resUsers.json();
+        
+        const sanitizeKeys = (data: any[]): any[] => {
+          if (!Array.isArray(data)) return [];
+          return data.map(item => {
+            const sanitizedItem: { [key: string]: any } = {};
+            for (const key in item) {
+              if (Object.prototype.hasOwnProperty.call(item, key)) {
+                sanitizedItem[key.trim()] = item[key];
+              }
+            }
+            return sanitizedItem;
+          });
+        };
+        
+        const docs = sanitizeKeys(docsData);
+        const users = sanitizeKeys(usersData);
         
         if (!Array.isArray(docs) || !Array.isArray(users)) {
             throw new Error("Los datos recibidos no tienen el formato esperado.");
