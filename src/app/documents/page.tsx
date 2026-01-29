@@ -1,228 +1,161 @@
 'use client';
+import { useState, useEffect } from 'react';
+import { FileText, ArrowLeft, Printer, CheckCircle } from 'lucide-react';
 
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
-import Image from 'next/image';
-
-type Invoice = {
-  id: string;
-  num_factura: string;
-  data: string;
-  usuari: string;
-  fpagament: string;
-  concepte: string;
-  preu_unitari: string;
-  unitats: string;
-  iva: string;
-  dte: string;
-  albara: string;
-  estat: string;
-  nombre_cliente: string;
-  nif_cliente: string;
-  direccion_cliente: string;
-};
-
-type AppUser = {
-  username: string;
-  name: string;
-};
-
-const calculateInvoiceTotals = (invoice: Invoice) => {
-    const baseImponible = parseFloat(invoice.preu_unitari) || 0; // Assuming units=1, dte=0
-    const ivaPercentage = parseFloat(invoice.iva) || 21; // Default to 21%
-    const ivaAmount = baseImponible * (ivaPercentage / 100);
-    const totalPrice = baseImponible + ivaAmount;
-    return { baseImponible, ivaPercentage, ivaAmount, totalPrice };
-}
-
-export default function DocumentsPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+export default function MisDocumentos() {
+  const [facturas, setFacturas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<AppUser | null>(null);
+  const [userEmail, setUserEmail] = useState("");
+  const [facturaSeleccionada, setFacturaSeleccionada] = useState<any>(null);
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      } else {
-        setError("No has iniciado sesión.");
-        setLoading(false);
-      }
-    } catch (e) {
-      setError("Error al obtener la información del usuario.");
-      setLoading(false);
+    async function cargarDatos() {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const email = (storedUser.email || storedUser.username || "").toLowerCase().trim();
+        setUserEmail(email);
+
+        // Llamada a las dos pestañas de tu Excel
+        const [resDocs, resUsers] = await Promise.all([
+          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents'),
+          fetch('https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=usuaris')
+        ]);
+
+        const docs = await resDocs.json();
+        const users = await resUsers.json();
+
+        if (Array.isArray(docs) && Array.isArray(users)) {
+          // Buscamos los datos fiscales en la pestaña "usuaris" usando tu email
+          const misDatos = users.find(u => (u.usuari || "").toLowerCase().trim() === email);
+          
+          const filtradas = docs
+            .filter(f => (f.usuari || "").toLowerCase().trim() === email)
+            .map(f => ({
+              ...f,
+              // Usamos tus nombres de columna: nom, fiscalid, adreca
+              nom_cli: misDatos?.nom || "Cliente Sweet Queen",
+              nif_cli: misDatos?.fiscalid || "NIF no disp.",
+              dir_cli: misDatos?.adreca || "Dirección no disp.",
+              estado: (f.estat || "PAGAT").toUpperCase(),
+              pago: f.fpagament || "Efectiu / Tarjeta"
+            }));
+          setFacturas(filtradas);
+        }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     }
+    cargarDatos();
   }, []);
 
-  useEffect(() => {
-    if (!user?.username) return;
+  // Función para desglose de IVA 21%
+  const calc = (totalStr: any) => {
+    const t = parseFloat(String(totalStr).replace(',', '.')) || 0;
+    const b = t / 1.21;
+    return { b: b.toFixed(2), i: (t - b).toFixed(2), t: t.toFixed(2) };
+  };
 
-    const fetchInvoices = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`https://sheetdb.io/api/v1/tvh7feay2rpct?sheet=documents&_cb=${new Date().getTime()}`);
-        if (!response.ok) {
-          throw new Error('No se pudieron cargar las facturas desde el servidor.');
-        }
-        const allInvoices: Invoice[] = await response.json();
-        
-        const userInvoices = allInvoices.filter(
-          (invoice) => invoice.usuari && user.username && invoice.usuari.trim().toLowerCase() === user.username.trim().toLowerCase()
-        );
+  if (loading) return <div className="p-20 text-center text-[#d23669] font-bold">Cargando facturas oficiales...</div>;
 
-        if (userInvoices.length === 0) {
-            setError(`No se encontraron facturas para el usuario ${user.username}.`);
-        } else {
-            setInvoices(userInvoices);
-        }
-
-      } catch (err: any) {
-        setError(err.message || 'Ocurrió un error inesperado.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInvoices();
-  }, [user]);
-
-  if (loading) {
+  if (facturaSeleccionada) {
+    const p = calc(facturaSeleccionada.preu_unitari);
     return (
-        <div className="container mx-auto px-4 py-12 text-center flex flex-col items-center justify-center min-h-[50vh]">
-            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-            <p className="text-lg text-muted-foreground">Cargando tus facturas...</p>
-        </div>
-    );
-  }
-
-  // --- Detail View ---
-  if (selectedInvoice) {
-    const { baseImponible, ivaPercentage, ivaAmount, totalPrice } = calculateInvoiceTotals(selectedInvoice);
-    
-    return (
-      <div className="container mx-auto px-4 py-12 bg-gray-50 flex flex-col items-center">
-        <div className="w-full max-w-4xl flex justify-between items-center mb-6 print:hidden">
-          <Button variant="outline" onClick={() => setSelectedInvoice(null)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Volver al listado
-          </Button>
-          <Button onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" /> Imprimir PDF
-          </Button>
+      <div className="min-h-screen bg-white p-8">
+        {/* Botones - Se ocultan al imprimir */}
+        <div className="max-w-4xl mx-auto mb-8 flex justify-between print:hidden">
+          <button onClick={() => setFacturaSeleccionada(null)} className="flex items-center gap-2 text-gray-500 font-bold hover:text-[#d23669]">
+            <ArrowLeft size={20} /> VOLVER AL LISTADO
+          </button>
+          <button onClick={() => window.print()} className="bg-[#d23669] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg">
+            <Printer size={18} /> IMPRIMIR PDF
+          </button>
         </div>
 
-        <div id="zona-factura" className="w-full max-w-4xl bg-white p-8 md:p-12 shadow-lg border">
-          <header className="flex justify-between items-start pb-8 border-b">
+        {/* FACTURA FORMATO A4 */}
+        <div className="max-w-4xl mx-auto border p-16 rounded-xl shadow-sm print:border-0 print:shadow-none print:p-0">
+          <div className="flex justify-between mb-12">
             <div>
-              <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={80} height={80} />
-              <h1 className="font-headline text-4xl text-primary mt-2">Sweet Queen</h1>
-              <p className="text-muted-foreground">Carrer del Roser, 5, 08004 Barcelona</p>
-              <p className="text-muted-foreground">NIF: B12345678</p>
+              <h1 className="text-4xl font-black text-[#d23669]">FACTURA</h1>
+              <p className="text-gray-400 font-mono">Nº {facturaSeleccionada.num_factura || 'FAC-001'}</p>
+              <span className="bg-green-50 text-green-600 px-3 py-1 rounded text-[10px] font-bold uppercase border border-green-100 mt-2 inline-block italic">
+                {facturaSeleccionada.estado}
+              </span>
             </div>
             <div className="text-right">
-              <h2 className="text-2xl font-semibold">FACTURA</h2>
-              <p className="text-lg font-mono text-primary">{selectedInvoice.num_factura || 'N/A'}</p>
-              <p className="mt-2"><strong>Fecha:</strong> {selectedInvoice.data || 'N/A'}</p>
+              <h2 className="text-2xl font-bold italic text-gray-800">Sweet Queen</h2>
+              <p className="text-gray-500 text-xs mt-1">NIF: B12345678</p>
+              <p className="text-gray-500 text-xs">Carrer del Roser, 5, 08004 Barcelona</p>
             </div>
-          </header>
+          </div>
 
-          <section className="mt-8">
-            <h3 className="text-lg font-semibold mb-2">Factura a:</h3>
-            <p className="font-bold">{selectedInvoice.nombre_cliente || 'Nombre no disponible'}</p>
-            <p>{selectedInvoice.direccion_cliente || 'Dirección no disponible'}</p>
-            <p>NIF: {selectedInvoice.nif_cliente || 'NIF no disponible'}</p>
-          </section>
+          <div className="grid grid-cols-2 gap-10 py-10 border-y border-gray-50 mb-10">
+            <div>
+              <p className="text-[10px] font-black text-[#d23669] mb-3 uppercase tracking-widest">Factura a:</p>
+              <p className="font-bold uppercase text-gray-800 text-lg">{facturaSeleccionada.nom_cli}</p>
+              <p className="text-gray-600 text-sm">{facturaSeleccionada.dir_cli}</p>
+              <p className="text-gray-600 text-sm font-mono mt-1">NIF: {facturaSeleccionada.nif_cli}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-bold text-gray-400 uppercase">Fecha de Emisión:</p>
+              <p className="font-bold text-gray-800">{facturaSeleccionada.data || '22/01/2026'}</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase mt-6">Forma de pago:</p>
+              <p className="text-sm font-bold italic text-gray-700">{facturaSeleccionada.pago}</p>
+            </div>
+          </div>
 
-          <section className="mt-8">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-muted">
-                  <th className="p-3 font-semibold">Concepto</th>
-                  <th className="p-3 font-semibold text-right">Importe</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b">
-                  <td className="p-3">{selectedInvoice.concepte || 'Concepto no especificado'}</td>
-                  <td className="p-3 text-right">{baseImponible.toFixed(2)} €</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
-          
-          <footer className="mt-8 pt-8 border-t">
-             <div className="flex justify-end">
-                <div className="w-full max-w-sm space-y-2 text-right">
-                    <div className="flex justify-between">
-                        <span>Base Imponible:</span>
-                        <span>{baseImponible.toFixed(2)} €</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>IVA ({ivaPercentage}%):</span>
-                        <span>{ivaAmount.toFixed(2)} €</span>
-                    </div>
-                    <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2 text-primary">
-                        <span>TOTAL:</span>
-                        <span>{totalPrice.toFixed(2)} €</span>
-                    </div>
-                </div>
+          <table className="w-full mb-10">
+            <thead className="border-b-2 border-[#d23669] text-[10px] text-gray-400 uppercase font-black">
+              <tr><th className="py-4 text-left">Concepto / Descripción</th><th className="py-4 text-right">Importe Neto</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="py-10 font-medium text-gray-800">{facturaSeleccionada.concepte || 'Pedido Sweet Queen'}</td>
+                <td className="py-10 text-right font-bold text-xl">{p.t} €</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="flex justify-end border-t border-gray-100 pt-8">
+            <div className="w-72 space-y-3">
+              <div className="flex justify-between text-sm text-gray-500 font-medium"><span>Base Imponible (21%):</span><span>{p.b} €</span></div>
+              <div className="flex justify-between text-sm text-gray-500 font-medium"><span>Cuota IVA (21%):</span><span>{p.i} €</span></div>
+              <div className="flex justify-between font-black text-[#d23669] text-2xl pt-4 border-t-2 border-pink-100 mt-2">
+                <span>TOTAL:</span><span>{p.t} €</span>
+              </div>
             </div>
-            <div className="mt-12 text-sm text-muted-foreground">
-                <p className="font-bold">Forma de pago: Transferencia Bancaria o Tarjeta</p>
-                <p className="mt-4">
-                    Sweet Queen S.L. Inscrita en el Registro Mercantil de Barcelona, Tomo 12345, Folio 67, Hoja B-8910.
-                </p>
-            </div>
-          </footer>
+          </div>
+
+          <div className="mt-24 pt-8 border-t border-gray-100 text-[9px] text-gray-400 text-center uppercase tracking-[0.2em] leading-loose">
+            <p className="font-bold">Sweet Queen S.L. • NIF B12345678</p>
+            <p>Inscrita en el Registro Mercantil de Barcelona, Tomo 12345, Folio 67, Hoja B-8910</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  // --- List View ---
+  // LISTADO DE FACTURAS (Tarjetas rosas)
   return (
-    <div className="container mx-auto px-4 py-12">
-       <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl">Mis Facturas</h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Aquí puedes consultar y descargar todas tus facturas.
-        </p>
+    <div className="min-h-screen bg-[#fffcfd] p-12">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-4xl font-black text-gray-900 mb-8 tracking-tighter">Mis Facturas</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {facturas.map((f, i) => (
+            <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-pink-50 hover:border-[#d23669] transition-all cursor-pointer group" onClick={() => setFacturaSeleccionada(f)}>
+              <div className="flex justify-between mb-4">
+                <div className="p-2 bg-pink-50 text-[#d23669] rounded-xl group-hover:bg-[#d23669] group-hover:text-white transition-colors">
+                  <FileText size={20} />
+                </div>
+                <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded uppercase italic">{f.estado}</span>
+              </div>
+              <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">Nº {f.num_factura || 'FAC-001'}</p>
+              <h3 className="text-lg font-bold text-gray-800 mb-4 truncate">{f.concepte}</h3>
+              <div className="flex justify-between items-end border-t border-gray-50 pt-4">
+                <p className="text-2xl font-black text-[#d23669]">{f.preu_unitari} €</p>
+                <p className="text-[10px] text-gray-400 font-bold">{f.data}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-
-      {invoices.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {invoices.map((invoice) => {
-            const { totalPrice } = calculateInvoiceTotals(invoice);
-            return (
-                <Card key={invoice.id} className="flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader>
-                    <CardTitle className="flex justify-between items-center">
-                    <span>{invoice.num_factura || 'N/A'}</span>
-                    <span className="text-sm font-normal text-muted-foreground">{invoice.data || 'N/A'}</span>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                    <p className="text-4xl font-bold text-primary">{totalPrice.toFixed(2)}€</p>
-                </CardContent>
-                <CardFooter>
-                    <Button className="w-full" onClick={() => setSelectedInvoice(invoice)}>
-                    Ver Factura
-                    </Button>
-                </CardFooter>
-                </Card>
-            );
-          })}
-        </div>
-      ) : (
-         <div className="text-center text-muted-foreground mt-16">
-            <p>{error || 'No tienes facturas disponibles en este momento.'}</p>
-        </div>
-      )}
     </div>
   );
 }
