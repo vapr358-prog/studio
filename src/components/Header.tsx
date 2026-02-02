@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -6,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag, User, Menu, X, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { useRouter } from 'next/navigation';
@@ -135,6 +134,8 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                  <SheetTitle className="sr-only">Menú</SheetTitle>
+                  <SheetDescription className="sr-only">Navegación principal del sitio.</SheetDescription>
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-center border-b pb-4">
                         <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
