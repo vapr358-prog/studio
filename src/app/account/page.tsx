@@ -7,9 +7,9 @@ import { OrderHistory } from "@/components/account/OrderHistory"
 import CakeRecommendationForm from "@/components/account/CakeRecommendationForm"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { SHEETDB_API_URL } from '@/lib/config';
 import { allFlavors } from "@/lib/types"
 import type { Order } from '@/lib/types';
+import { orders as allOrders } from '@/lib/data';
 import { FileText, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -26,21 +26,8 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const sanitizeKeys = (data: any[]): any[] => {
-    if (!Array.isArray(data)) return [];
-    return data.map(item => {
-      const sanitizedItem: { [key: string]: any } = {};
-      for (const key in item) {
-        if (Object.prototype.hasOwnProperty.call(item, key)) {
-          sanitizedItem[key.trim()] = item[key];
-        }
-      }
-      return sanitizedItem;
-    });
-  };
-
   useEffect(() => {
-    async function loadUserAndOrders() {
+    function loadUserAndOrders() {
       setLoading(true);
       setError(null);
       try {
@@ -54,55 +41,15 @@ export default function AccountPage() {
         const parsedUser: AppUser = JSON.parse(storedUser);
         setUser(parsedUser);
 
-        const res = await fetch(`${SHEETDB_API_URL}?sheet=orders`, { cache: 'no-store' });
-        if (!res.ok) {
-          throw new Error("No se pudo conectar con el servicio de pedidos.");
-        }
-
-        let ordersData = await res.json();
-        if (!Array.isArray(ordersData)) {
-           throw new Error("Los datos de pedidos recibidos no tienen el formato esperado.");
-        }
-
-        const allOrders: Order[] = sanitizeKeys(ordersData).map((order: any) => {
-          let items = [];
-          try {
-            if (typeof order.items === 'string' && order.items.trim().startsWith('[')) {
-              items = JSON.parse(order.items);
-            } else {
-              items = [{ name: order.items || 'Item no especificado', quantity: 1 }];
-            }
-          } catch(e) {
-            console.error("Failed to parse order items:", e);
-            items = [{ name: order.items || 'Error al leer items', quantity: 1 }];
-          }
-
-          return {
-            ...order,
-            id: order.id || `ord-${Math.random()}`,
-            items: items,
-            total: parseFloat(String(order.total).replace(',', '.')) || 0,
-          } as Order;
-        });
-
-        const currentUserIdentifier = (parsedUser.username || "").toLowerCase().trim();
-        const userRole = (parsedUser.role || '').toLowerCase();
-
-        if (!currentUserIdentifier) {
-           throw new Error("No se pudo identificar al usuario.");
-        }
-
-        const filteredOrders = allOrders.filter((order: any) => {
-            if (userRole === 'admin' || userRole === 'administrador' || userRole === 'treballador') {
-                return true;
-            }
-            return (order.usuari || "").toLowerCase().trim() === currentUserIdentifier;
+        // Reverting to use mock data and filter it
+        const filteredOrders = allOrders.filter((order) => {
+            return order.clientName === parsedUser.name;
         });
 
         setUserOrders(filteredOrders);
 
       } catch (e: any) {
-        console.error("Failed to load orders", e);
+        console.error("Failed to load mock orders", e);
         setError(e.message || "Ocurrió un error al cargar el historial de pedidos.");
       } finally {
         setLoading(false);

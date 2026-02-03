@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import type { Order } from "@/lib/types";
 import { cn } from "@/lib/utils"
-import { SHEETDB_API_URL } from "@/lib/config";
+import { orders as allOrders } from '@/lib/data';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
@@ -22,66 +22,17 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const sanitizeKeys = (data: any[]): any[] => {
-    if (!Array.isArray(data)) return [];
-    return data.map(item => {
-      const sanitizedItem: { [key: string]: any } = {};
-      for (const key in item) {
-        if (Object.prototype.hasOwnProperty.call(item, key)) {
-          sanitizedItem[key.trim()] = item[key];
-        }
-      }
-      return sanitizedItem;
-    });
-  };
-
   useEffect(() => {
-    async function fetchOrders() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`${SHEETDB_API_URL}?sheet=orders`, { cache: 'no-store' });
-        if (!res.ok) {
-          throw new Error("No se pudo conectar con el servicio de pedidos.");
-        }
-        
-        let ordersData = await res.json();
-        if (!Array.isArray(ordersData)) {
-           throw new Error("Los datos de pedidos recibidos no tienen el formato esperado.");
-        }
-
-        const allOrders: Order[] = sanitizeKeys(ordersData).map((order: any) => {
-          let items = [];
-          try {
-            if (typeof order.items === 'string' && order.items.trim().startsWith('[')) {
-              items = JSON.parse(order.items);
-            } else {
-              items = [{ name: order.items || 'Item no especificado', quantity: 1 }];
-            }
-          } catch(e) {
-            console.error("Failed to parse order items:", e);
-            items = [{ name: order.items || 'Error al leer items', quantity: 1 }];
-          }
-
-          return {
-            ...order,
-            id: order.id || `ord-${Math.random()}`,
-            items: items,
-            total: parseFloat(String(order.total).replace(',', '.')) || 0,
-          } as Order;
-        });
-
-        setOrders(allOrders);
-
-      } catch (e: any) {
-         console.error("Failed to load orders", e);
-        setError(e.message || "Ocurrió un error al cargar los pedidos.");
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    setError(null);
+    try {
+      setOrders(allOrders);
+    } catch (e: any) {
+      console.error("Failed to load mock orders", e);
+      setError(e.message || "Ocurrió un error al cargar los pedidos.");
+    } finally {
+      setLoading(false);
     }
-
-    fetchOrders();
   }, []);
 
   const getStatusBadgeClass = (status?: string) => {
