@@ -17,6 +17,15 @@ interface OrderHistoryProps {
 }
 
 export function OrderHistory({ orders }: OrderHistoryProps) {
+
+  const getStatusBadgeClass = (status?: string) => {
+      const normalizedStatus = status?.toUpperCase() || '';
+      if (normalizedStatus === 'ENTREGADO') return 'bg-green-100 text-green-800';
+      if (normalizedStatus === 'EN PROCESO') return 'bg-blue-100 text-blue-800';
+      if (normalizedStatus === 'CANCELADO') return 'bg-red-100 text-red-800';
+      return 'bg-gray-100 text-gray-800';
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -42,11 +51,7 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
                 <TableCell>{order.date}</TableCell>
                 <TableCell>
                   <Badge variant={order.status === 'Entregado' ? 'default' : 'secondary'} 
-                    className={cn({
-                      'bg-green-100 text-green-800': order.status === 'Entregado',
-                      'bg-blue-100 text-blue-800': order.status === 'En Proceso',
-                      'bg-red-100 text-red-800': order.status === 'Cancelado'
-                    })}>
+                    className={cn(getStatusBadgeClass(order.status))}>
                     {order.status}
                   </Badge>
                 </TableCell>
