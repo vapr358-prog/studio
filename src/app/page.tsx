@@ -25,10 +25,10 @@ export default function HomePage() {
               data-ai-hint={heroImage.imageHint}
             />
           )}
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         </div>
         <div className="relative z-10 p-4">
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl drop-shadow-md">
+          <h1 className="font-handwriting text-6xl md:text-8xl lg:text-9xl text-pink-200 drop-shadow-lg italic -rotate-2">
             Sweet Queen
           </h1>
           <p className="mt-4 text-xl md:text-2xl font-body drop-shadow-md">

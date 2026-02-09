@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-bg",
-      "description": "Elegant cake on a stand, setting a sophisticated mood for the homepage.",
-      "imageUrl": "/FONDO.jpg",
-      "imageHint": "bakery interior"
+      "description": "Fondo de la pastelería Sweet Queen con un pastel elegante.",
+      "imageUrl": "/FONDO NUEVO.jpg",
+      "imageHint": "bakery background"
     },
     {
       "id": "brand-post",
