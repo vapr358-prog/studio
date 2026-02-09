@@ -27,7 +27,7 @@ export default function HomePage() {
           )}
         </div>
         <div className="relative z-10 p-4">
-          <h1 className="font-handwriting text-7xl md:text-9xl lg:text-[10rem] text-primary drop-shadow-lg italic -rotate-2">
+          <h1 className="font-handwriting text-6xl md:text-8xl lg:text-9xl text-primary drop-shadow-lg italic -rotate-2">
             Sweet Queen
           </h1>
           <p className="mt-4 text-xl md:text-3xl font-body text-foreground drop-shadow-md max-w-2xl mx-auto">
