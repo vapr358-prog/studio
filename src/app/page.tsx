@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[70vh] md:h-[85vh] w-full flex items-center justify-center text-center text-white">
+      <section className="relative h-[85vh] w-full flex items-center justify-center text-center">
         <div className="absolute inset-0">
           {heroImage && (
             <Image
@@ -25,13 +25,12 @@ export default function HomePage() {
               data-ai-hint={heroImage.imageHint}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
         <div className="relative z-10 p-4">
-          <h1 className="font-handwriting text-7xl md:text-9xl lg:text-[10rem] text-white drop-shadow-xl italic -rotate-2">
+          <h1 className="font-handwriting text-7xl md:text-9xl lg:text-[10rem] text-primary drop-shadow-lg italic -rotate-2">
             Sweet Queen
           </h1>
-          <p className="mt-4 text-xl md:text-3xl font-body drop-shadow-lg max-w-2xl mx-auto">
+          <p className="mt-4 text-xl md:text-3xl font-body text-foreground drop-shadow-md max-w-2xl mx-auto">
             Pastelería Artesanal que Enamora
           </p>
           <Button asChild size="lg" className="mt-8">
