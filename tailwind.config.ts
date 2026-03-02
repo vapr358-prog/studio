@@ -19,7 +19,7 @@ export default {
       fontFamily: {
         body: ['Alegreya', 'serif'],
         headline: ['Belleza', 'sans-serif'],
-        handwriting: ['"Dancing Script"', 'cursive'],
+        handwriting: ['"Great Vibes"', 'cursive'],
         code: ['monospace'],
       },
       colors: {
