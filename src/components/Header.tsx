@@ -61,7 +61,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 mr-6">
           <Image src="/LOGO2_VALENTINA_PRIETO.png" alt="Sweet Queen Logo" width={40} height={40} />
-          <span className="font-handwriting text-3xl text-primary whitespace-nowrap">Sweet Queen</span>
+          <span className="font-handwriting text-2xl text-primary whitespace-nowrap">Sweet Queen</span>
         </Link>
         
         <div className="flex flex-1 items-center justify-end">

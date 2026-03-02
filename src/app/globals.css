@@ -8,26 +8,27 @@ body {
 
 @layer base {
   :root {
-    /* Sweet Queen Pink Palette */
-    --background: 350 100% 99%;    /* Ultra light pink/white */
-    --foreground: 340 40% 15%;     /* Deep rose/brown */
+    /* Sweet Queen Official Pink Palette - Matched to Logo */
+    /* Primary Pink: Vivid and Elegant */
+    --background: 330 100% 99%;    /* Very light blush white */
+    --foreground: 330 40% 15%;     /* Deep berry for text */
     --card: 0 0% 100%;
-    --card-foreground: 340 40% 15%;
+    --card-foreground: 330 40% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 340 40% 15%;
-    --primary: 340 70% 52%;       /* Sweet Rose Pink */
-    --primary-foreground: 350 100% 99%;
-    --secondary: 340 100% 96%;     /* Very light blush */
-    --secondary-foreground: 340 70% 52%;
-    --muted: 340 20% 95%;
-    --muted-foreground: 340 20% 45%;
-    --accent: 340 100% 96%;
-    --accent-foreground: 340 70% 52%;
+    --popover-foreground: 330 40% 15%;
+    --primary: 330 85% 60%;       /* The "Sweet Queen" Pink */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 330 100% 96%;     /* Soft petal pink */
+    --secondary-foreground: 330 85% 60%;
+    --muted: 330 20% 95%;
+    --muted-foreground: 330 20% 45%;
+    --accent: 330 100% 96%;
+    --accent-foreground: 330 85% 60%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 340 30% 90%;
-    --input: 340 30% 90%;
-    --ring: 340 70% 52%;
+    --border: 330 30% 90%;
+    --input: 330 30% 90%;
+    --ring: 330 85% 60%;
     --radius: 1.5rem;
   }
 }
