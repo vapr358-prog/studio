@@ -8,6 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function CakesPage() {
+  // Filtramos para NO mostrar la galería como un producto comercial
+  const commercialCakes = cakes.filter(cake => cake.id !== 'tarta-cumpleanos-especial');
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
       <div className="text-center mb-12">
@@ -17,7 +20,7 @@ export default function CakesPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {cakes.map((cake) => (
+        {commercialCakes.map((cake) => (
           <CakeCard key={cake.id} cake={cake} />
         ))}
       </div>

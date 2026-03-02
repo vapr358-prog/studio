@@ -5,13 +5,13 @@ import { cakes } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Image as ImageIcon } from 'lucide-react';
+import { MapPin, Phone, Mail, Image as ImageIcon, Camera } from 'lucide-react';
 
 export default function HomePage() {
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
-  const featuredCakes = cakes.slice(0, 3);
-
-  const birthdayCake = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
+  // Solo mostrar productos reales en el carrusel de inicio
+  const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
+  const birthdayGallery = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
   const chocolateCake = cakes.find(c => c.id === 'tarta-de-chocolate');
   const specialCake = cakes.find(c => c.id === 'tarta-personalizada');
 
@@ -31,10 +31,10 @@ export default function HomePage() {
           )}
         </div>
         <div className="relative z-10 p-6 bg-white/10 backdrop-blur-sm rounded-3xl inline-block mx-4 border border-white/20">
-          <h1 className="font-handwriting text-8xl md:text-9xl text-primary drop-shadow-xl -rotate-2">
+          <h1 className="font-handwriting text-7xl md:text-8xl text-primary drop-shadow-xl -rotate-2">
             Sweet Queen
           </h1>
-          <p className="mt-6 text-2xl md:text-4xl font-body text-primary font-bold drop-shadow-md max-w-2xl mx-auto">
+          <p className="mt-6 text-xl md:text-3xl font-body text-primary font-bold drop-shadow-md max-w-2xl mx-auto">
             Pastelería Artesanal que Enamora
           </p>
           <Button asChild size="lg" className="mt-10 px-12 py-8 text-xl rounded-full shadow-2xl hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
@@ -47,9 +47,9 @@ export default function HomePage() {
       <section className="py-20 md:py-32 bg-background border-b border-primary/5">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-5xl md:text-6xl text-primary">Nuestras Creaciones</h2>
-            <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
-              Una selección de los pasteles más dulces para tus momentos especiales.
+            <h2 className="font-headline text-5xl md:text-6xl text-primary uppercase tracking-tight">Nuestras Creaciones</h2>
+            <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto italic">
+              Una selección de los pasteles más dulces para tus pedidos.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -65,59 +65,65 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Sections - Celebraciones Mágicas (MODIFICADO) */}
-      <section className="py-24 bg-secondary/30 overflow-hidden">
+      {/* Gallery Section - CELEBRACIONES MÁGICAS (APARTADO VISUAL) */}
+      <section className="py-24 bg-secondary/40 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
+            <span className="text-primary font-bold tracking-[0.3em] uppercase mb-4 block">Portafolio</span>
             <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">CELEBRACIONES MÁGICAS</h2>
-            <p className="text-xl text-muted-foreground mt-4 italic">Descubre la magia en cada detalle a través de nuestras fotos.</p>
+            <p className="text-xl text-muted-foreground mt-4 italic max-w-3xl mx-auto">
+              No son solo pasteles, son recuerdos capturados en fotos. Inspírate con nuestra galería de momentos especiales.
+            </p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {birthdayCake?.gallery?.map((img, idx) => (
-              <div key={idx} className={`relative rounded-2xl overflow-hidden shadow-lg aspect-square ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
+            {birthdayGallery?.gallery?.slice(0, 4).map((img, idx) => (
+              <div key={idx} className={`relative rounded-3xl overflow-hidden shadow-2xl aspect-square group ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
                 <Image 
                   src={img.url} 
-                  alt="Celebración" 
+                  alt="Galería de celebración" 
                   fill 
-                  className="object-cover hover:scale-110 transition-transform duration-500"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                   data-ai-hint={img.hint}
                 />
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                   <Camera className="text-white h-12 w-12" />
+                </div>
               </div>
             ))}
           </div>
 
           <div className="text-center">
-            <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
+            <Button asChild size="lg" className="rounded-full px-14 py-9 text-2xl shadow-xl hover:scale-105 transition-all">
               <Link href="/cakes/tarta-cumpleanos-especial">
-                <ImageIcon className="mr-2" />
-                Ver Galería Completa
+                <ImageIcon className="mr-3 h-7 w-7" />
+                Explorar Galería Completa
               </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Category Sections - Tartas de Chocolate */}
-      <section className="relative min-h-screen flex items-center bg-background py-20 overflow-hidden">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-          <div className="order-2 md:order-1 flex flex-col items-end text-right gap-6">
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Chocolate Intenso</h2>
+      {/* Category Sections - Chocolate */}
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
+          <div className="order-2 md:order-1 text-right flex flex-col items-end gap-6">
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Puro Chocolate</h2>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Un viaje al corazón del cacao. Nuestras tartas de chocolate son densas, cremosas y perfectas para los paladares más exigentes. El regalo ideal para los chocoadictos.
+              Intenso, cremoso y adictivo. Nuestras tartas de chocolate son el paraíso para los amantes del buen cacao.
             </p>
             <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
-              <Link href="/cakes/tarta-de-chocolate">Explorar Chocolate</Link>
+              <Link href="/cakes/tarta-de-chocolate">Ver Opciones</Link>
             </Button>
           </div>
-          <div className="order-1 md:order-2 relative aspect-square md:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
+          <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-white">
             {chocolateCake && (
               <Image 
                 src={chocolateCake.image.url} 
                 alt="Tartas de Chocolate" 
                 fill 
                 className="object-cover"
-                data-ai-hint="dark chocolate cake"
+                data-ai-hint="luxury chocolate cake"
               />
             )}
           </div>
@@ -125,26 +131,26 @@ export default function HomePage() {
       </section>
 
       {/* Category Sections - Tartas Especiales */}
-      <section className="relative min-h-screen flex items-center bg-secondary/30 py-20 overflow-hidden">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-square md:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
+      <section className="py-24 bg-secondary/30">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
+          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-white">
             {specialCake && (
               <Image 
                 src={specialCake.image.url} 
                 alt="Tartas Especiales" 
                 fill 
                 className="object-cover"
-                data-ai-hint="luxury wedding cake"
+                data-ai-hint="wedding cake gold"
               />
             )}
           </div>
           <div className="flex flex-col items-start gap-6">
             <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Tus Sueños en Tarta</h2>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              ¿Tienes una idea loca? Nosotros la horneamos. Desde tartas de boda hasta diseños corporativos, cada pieza es una obra de arte personalizada.
+              ¿Buscas algo único? Creamos diseños personalizados que cuentan tu historia. El límite es tu imaginación.
             </p>
             <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
-              <Link href="/cakes/tarta-personalizada">Crear mi Tarta</Link>
+              <Link href="/cakes/tarta-personalizada">Crear mi Diseño</Link>
             </Button>
           </div>
         </div>
@@ -154,7 +160,7 @@ export default function HomePage() {
       <section id="contacto" className="py-24 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-5xl md:text-6xl text-white">Endulcemos tu Momento</h2>
+            <h2 className="font-headline text-5xl md:text-6xl text-white uppercase tracking-widest">Endulcemos tu Momento</h2>
             <p className="mt-4 text-xl opacity-90 max-w-2xl mx-auto font-body italic">
               Estamos en Reus deseando conocer tu idea.
             </p>
@@ -179,7 +185,7 @@ export default function HomePage() {
                 <Mail className="h-8 w-8" />
               </div>
               <h3 className="text-2xl font-bold">Email</h3>
-              <p className="text-lg opacity-90">prietoerazovalentina8@gmail.com</p>
+              <p className="text-lg opacity-90 text-sm">prietoerazovalentina8@gmail.com</p>
             </div>
           </div>
           <div className="text-center mt-16">
