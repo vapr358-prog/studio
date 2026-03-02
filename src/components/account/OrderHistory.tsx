@@ -56,7 +56,7 @@ export function OrderHistory({ orders }: OrderHistoryProps) {
                   </Badge>
                 </TableCell>
                 <TableCell>{order.items.map(i => i.name).join(', ')}</TableCell>
-                <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                <TableCell className="text-right">{order.total.toFixed(2)}€</TableCell>
               </TableRow>
             ))}
           </TableBody>

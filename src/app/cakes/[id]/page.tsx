@@ -56,7 +56,7 @@ export default function CakeDetailPage({ params }: Props) {
         </div>
         <div className="flex flex-col gap-4">
           <h1 className="font-headline text-4xl md:text-5xl">{cake.name}</h1>
-          <p className="text-3xl font-semibold text-primary">${cake.price.toFixed(2)}</p>
+          <p className="text-3xl font-semibold text-primary">Desde {cake.price.toFixed(2)}€</p>
           <Separator />
           <p className="text-lg text-muted-foreground">{cake.description}</p>
           <div>

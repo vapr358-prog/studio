@@ -30,7 +30,7 @@ export function CakeCard({ cake }: CakeCardProps) {
           </Link>
         </CardTitle>
         <p className="text-muted-foreground text-lg font-semibold">
-          ${cake.price.toFixed(2)}
+          Desde {cake.price.toFixed(2)}€
         </p>
       </CardContent>
       <CardFooter className="p-6 pt-0">
