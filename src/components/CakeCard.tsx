@@ -9,6 +9,8 @@ interface CakeCardProps {
 }
 
 export function CakeCard({ cake }: CakeCardProps) {
+  const isUnitBased = cake.id === 'galletas-artesanales';
+  
   return (
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="p-0">
@@ -30,7 +32,7 @@ export function CakeCard({ cake }: CakeCardProps) {
           </Link>
         </CardTitle>
         <p className="text-muted-foreground text-lg font-semibold">
-          Desde {cake.price.toFixed(2)}€
+          Desde {cake.price.toFixed(2)}€{isUnitBased ? ' und' : ''}
         </p>
       </CardContent>
       <CardFooter className="p-6 pt-0">

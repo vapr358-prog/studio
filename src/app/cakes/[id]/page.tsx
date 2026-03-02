@@ -41,6 +41,8 @@ export default function CakeDetailPage({ params }: Props) {
     notFound();
   }
 
+  const isUnitBased = cake.id === 'galletas-artesanales';
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
@@ -56,7 +58,9 @@ export default function CakeDetailPage({ params }: Props) {
         </div>
         <div className="flex flex-col gap-4">
           <h1 className="font-headline text-4xl md:text-5xl">{cake.name}</h1>
-          <p className="text-3xl font-semibold text-primary">Desde {cake.price.toFixed(2)}€</p>
+          <p className="text-3xl font-semibold text-primary">
+            Desde {cake.price.toFixed(2)}€{isUnitBased ? ' und' : ''}
+          </p>
           <Separator />
           <p className="text-lg text-muted-foreground">{cake.description}</p>
           <div>

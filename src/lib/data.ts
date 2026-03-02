@@ -65,6 +65,14 @@ export const cakes: Cake[] = [
     price: 30.00,
     flavorProfile: ['Personalizado', 'Creativo', 'Especial'],
     image: getImage('custom-flavor'),
+  },
+  {
+    id: 'galletas-artesanales',
+    name: 'Galletas',
+    description: 'Nuestras galletas artesanales son el acompañamiento perfecto. Hechas con ingredientes de alta calidad y mucho cariño.',
+    price: 2.50,
+    flavorProfile: ['Dulce', 'Crujiente', 'Chocolate'],
+    image: getImage('galletas'),
   }
 ];
 
