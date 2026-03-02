@@ -8,27 +8,27 @@
     },
     {
       "id": "birthday-cake-1",
-      "description": "Tarta de cumpleaños colorida y festiva.",
-      "imageUrl": "https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?q=80&w=1080",
-      "imageHint": "birthday cake"
+      "description": "Niños celebrando un cumpleaños con tarta.",
+      "imageUrl": "https://picsum.photos/seed/bday1/800/600",
+      "imageHint": "child birthday"
     },
     {
       "id": "birthday-cake-2",
-      "description": "Detalle de decoración de tarta de cumpleaños.",
-      "imageUrl": "https://images.unsplash.com/photo-1535254973040-607b474cb8c2?q=80&w=1080",
-      "imageHint": "cake detail"
+      "description": "Detalle de una tarta colorida en fiesta infantil.",
+      "imageUrl": "https://images.unsplash.com/photo-1509666537727-9154b6962292?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxraWRzJTIwcGFydHl8ZW58MHx8fHwxNzcyNDYwOTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "kids party"
     },
     {
       "id": "birthday-cake-3",
-      "description": "Tarta de cumpleaños cortada mostrando el relleno.",
-      "imageUrl": "https://images.unsplash.com/photo-1562440499-64c9a111f713?q=80&w=1080",
-      "imageHint": "cake slice"
+      "description": "Momento de soplar las velas.",
+      "imageUrl": "https://images.unsplash.com/photo-1610670444950-0b29430891b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxiaXJ0aGRheSUyMGNlbGVicmF0aW9ufGVufDB8fHx8MTc3MjM4NTk5MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "birthday celebration"
     },
     {
       "id": "birthday-cake-4",
-      "description": "Variedad de tartas de cumpleaños en el obrador.",
-      "imageUrl": "https://images.unsplash.com/photo-1574085428583-b292c633194b?q=80&w=1080",
-      "imageHint": "bakery cakes"
+      "description": "Mesa de dulces decorada.",
+      "imageUrl": "https://images.unsplash.com/photo-1557242071-6d7e84b73e61?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2FuZHklMjBiYXJ8ZW58MHx8fHwxNzcyNDYwOTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "candy bar"
     },
     {
       "id": "tarta-personalizada",

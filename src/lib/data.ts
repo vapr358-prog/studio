@@ -1,3 +1,4 @@
+
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -12,10 +13,10 @@ const getImage = (id: string) => {
 export const cakes: Cake[] = [
   {
     id: 'tarta-cumpleanos-especial',
-    name: 'Tarta de Cumpleaños Especial',
-    description: 'La tarta perfecta para celebrar un año más. Decoración festiva, colores alegres y el sabor que tú elijas. ¡Hacemos que tu día sea inolvidable!',
+    name: 'Celebraciones Mágicas',
+    description: 'Nuestra galería de momentos mágicos e inolvidables.',
     price: 30.00,
-    flavorProfile: ['Cumpleaños', 'Festiva', 'Personalizada'],
+    flavorProfile: ['Celebración', 'Felicidad', 'Magia'],
     image: getImage('birthday-cake-1'),
     gallery: [
       getImage('birthday-cake-1'),
