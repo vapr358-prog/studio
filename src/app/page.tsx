@@ -5,7 +5,7 @@ import { cakes } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Phone, Mail, Image as ImageIcon } from 'lucide-react';
 
 export default function HomePage() {
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
@@ -13,7 +13,6 @@ export default function HomePage() {
 
   const birthdayCake = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
   const chocolateCake = cakes.find(c => c.id === 'tarta-de-chocolate');
-  const carrotCake = cakes.find(c => c.id === 'carrot-cake');
   const specialCake = cakes.find(c => c.id === 'tarta-personalizada');
 
   return (
@@ -66,27 +65,34 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Sections - Cumpleaños (NUEVO) */}
-      <section className="relative min-h-screen flex items-center bg-secondary/50 py-20 overflow-hidden">
-        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-square md:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
-            {birthdayCake && (
-              <Image 
-                src={birthdayCake.image.url} 
-                alt="Tartas de Cumpleaños" 
-                fill 
-                className="object-cover"
-                data-ai-hint="birthday cake celebration"
-              />
-            )}
+      {/* Category Sections - Celebraciones Mágicas (MODIFICADO) */}
+      <section className="py-24 bg-secondary/30 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">CELEBRACIONES MÁGICAS</h2>
+            <p className="text-xl text-muted-foreground mt-4 italic">Descubre la magia en cada detalle a través de nuestras fotos.</p>
           </div>
-          <div className="flex flex-col items-start gap-6">
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Cumpleaños Mágicos</h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              Haz que su día sea único con nuestras tartas de cumpleaños. Diseños vibrantes, sabores irresistibles y toda la magia de Sweet Queen en cada porción. ¡Mira nuestra galería completa!
-            </p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            {birthdayCake?.gallery?.map((img, idx) => (
+              <div key={idx} className={`relative rounded-2xl overflow-hidden shadow-lg aspect-square ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
+                <Image 
+                  src={img.url} 
+                  alt="Celebración" 
+                  fill 
+                  className="object-cover hover:scale-110 transition-transform duration-500"
+                  data-ai-hint={img.hint}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center">
             <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
-              <Link href="/cakes/tarta-cumpleanos-especial">Ver más y Galería</Link>
+              <Link href="/cakes/tarta-cumpleanos-especial">
+                <ImageIcon className="mr-2" />
+                Ver Galería Completa
+              </Link>
             </Button>
           </div>
         </div>

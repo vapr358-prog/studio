@@ -23,7 +23,7 @@ export async function generateMetadata(
   }
  
   return {
-    title: cake.name,
+    title: cake.id === 'tarta-cumpleanos-especial' ? 'Celebraciones Mágicas' : cake.name,
     description: cake.description,
   }
 }
@@ -41,6 +41,7 @@ export default function CakeDetailPage({ params }: Props) {
     notFound();
   }
 
+  const isCelebration = cake.id === 'tarta-cumpleanos-especial';
   const isUnitBased = cake.id === 'galletas-artesanales';
 
   return (
@@ -57,32 +58,49 @@ export default function CakeDetailPage({ params }: Props) {
           />
         </div>
         <div className="flex flex-col gap-6">
-          <h1 className="font-headline text-5xl md:text-6xl text-primary">{cake.name}</h1>
-          <p className="text-4xl font-semibold text-primary">
-            Desde {cake.price.toFixed(2)}€{isUnitBased ? ' und' : ''}
-          </p>
-          <Separator className="bg-primary/20" />
-          <p className="text-xl text-muted-foreground leading-relaxed">{cake.description}</p>
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Perfil de Sabor:</h2>
-            <div className="flex flex-wrap gap-2">
-              {cake.flavorProfile.map((flavor) => (
-                <Badge key={flavor} variant="secondary" className="text-md px-4 py-1">
-                  {flavor}
-                </Badge>
-              ))}
-            </div>
-          </div>
+          <h1 className="font-headline text-5xl md:text-6xl text-primary">
+            {isCelebration ? 'CELEBRACIONES MÁGICAS' : cake.name}
+          </h1>
+          
+          {/* Ocultar precio y descripción si es Celebración Mágica */}
+          {!isCelebration && (
+            <>
+              <p className="text-4xl font-semibold text-primary">
+                Desde {cake.price.toFixed(2)}€{isUnitBased ? ' und' : ''}
+              </p>
+              <Separator className="bg-primary/20" />
+              <p className="text-xl text-muted-foreground leading-relaxed">{cake.description}</p>
+              <div>
+                <h2 className="text-2xl font-bold mb-4">Perfil de Sabor:</h2>
+                <div className="flex flex-wrap gap-2">
+                  {cake.flavorProfile.map((flavor) => (
+                    <Badge key={flavor} variant="secondary" className="text-md px-4 py-1">
+                      {flavor}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {isCelebration && (
+            <p className="text-xl text-muted-foreground italic">
+              Cada celebración es única. Mira nuestra galería de fotos para inspirarte y contáctanos para crear algo especial para ti.
+            </p>
+          )}
+
           <div className="mt-6">
-            <Button size="lg" className="w-full sm:w-auto text-xl py-8 px-12 rounded-full">Solicitar Pedido</Button>
+            <Button size="lg" className="w-full sm:w-auto text-xl py-8 px-12 rounded-full">
+              Solicitar Pedido
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Collage de imágenes (Galería) */}
+      {/* Collage de imágenes (Galería) siempre visible */}
       {cake.gallery && cake.gallery.length > 0 && (
         <section className="mt-16">
-          <h2 className="font-headline text-4xl text-center mb-12 text-primary">Galería de Detalles</h2>
+          <h2 className="font-headline text-4xl text-center mb-12 text-primary">Galería de Fotos</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {cake.gallery.map((img, idx) => (
               <div 
@@ -109,7 +127,7 @@ export default function CakeDetailPage({ params }: Props) {
   );
 }
 
-// Utility to handle conditional classes in this file specifically
+// Utility to handle conditional classes
 function cn(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }
