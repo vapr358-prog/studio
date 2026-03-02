@@ -51,6 +51,14 @@ export const cakes: Cake[] = [
     image: getImage('vanilla-cake'),
   },
   {
+    id: 'mini-tarta-personal',
+    name: 'Mini Tarta (PERSONAL)',
+    description: 'La opción ideal para un antojo personal o un detalle especial. Pequeña en tamaño, pero gigante en sabor y dedicación.',
+    price: 30.00,
+    flavorProfile: ['Personal', 'Individual', 'Detalle'],
+    image: getImage('mini-tarta'),
+  },
+  {
     id: 'tarta-sabor-personalizado',
     name: 'Tarta Sabor Personalizado',
     description: '¿Tienes un sabor favorito en mente? Nosotros lo preparamos para ti. Elige tu combinación preferida y disfruta de algo único.',
