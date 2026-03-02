@@ -11,6 +11,20 @@ const getImage = (id: string) => {
 
 export const cakes: Cake[] = [
   {
+    id: 'tarta-cumpleanos-especial',
+    name: 'Tarta de Cumpleaños Especial',
+    description: 'La tarta perfecta para celebrar un año más. Decoración festiva, colores alegres y el sabor que tú elijas. ¡Hacemos que tu día sea inolvidable!',
+    price: 30.00,
+    flavorProfile: ['Cumpleaños', 'Festiva', 'Personalizada'],
+    image: getImage('birthday-cake-1'),
+    gallery: [
+      getImage('birthday-cake-1'),
+      getImage('birthday-cake-2'),
+      getImage('birthday-cake-3'),
+      getImage('birthday-cake-4'),
+    ]
+  },
+  {
     id: 'tarta-personalizada',
     name: 'Tarta Personalizada',
     description: 'Diseñamos la tarta de tus sueños para cualquier ocasión especial. Cuéntanos tu idea y la haremos realidad con un diseño único.',

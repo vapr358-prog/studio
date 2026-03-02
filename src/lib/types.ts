@@ -11,6 +11,7 @@ export type Cake = {
   price: number;
   flavorProfile: string[];
   image: Image;
+  gallery?: Image[]; // Para el collage de imágenes
 };
 
 export type BlogPost = {
