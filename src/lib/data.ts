@@ -1,10 +1,10 @@
+
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getImage = (id: string) => {
   const image = PlaceHolderImages.find(p => p.id === id);
   if (!image) {
-    // Fallback or error handling
     return { id: 'fallback', url: 'https://placehold.co/400x300', hint: 'cake' };
   }
   return { id: image.id, url: image.imageUrl, hint: image.imageHint };
@@ -12,52 +12,52 @@ const getImage = (id: string) => {
 
 export const cakes: Cake[] = [
   {
-    id: 'red-velvet-premium',
-    name: 'Red Velvet Premium',
-    description: 'Un clásico reinventado. Bizcocho de terciopelo rojo con un toque de cacao y un suave glaseado de queso crema artesanal. Perfecto para cualquier celebración.',
-    price: 45.00,
-    flavorProfile: ['Red Velvet', 'Vainilla', 'Queso Crema'],
-    image: getImage('red-velvet'),
+    id: 'tarta-personalizada',
+    name: 'Tarta Personalizada',
+    description: 'Diseñamos la tarta de tus sueños para cualquier ocasión especial. Cuéntanos tu idea y la haremos realidad con un diseño único.',
+    price: 60.00,
+    flavorProfile: ['Personalizado', 'Artesanal', 'Elegante'],
+    image: getImage('tarta-personalizada'),
   },
   {
-    id: 'tarta-tres-leches-con-fruta-fresca',
-    name: 'Tarta Tres Leches con Fruta Fresca',
-    description: 'Bizcocho esponjoso bañado en una mezcla de tres leches, cubierto con merengue italiano y fruta de temporada. Un postre húmedo y delicioso.',
+    id: 'tarta-tres-leches-fruta-fresca',
+    name: 'Tarta Tres Leches con fruta fresca',
+    description: 'Nuestra especialidad: bizcocho húmedo bañado en una mezcla de tres leches y decorado con las mejores frutas de temporada.',
     price: 40.00,
-    flavorProfile: ['Tres Leches', 'Fresa', 'Vainilla'],
+    flavorProfile: ['Tres Leches', 'Frutas', 'Vainilla'],
     image: getImage('tres-leches'),
   },
   {
-    id: 'cheesecake-artesanal-premium',
-    name: 'Cheesecake Artesanal Premium',
-    description: 'Cremoso y rico, nuestro cheesecake se hornea a la perfección sobre una base de galleta de mantequilla. Coronado con una capa de mermelada de frutos rojos casera.',
-    price: 50.00,
-    flavorProfile: ['Queso Crema', 'Limón', 'Fresa'],
-    image: getImage('cheesecake'),
+    id: 'tarta-de-chocolate',
+    name: 'Tarta de Chocolate',
+    description: 'Para los amantes del cacao. Un bizcocho de chocolate intenso relleno y cubierto con una suave ganache de chocolate.',
+    price: 45.00,
+    flavorProfile: ['Chocolate', 'Ganache', 'Dulce'],
+    image: getImage('chocolate-cake'),
   },
   {
-    id: 'pastel-de-chocolate-intenso',
-    name: 'Pastel de Chocolate Intenso',
-    description: 'Para los amantes del chocolate. Capas de bizcocho de chocolate oscuro intercaladas con un rico fudge de chocolate y cubiertas con ganache de chocolate brillante.',
-    price: 48.00,
-    flavorProfile: ['Chocolate', 'Café'],
-    image: getImage('chocolate-fudge'),
-  },
-  {
-    id: 'tarta-de-zanahoria-y-nueces',
-    name: 'Tarta de Zanahoria y Nueces',
-    description: 'Un bizcocho húmedo y especiado con zanahoria fresca rallada, nueces tostadas y un glaseado de queso crema con un toque de canela.',
+    id: 'carrot-cake',
+    name: 'Carrot Cake',
+    description: 'El equilibrio perfecto. Bizcocho de zanahoria súper jugoso con nueces crujientes y un delicioso frosting de queso crema.',
     price: 42.00,
-    flavorProfile: ['Zanahoria', 'Vainilla', 'Nueces'],
+    flavorProfile: ['Zanahoria', 'Nueces', 'Queso Crema'],
     image: getImage('carrot-cake'),
   },
   {
-    id: 'bizcocho-de-limon-y-amapola',
-    name: 'Bizcocho de Limón y Amapola',
-    description: 'Ligero y refrescante. Un bizcocho de limón brillante con semillas de amapola y un glaseado de limón que te hará soñar.',
+    id: 'tarta-vainilla',
+    name: 'Tarta Vainilla',
+    description: 'Un clásico que nunca falla. Bizcocho de vainilla suave, esponjoso y con un aroma irresistible, hecho de forma tradicional.',
     price: 35.00,
-    flavorProfile: ['Limón', 'Vainilla'],
-    image: getImage('lemon-drizzle'),
+    flavorProfile: ['Vainilla', 'Clásico', 'Artesanal'],
+    image: getImage('vanilla-cake'),
+  },
+  {
+    id: 'tarta-sabor-personalizado',
+    name: 'Tarta Sabor Personalizado',
+    description: '¿Tienes un sabor favorito en mente? Nosotros lo preparamos para ti. Elige tu combinación preferida y disfruta de algo único.',
+    price: 55.00,
+    flavorProfile: ['Personalizado', 'Creativo', 'Especial'],
+    image: getImage('custom-flavor'),
   }
 ];
 
@@ -72,16 +72,16 @@ export const orders: Order[] = [
     id: 'ORD-001',
     clientName: 'Ana Pérez',
     date: '2023-10-15',
-    items: [{ name: 'Red Velvet Premium', quantity: 1 }],
-    total: 45.00,
+    items: [{ name: 'Tarta Vainilla', quantity: 1 }],
+    total: 35.00,
     status: 'Entregado',
   },
   {
     id: 'ORD-002',
     clientName: 'Juan Rodriguez',
     date: '2023-11-20',
-    items: [{ name: 'Pastel de Chocolate Intenso', quantity: 1 }],
-    total: 48.00,
+    items: [{ name: 'Tarta de Chocolate', quantity: 1 }],
+    total: 45.00,
     status: 'Entregado',
   },
   {
@@ -89,18 +89,18 @@ export const orders: Order[] = [
     clientName: 'Ana Pérez',
     date: '2024-01-05',
     items: [
-      { name: 'Tarta de Zanahoria y Nueces', quantity: 1 },
-      { name: 'Bizcocho de Limón y Amapola', quantity: 1 },
+      { name: 'Carrot Cake', quantity: 1 },
+      { name: 'Tarta Tres Leches con fruta fresca', quantity: 1 },
     ],
-    total: 77.00,
+    total: 82.00,
     status: 'Entregado',
   },
   {
     id: 'ORD-004',
     clientName: 'Valentina Prieto',
     date: '2024-03-01',
-    items: [{ name: 'Tarta Tres Leches con Fruta Fresca', quantity: 1 }],
-    total: 40.00,
+    items: [{ name: 'Tarta Personalizada', quantity: 1 }],
+    total: 60.00,
     status: 'En Proceso',
   },
 ];

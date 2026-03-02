@@ -7,40 +7,40 @@
       "imageHint": "bakery background"
     },
     {
-      "id": "brand-post",
-      "description": "A beautiful and elegant cake that represents the Sweet Queen brand.",
-      "imageUrl": "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=1974&auto=format&fit=crop",
-      "imageHint": "brand cake"
+      "id": "tarta-personalizada",
+      "description": "Una hermosa tarta personalizada hecha a medida para eventos especiales.",
+      "imageUrl": "https://images.unsplash.com/photo-1535141192574-5d4897c12636?q=80&w=1080",
+      "imageHint": "custom cake"
     },
     {
       "id": "tres-leches",
-      "description": "A serving of Tres Leches cake soaked in milk and topped with whipped cream and fruit.",
+      "description": "Tarta Tres Leches con fruta fresca, jugosa y decorada.",
       "imageUrl": "https://i.ibb.co/L5T4sFb/tres-leches.jpg",
       "imageHint": "tres leches"
     },
     {
-      "id": "cheesecake",
-      "description": "A creamy artisan cheesecake with a berry topping.",
-      "imageUrl": "https://images.unsplash.com/photo-1524383303575-e50e50481747?q=80&w=1974&auto=format&fit=crop",
-      "imageHint": "artisan cheesecake"
-    },
-    {
-      "id": "chocolate-fudge",
-      "description": "A decadent chocolate fudge cake with glossy ganache.",
-      "imageUrl": "https://images.unsplash.com/photo-1678969405727-1a1e2a572119?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaG9jb2xhdGUlMjBmdWRnZXxlbnwwfHx8fDE3NjUyOTM2OTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "chocolate fudge"
+      "id": "chocolate-cake",
+      "description": "Tarta de chocolate intenso con ganache suave.",
+      "imageUrl": "https://images.unsplash.com/photo-1578985543846-ea12adc65b8b?q=80&w=1080",
+      "imageHint": "chocolate cake"
     },
     {
       "id": "carrot-cake",
-      "description": "A slice of moist carrot cake with walnuts and cream cheese frosting.",
-      "imageUrl": "https://images.unsplash.com/photo-1633046483479-932d80cd4356?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjYXJyb3QlMjBjYWtlfGVufDB8fHx8MTc2NTI5MzY5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "Carrot Cake clásica con frosting de queso crema.",
+      "imageUrl": "https://images.unsplash.com/photo-1633046483479-932d80cd4356?q=80&w=1080",
       "imageHint": "carrot cake"
     },
     {
-      "id": "lemon-drizzle",
-      "description": "A bright and zesty lemon drizzle cake.",
-      "imageUrl": "https://images.unsplash.com/photo-1691242720316-7bea97eb655f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxsZW1vbiUyMGNha2V8ZW58MHx8fHwxNzY1MjQyMzUzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "lemon cake"
+      "id": "vanilla-cake",
+      "description": "Tarta de vainilla clásica y elegante con un toque artesanal.",
+      "imageUrl": "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?q=80&w=1080",
+      "imageHint": "vanilla cake"
+    },
+    {
+      "id": "custom-flavor",
+      "description": "Tarta con sabor personalizado según la elección del cliente.",
+      "imageUrl": "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=1080",
+      "imageHint": "artisanal cake"
     },
     {
       "id": "blog-history",
