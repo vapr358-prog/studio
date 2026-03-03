@@ -73,10 +73,10 @@
       "imageHint": "mini cake"
     },
     {
-      "id": "galletas",
-      "description": "Galletas artesanales recién horneadas con pepitas de chocolate.",
-      "imageUrl": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?q=80&w=1080",
-      "imageHint": "cookies"
+      "id": "cupcakes",
+      "description": "Cupcakes artesanales decorados con frosting cremoso.",
+      "imageUrl": "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?q=80&w=1080",
+      "imageHint": "cupcakes"
     }
   ]
 }

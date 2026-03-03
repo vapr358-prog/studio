@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -13,7 +14,7 @@ interface CakeCardProps {
 
 export function CakeCard({ cake }: CakeCardProps) {
   const { language } = useI18n();
-  const isUnitBased = cake.id === 'galletas-artesanales';
+  const isUnitBased = cake.id === 'cupcakes-artesanales';
   
   return (
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">

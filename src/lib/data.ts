@@ -1,3 +1,4 @@
+
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -115,18 +116,18 @@ export const cakes: Cake[] = [
     image: getImage('mini-tarta'),
   },
   {
-    id: 'galletas-artesanales',
+    id: 'cupcakes-artesanales',
     name: {
-      es: 'Galletas',
-      ca: 'Galetes'
+      es: 'Cupcakes',
+      ca: 'Cupcakes'
     },
     description: {
-      es: 'Nuestras galletas artesanales hechas con cariño.',
-      ca: 'Les nostres galetes artesanals fetes amb carinyo.'
+      es: 'Deliciosos cupcakes artesanos con frosting cremoso y decoraciones únicas.',
+      ca: 'Deliciosos cupcakes artesans amb frosting cremós i decoracions úniques.'
     },
-    price: 2.50,
-    flavorProfile: ['Dulce', 'Crujiente', 'Chocolate'],
-    image: getImage('galletas'),
+    price: 3.50,
+    flavorProfile: ['Cupcake', 'Frosting', 'Dulce'],
+    image: getImage('cupcakes'),
   }
 ];
 

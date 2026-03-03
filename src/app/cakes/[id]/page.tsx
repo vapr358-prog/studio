@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -23,7 +24,7 @@ export default function CakeDetailPage() {
   }
 
   const isGalleryOnly = cake.id === 'tarta-cumpleanos-especial';
-  const isUnitBased = cake.id === 'galletas-artesanales';
+  const isUnitBased = cake.id === 'cupcakes-artesanales';
 
   if (isGalleryOnly) {
     return (
