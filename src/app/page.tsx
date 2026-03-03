@@ -6,10 +6,11 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Image as ImageIcon, Camera } from 'lucide-react';
+import { useI18n } from '@/context/LanguageContext';
 
 export default function HomePage() {
+  const { t } = useI18n();
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
-  // Solo mostrar productos reales en el carrusel de inicio
   const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
   const birthdayGallery = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
   const chocolateCake = cakes.find(c => c.id === 'tarta-de-chocolate');
@@ -32,13 +33,13 @@ export default function HomePage() {
         </div>
         <div className="relative z-10 p-8 inline-block mx-4">
           <h1 className="font-headline text-5xl md:text-7xl text-primary drop-shadow-sm tracking-widest uppercase leading-tight">
-            Sweet Queen
+            {t('hero_title')}
           </h1>
           <p className="mt-4 text-lg md:text-xl font-body text-primary/80 font-medium max-w-2xl mx-auto italic">
-            Pastelería Artesanal que Enamora
+            {t('hero_subtitle')}
           </p>
           <Button asChild size="lg" className="mt-10 px-10 py-7 text-xl rounded-full shadow-lg hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
-            <Link href="/cakes">Ver productos</Link>
+            <Link href="/cakes">{t('hero_button')}</Link>
           </Button>
         </div>
       </section>
@@ -47,9 +48,9 @@ export default function HomePage() {
       <section className="py-20 md:py-32 bg-background border-b border-primary/5">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-5xl md:text-6xl text-primary uppercase tracking-tight">Nuestras Creaciones</h2>
+            <h2 className="font-headline text-5xl md:text-6xl text-primary uppercase tracking-tight">{t('section_creations')}</h2>
             <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto italic">
-              Una selección de los pasteles más dulces para tus pedidos.
+              {t('section_creations_sub')}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -59,51 +60,45 @@ export default function HomePage() {
           </div>
           <div className="text-center mt-16">
             <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-white rounded-full px-10 py-7 text-lg">
-              <Link href="/cakes">Ver Todo el Catálogo</Link>
+              <Link href="/cakes">{t('section_all_catalog')}</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Gallery Section - CELEBRACIONES MÁGICAS (APARTADO VISUAL) */}
+      {/* Gallery Section - CELEBRACIONES MÁGICAS */}
       <section className="py-24 bg-secondary/40 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-primary font-bold tracking-[0.3em] uppercase mb-4 block text-sm">Portafolio Fotográfico</span>
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">CELEBRACIONES MÁGICAS</h2>
+            <span className="text-primary font-bold tracking-[0.3em] uppercase mb-4 block text-sm">{t('section_gallery_tag')}</span>
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">{t('section_gallery_title')}</h2>
             <p className="text-xl text-muted-foreground mt-4 italic max-w-3xl mx-auto">
-              No son solo pasteles, son recuerdos capturados en fotos. Inspírate con nuestra galería de momentos especiales.
+              {t('section_gallery_sub')}
             </p>
           </div>
           
-          {/* Custom Gallery Layout: 1 Large Top, 3 Small Bottom */}
           <div className="max-w-6xl mx-auto flex flex-col gap-6 mb-12">
-            {/* Top Large Image */}
             {birthdayGallery?.gallery?.[0] && (
               <div className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-[2.5rem] overflow-hidden shadow-2xl group">
                 <Image 
                   src={birthdayGallery.gallery[0].url} 
-                  alt="Celebración principal" 
+                  alt="Celebración" 
                   fill 
                   className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  data-ai-hint={birthdayGallery.gallery[0].hint}
                 />
                 <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                    <Camera className="text-white h-12 w-12" />
                 </div>
               </div>
             )}
-            
-            {/* Bottom Three Small Images */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {birthdayGallery?.gallery?.slice(1, 4).map((img, idx) => (
                 <div key={idx} className="relative rounded-[2rem] overflow-hidden shadow-xl aspect-square md:aspect-[4/3] group">
                   <Image 
                     src={img.url} 
-                    alt={`Detalle de celebración ${idx + 1}`} 
+                    alt="Detalle" 
                     fill 
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    data-ai-hint={img.hint}
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                      <Camera className="text-white h-8 w-8" />
@@ -117,7 +112,7 @@ export default function HomePage() {
             <Button asChild size="lg" className="rounded-full px-14 py-9 text-2xl shadow-xl hover:scale-105 transition-all">
               <Link href="/cakes/tarta-cumpleanos-especial">
                 <ImageIcon className="mr-3 h-7 w-7" />
-                Explorar Galería Completa
+                {t('section_gallery_button')}
               </Link>
             </Button>
           </div>
@@ -128,22 +123,21 @@ export default function HomePage() {
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
           <div className="order-2 md:order-1 text-right flex flex-col items-end gap-6">
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">Puro Chocolate</h2>
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">{t('section_chocolate_title')}</h2>
             <p className="text-xl text-muted-foreground leading-relaxed italic">
-              Intenso, cremoso y adictivo. Nuestras tartas de chocolate son el paraíso para los amantes del buen cacao.
+              {t('section_chocolate_sub')}
             </p>
             <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
-              <Link href="/cakes/tarta-de-chocolate">Ver Opciones</Link>
+              <Link href="/cakes/tarta-de-chocolate">{t('section_chocolate_button')}</Link>
             </Button>
           </div>
           <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-white">
             {chocolateCake && (
               <Image 
                 src={chocolateCake.image.url} 
-                alt="Tartas de Chocolate" 
+                alt="Chocolate" 
                 fill 
                 className="object-cover"
-                data-ai-hint="luxury chocolate cake"
               />
             )}
           </div>
@@ -157,20 +151,19 @@ export default function HomePage() {
             {specialCake && (
               <Image 
                 src={specialCake.image.url} 
-                alt="Tartas Especiales" 
+                alt="Especiales" 
                 fill 
                 className="object-cover"
-                data-ai-hint="wedding cake gold"
               />
             )}
           </div>
           <div className="flex flex-col items-start gap-6">
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">Tus Sueños en Tarta</h2>
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">{t('section_special_title')}</h2>
             <p className="text-xl text-muted-foreground leading-relaxed italic">
-              ¿Buscas algo único? Creamos diseños personalizados que cuentan tu historia. El límite es tu imaginación.
+              {t('section_special_sub')}
             </p>
             <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
-              <Link href="/cakes/tarta-personalizada">Crear mi Diseño</Link>
+              <Link href="/cakes/tarta-personalizada">{t('section_special_button')}</Link>
             </Button>
           </div>
         </div>
@@ -180,9 +173,9 @@ export default function HomePage() {
       <section id="contacto" className="py-24 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="font-headline text-5xl md:text-6xl text-white uppercase tracking-widest">Endulcemos tu Momento</h2>
+            <h2 className="font-headline text-5xl md:text-6xl text-white uppercase tracking-widest">{t('section_contact_title')}</h2>
             <p className="mt-4 text-xl opacity-90 max-w-2xl mx-auto font-body italic">
-              Estamos en Reus deseando conocer tu idea.
+              {t('section_contact_sub')}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-12 text-center">
@@ -190,27 +183,27 @@ export default function HomePage() {
               <div className="p-5 bg-white/20 rounded-full">
                 <MapPin className="h-8 w-8" />
               </div>
-              <h3 className="text-2xl font-bold">Ubicación</h3>
+              <h3 className="text-2xl font-bold">{t('contact_location')}</h3>
               <p className="text-lg opacity-90">Carrer Alt de Sant Pere 17, Reus</p>
             </div>
             <div className="flex flex-col items-center gap-4">
               <div className="p-5 bg-white/20 rounded-full">
                 <Phone className="h-8 w-8" />
               </div>
-              <h3 className="text-2xl font-bold">WhatsApp</h3>
+              <h3 className="text-2xl font-bold">{t('contact_whatsapp')}</h3>
               <p className="text-lg opacity-90">(+34) 664 477 944</p>
             </div>
             <div className="flex flex-col items-center gap-4">
               <div className="p-5 bg-white/20 rounded-full">
                 <Mail className="h-8 w-8" />
               </div>
-              <h3 className="text-2xl font-bold">Email</h3>
+              <h3 className="text-2xl font-bold">{t('contact_email')}</h3>
               <p className="text-lg opacity-90 text-sm">prietoerazovalentina8@gmail.com</p>
             </div>
           </div>
           <div className="text-center mt-16">
             <Button asChild size="lg" variant="secondary" className="rounded-full px-14 py-9 text-2xl shadow-xl hover:scale-105 transition-transform">
-              <Link href="/contact">Hablar con nosotros</Link>
+              <Link href="/contact">{t('contact_button')}</Link>
             </Button>
           </div>
         </div>

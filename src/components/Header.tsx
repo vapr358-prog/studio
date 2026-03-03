@@ -3,42 +3,38 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X, LogIn, LogOut } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { useRouter } from 'next/navigation';
-
-const baseNavLinks = [
-  { href: '/', label: 'Inicio' },
-  { href: '/cakes', label: 'Nuestros Pasteles' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/book', label: 'Reservar' },
-  { href: '/tracking', label: 'Seguimiento' },
-  { href: '/contact', label: 'Contacto' },
-];
-
-const authenticatedNavLinks: { href: string, label: string }[] = [];
+import { useI18n } from '@/context/LanguageContext';
+import { Language } from '@/lib/translations';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { language, setLanguage, t } = useI18n();
   const router = useRouter();
 
-  // Check login status on mount and on storage change
+  const baseNavLinks = [
+    { href: '/', label: t('nav_home') },
+    { href: '/cakes', label: t('nav_cakes') },
+    { href: '/blog', label: t('nav_blog') },
+    { href: '/book', label: t('nav_book') },
+    { href: '/tracking', label: t('nav_tracking') },
+    { href: '/contact', label: t('nav_contact') },
+  ];
+
   useEffect(() => {
     const checkLoginStatus = () => {
       const user = localStorage.getItem('user');
       setIsLoggedIn(!!user);
     };
 
-    checkLoginStatus(); // Initial check
-
-    // This event fires when localStorage changes in another tab
+    checkLoginStatus();
     window.addEventListener('storage', checkLoginStatus);
-    
-    // Custom event to handle changes in the same tab
     window.addEventListener('local-storage', checkLoginStatus);
     
     return () => {
@@ -49,12 +45,10 @@ export function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
-    window.dispatchEvent(new Event('local-storage')); // Notify other components in the same tab
+    window.dispatchEvent(new Event('local-storage'));
     router.push('/login');
     if (isOpen) setIsOpen(false);
   };
-
-  const navLinks = isLoggedIn ? [...baseNavLinks, ...authenticatedNavLinks] : baseNavLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,20 +59,32 @@ export function Header() {
         </Link>
         
         <div className="flex flex-1 items-center justify-end">
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex gap-6 text-sm font-medium">
-            {navLinks.map((link) => (
+          <nav className="hidden lg:flex gap-6 text-sm font-medium items-center mr-6">
+            {baseNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="transition-colors hover:text-primary"
+                className="transition-colors hover:text-primary whitespace-nowrap"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 ml-6">
+          <div className="flex items-center gap-2">
+            {/* Language Selector Desktop */}
+            <div className="hidden lg:flex items-center gap-2 mr-4 border-l pl-4">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <select 
+                className="bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as Language)}
+              >
+                <option value="es">Castellano</option>
+                <option value="ca">Català</option>
+              </select>
+            </div>
+
             <div className="hidden lg:flex items-center gap-2">
               <Button variant="ghost" size="icon" aria-label="Carrito de compras">
                 <ShoppingBag className="h-5 w-5" />
@@ -95,7 +101,7 @@ export function Header() {
                   <Separator orientation="vertical" className="h-6" />
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4"/>
-                    Salir
+                    {t('nav_logout')}
                   </Button>
                 </>
               ) : (
@@ -104,7 +110,7 @@ export function Header() {
                   <Button variant="ghost" size="sm" asChild>
                     <Link href="/login">
                       <LogIn className="mr-2 h-4 w-4"/>
-                      Acceder
+                      {t('nav_login')}
                     </Link>
                   </Button>
                 </>
@@ -113,6 +119,18 @@ export function Header() {
 
             {/* Mobile Navigation */}
             <div className="flex items-center gap-2 lg:hidden">
+              <div className="flex items-center gap-1 mr-2 bg-secondary/50 px-2 py-1 rounded-md">
+                <Globe className="h-3 w-3 text-primary" />
+                <select 
+                  className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value as Language)}
+                >
+                  <option value="es">ES</option>
+                  <option value="ca">CA</option>
+                </select>
+              </div>
+
               {isLoggedIn ? (
                 <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
                   <Link href="/account">
@@ -150,7 +168,7 @@ export function Header() {
                         </SheetClose>
                     </div>
                     <nav className="flex flex-col gap-4 mt-8">
-                      {navLinks.map((link) => (
+                      {baseNavLinks.map((link) => (
                         <SheetClose key={link.href} asChild>
                           <Link
                             href={link.href}
@@ -179,7 +197,7 @@ export function Header() {
                           <SheetClose asChild>
                             <Button onClick={handleLogout} variant="ghost" className="w-full text-lg">
                                 <LogOut className="mr-2 h-5 w-5" />
-                                Salir
+                                {t('nav_logout')}
                             </Button>
                           </SheetClose>
                         </>
@@ -190,7 +208,7 @@ export function Header() {
                               className="flex items-center justify-center w-full text-lg font-medium transition-colors hover:text-primary"
                             >
                               <LogIn className="mr-2 h-5 w-5" />
-                              Acceder
+                              {t('nav_login')}
                             </Link>
                         </SheetClose>
                       )}
