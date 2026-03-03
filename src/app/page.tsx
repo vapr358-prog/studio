@@ -70,27 +70,47 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <span className="text-primary font-bold tracking-[0.3em] uppercase mb-4 block text-sm">Portafolio Fotográfico</span>
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">CELEBRACIONES MÁGICAS</h2>
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">CELEBRACIONES MÁGICAS</h2>
             <p className="text-xl text-muted-foreground mt-4 italic max-w-3xl mx-auto">
               No son solo pasteles, son recuerdos capturados en fotos. Inspírate con nuestra galería de momentos especiales.
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {birthdayGallery?.gallery?.slice(0, 4).map((img, idx) => (
-              <div key={idx} className={`relative rounded-3xl overflow-hidden shadow-2xl aspect-square group ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
+          {/* Custom Gallery Layout: 1 Large Top, 3 Small Bottom */}
+          <div className="max-w-6xl mx-auto flex flex-col gap-6 mb-12">
+            {/* Top Large Image */}
+            {birthdayGallery?.gallery?.[0] && (
+              <div className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-[2.5rem] overflow-hidden shadow-2xl group">
                 <Image 
-                  src={img.url} 
-                  alt="Galería de celebración" 
+                  src={birthdayGallery.gallery[0].url} 
+                  alt="Celebración principal" 
                   fill 
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  data-ai-hint={img.hint}
+                  className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                  data-ai-hint={birthdayGallery.gallery[0].hint}
                 />
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                    <Camera className="text-white h-12 w-12" />
                 </div>
               </div>
-            ))}
+            )}
+            
+            {/* Bottom Three Small Images */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {birthdayGallery?.gallery?.slice(1, 4).map((img, idx) => (
+                <div key={idx} className="relative rounded-[2rem] overflow-hidden shadow-xl aspect-square md:aspect-[4/3] group">
+                  <Image 
+                    src={img.url} 
+                    alt={`Detalle de celebración ${idx + 1}`} 
+                    fill 
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    data-ai-hint={img.hint}
+                  />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                     <Camera className="text-white h-8 w-8" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="text-center">
@@ -108,7 +128,7 @@ export default function HomePage() {
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
           <div className="order-2 md:order-1 text-right flex flex-col items-end gap-6">
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Puro Chocolate</h2>
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">Puro Chocolate</h2>
             <p className="text-xl text-muted-foreground leading-relaxed italic">
               Intenso, cremoso y adictivo. Nuestras tartas de chocolate son el paraíso para los amantes del buen cacao.
             </p>
@@ -145,7 +165,7 @@ export default function HomePage() {
             )}
           </div>
           <div className="flex flex-col items-start gap-6">
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Tus Sueños en Tarta</h2>
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">Tus Sueños en Tarta</h2>
             <p className="text-xl text-muted-foreground leading-relaxed italic">
               ¿Buscas algo único? Creamos diseños personalizados que cuentan tu historia. El límite es tu imaginación.
             </p>
