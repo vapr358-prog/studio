@@ -9,13 +9,13 @@
     {
       "id": "birthday-cake-1",
       "description": "Niños celebrando un cumpleaños con tarta.",
-      "imageUrl": "https://images.unsplash.com/photo-1600084787689-c4ca2d558d50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaGlsZCUyMGJpcnRoZGF5fGVufDB8fHx8MTc3MjUyNzM1Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1600084787689-c4ca2d558d50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHhzfHxjaGlsZCUyMGJpcnRoZGF5fGVufDB8fHx8MTc3MjUyNzM1Mnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "child birthday"
     },
     {
       "id": "birthday-cake-2",
       "description": "Detalle de una tarta colorida en fiesta infantil.",
-      "imageUrl": "https://images.unsplash.com/photo-1509666537727-9154b6962292?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxraWRzJTIwcGFydHl8ZW58MHx8fHwxNzcyNDYwOTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1509666537727-9154b6962292?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHhzfHxraWRzJTIwcGFydHl8ZW58MHx8fHwxNzcyNDYwOTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "kids party"
     },
     {
@@ -45,7 +45,7 @@
     {
       "id": "chocolate-cake",
       "description": "Tarta de chocolate intenso con ganache suave.",
-      "imageUrl": "https://images.unsplash.com/photo-1578985543846-ea12adc65b8b?q=80&w=1080",
+      "imageUrl": "/chocolate.jpeg",
       "imageHint": "chocolate cake"
     },
     {
