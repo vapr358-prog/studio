@@ -86,7 +86,7 @@ export default function BookingPage() {
           id: newId,
           fecha: fecha,
           usuario: user.username,
-          estado: language === 'ca' ? 'Pendente' : 'Pendiente',
+          estado: 'Pendente',
           detalles: detallesStr,
         }
       ]
@@ -127,7 +127,7 @@ export default function BookingPage() {
     if (['aprobado', 'entregado', 'acceptada', 'aceptada', 'aprovat'].includes(s)) {
       return (
         <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none flex items-center gap-1">
-          <CheckCircle2 size={12}/> {s.includes('acceptada') || s.includes('aceptada') ? t('status_accepted') : status}
+          <CheckCircle2 size={12}/> {t('status_accepted')}
         </Badge>
       );
     }
@@ -224,7 +224,7 @@ export default function BookingPage() {
               <History className="text-primary h-6 w-6" />
               {t('booking_history')}
             </h2>
-            <Button variant="ghost" size="sm" onClick={() => fetchUserOrders(user.username)} className="text-xs">
+            <Button variant="ghost" size="sm" onClick={() => fetchUserOrders(user?.username || '')} className="text-xs">
               {t('booking_refresh')}
             </Button>
           </div>

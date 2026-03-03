@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe, UtensilsCrossed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ export function Header() {
   const baseNavLinks = [
     { href: '/', label: t('nav_home') },
     { href: '/cakes', label: t('nav_cakes') },
+    { href: '/booking', label: t('nav_booking_mgmt') }, // Added the management link
     { href: '/blog', label: t('nav_blog') },
     { href: '/book', label: t('nav_book') },
     { href: '/tracking', label: t('nav_tracking') },
