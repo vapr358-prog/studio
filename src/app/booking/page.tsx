@@ -48,17 +48,31 @@ export default function BookingPage() {
   }, [router]);
 
   async function fetchUserOrders(username: string) {
+    if (!username) return;
     try {
       setLoading(true);
-      const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`);
-      if (!res.ok) throw new Error('Error al cargar el historial');
+      setError(null);
+      // Usamos no-store para evitar caché de errores anteriores
+      const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`, {
+        cache: 'no-store'
+      });
+      
+      if (!res.ok) {
+        // Si el sheet no existe, SheetDB puede devolver 404 o 400. 
+        // En lugar de romper la app, asumimos lista vacía y avisamos por consola.
+        console.warn("La hoja 'solicitudes' no existe o no es accesible aún.");
+        setOrders([]);
+        return;
+      }
+      
       const data = await res.json();
-      // Mostramos los más nuevos arriba
-      const sortedData = Array.isArray(data) ? data.reverse() : [];
+      // Mostramos los más nuevos arriba. SheetDB devuelve array siempre en /search si res.ok
+      const sortedData = Array.isArray(data) ? [...data].reverse() : [];
       setOrders(sortedData);
     } catch (err: any) {
-      console.error(err);
-      setError('No se pudo cargar tu historial de pedidos.');
+      console.error("Error cargando historial:", err);
+      // No bloqueamos la UI, simplemente mostramos el aviso de error
+      setError('No se pudo cargar el historial. Asegúrate de que la hoja "solicitudes" existe en tu Excel.');
     } finally {
       setLoading(false);
     }
@@ -77,7 +91,6 @@ export default function BookingPage() {
     const newId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
     const fecha = new Date().toLocaleDateString(language === 'ca' ? 'ca-ES' : 'es-ES');
     
-    // Concatenación según requerimiento de Cap de Tràfic
     const detallesStr = `Producto: ${tipo} | Sabor: ${sabor} | Notas: ${notas || '---'}`;
 
     const payload = {
@@ -107,7 +120,7 @@ export default function BookingPage() {
       setNotas('');
       fetchUserOrders(user.username);
     } catch (err: any) {
-      setError('Hubo un problema al enviar tu pedido. Inténtalo de nuevo.');
+      setError('Hubo un problema al enviar tu pedido. Verifica que la pestaña "solicitudes" existe en el Excel.');
     } finally {
       setSubmitting(false);
     }
@@ -115,7 +128,6 @@ export default function BookingPage() {
 
   const getStatusBadge = (status: string) => {
     const s = (status || '').toLowerCase().trim();
-    // Pendiente (Amarillo)
     if (s === 'pendente' || s === 'pendiente') {
       return (
         <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-none flex items-center gap-1">
@@ -123,7 +135,6 @@ export default function BookingPage() {
         </Badge>
       );
     }
-    // Aceptada / Aprobado (Verde)
     if (['aprobado', 'entregado', 'acceptada', 'aceptada', 'aprovat'].includes(s)) {
       return (
         <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none flex items-center gap-1">
@@ -150,7 +161,6 @@ export default function BookingPage() {
       </header>
 
       <div className="grid lg:grid-cols-5 gap-10 items-start">
-        {/* Formulario Section */}
         <section className="lg:col-span-2 space-y-6">
           <Card className="border-primary/10 shadow-lg">
             <CardHeader className="bg-primary/5">
@@ -217,7 +227,6 @@ export default function BookingPage() {
           </Card>
         </section>
 
-        {/* Listado Section */}
         <section className="lg:col-span-3 space-y-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-headline text-3xl text-gray-800 flex items-center gap-2">
