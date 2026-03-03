@@ -30,14 +30,11 @@ export default function CakeDetailPage() {
       <div className="container mx-auto px-4 py-12 md:py-20">
         <div className="mb-12 flex flex-col items-center text-center gap-4">
           <Link href="/" className="text-primary flex items-center gap-2 hover:underline mb-4">
-            <ArrowLeft className="h-4 w-4" /> {language === 'es' ? 'Volver al inicio' : 'Tornar a l\'inici'}
+            <ArrowLeft className="h-4 w-4" /> {t('back_to_start')}
           </Link>
           <h1 className="font-headline text-6xl md:text-8xl text-primary uppercase tracking-tighter">
             {cake.name[language]}
           </h1>
-          <p className="text-2xl text-muted-foreground italic max-w-2xl">
-            {cake.description[language]}
-          </p>
           <div className="w-24 h-1 bg-primary/20 rounded-full mt-4" />
         </div>
 
@@ -66,10 +63,10 @@ export default function CakeDetailPage() {
 
         <div className="mt-20 text-center bg-secondary/30 p-12 rounded-[3rem]">
           <h2 className="font-headline text-4xl mb-6">
-            {language === 'es' ? '¿Quieres que tu próxima fiesta sea así de mágica?' : 'Vols que la teva pròxima festa sigui així de màgica?'}
+            {t('gallery_magic_sub')}
           </h2>
           <Button size="lg" asChild className="rounded-full px-12 py-8 text-xl shadow-xl">
-             <Link href="/contact">{language === 'es' ? '¡Hagámoslo realidad!' : 'Fem-ho realitat!'}</Link>
+             <Link href="/contact">{t('gallery_magic_button')}</Link>
           </Button>
         </div>
       </div>
@@ -103,7 +100,7 @@ export default function CakeDetailPage() {
           </p>
           
           <div>
-            <h2 className="text-2xl font-bold mb-4">{language === 'es' ? 'Perfil de Sabor:' : 'Perfil de Sabor:'}</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('flavor_profile')}</h2>
             <div className="flex flex-wrap gap-2">
               {cake.flavorProfile.map((flavor) => (
                 <Badge key={flavor} variant="secondary" className="text-md px-4 py-1 rounded-full">
@@ -115,7 +112,7 @@ export default function CakeDetailPage() {
           
           <div className="mt-6">
             <Button size="lg" className="w-full sm:w-auto text-xl py-8 px-12 rounded-full shadow-lg">
-              {language === 'es' ? 'Encargar este Pastel' : 'Encarregar aquest Pastís'}
+              {t('order_this_cake')}
             </Button>
           </div>
         </div>

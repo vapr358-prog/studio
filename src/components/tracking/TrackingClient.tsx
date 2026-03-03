@@ -10,30 +10,13 @@ import { Search, MapPin, Calendar, Truck, CheckCircle, PackageCheck } from 'luci
 import type { Shipment } from '@/lib/types';
 import { SHEETDB_API_URL } from '@/lib/config';
 import { CardHeader, CardTitle } from '../ui/card';
-
-const statusConfig = {
-  'EN PREPARACION': {
-    progress: 10,
-    icon: <PackageCheck className="h-5 w-5 text-yellow-500" />,
-    label: 'En Preparación'
-  },
-  'EN TRANSITO': {
-    progress: 50,
-    icon: <Truck className="h-5 w-5 text-blue-500" />,
-    label: 'En Tránsito'
-  },
-  'ENTREGADO': {
-    progress: 100,
-    icon: <CheckCircle className="h-5 w-5 text-green-500" />,
-    label: 'Entregado'
-  }
-};
+import { useI18n } from '@/context/LanguageContext';
 
 const normalizeString = (str: string) => {
   return str
-    .normalize("NFD") // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, "") // Remove diacritical marks
-    .toUpperCase(); // Convert to uppercase
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
 };
 
 export default function TrackingClient() {
@@ -42,6 +25,25 @@ export default function TrackingClient() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const { t } = useI18n();
+
+  const statusConfig = {
+    'EN PREPARACION': {
+      progress: 10,
+      icon: <PackageCheck className="h-5 w-5 text-yellow-500" />,
+      label: t('track_prep')
+    },
+    'EN TRANSITO': {
+      progress: 50,
+      icon: <Truck className="h-5 w-5 text-blue-500" />,
+      label: t('track_transit')
+    },
+    'ENTREGADO': {
+      progress: 100,
+      icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+      label: t('track_delivered')
+    }
+  };
 
   const handleSearch = async () => {
     if (!trackingCode) {
@@ -65,7 +67,7 @@ export default function TrackingClient() {
       if (data.length > 0) {
         setShipment(data[0]);
       } else {
-        setError('Código no encontrado. Por favor, verifica el código e inténtalo de nuevo.');
+        setError(t('track_not_found'));
       }
     } catch (e) {
       console.error(e);
@@ -85,7 +87,7 @@ export default function TrackingClient() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Input
               type="text"
-              placeholder="Escribe tu código de seguimiento..."
+              placeholder={t('track_placeholder')}
               value={trackingCode}
               onChange={(e) => setTrackingCode(e.target.value)}
               onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
@@ -93,7 +95,7 @@ export default function TrackingClient() {
             />
             <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto">
               <Search className="mr-2 h-4 w-4" />
-              {loading ? 'Buscando...' : 'Buscar'}
+              {loading ? '...' : t('track_button')}
             </Button>
           </div>
         </CardContent>
@@ -109,22 +111,22 @@ export default function TrackingClient() {
         <Card className="shadow-lg animate-in fade-in-50">
           <CardHeader>
             <CardTitle className="font-headline text-2xl flex flex-wrap items-center gap-2">
-              <span>Resultado para:</span>
+              <span>{t('track_result_for')}</span>
               <span className="font-mono text-primary bg-muted px-2 py-1 rounded-md">{shipment.tracking_code}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              <h3 className="font-bold text-lg">Estado del pedido:</h3>
+              <h3 className="font-bold text-lg">{t('track_order_status')}</h3>
               <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
                 {currentStatus.icon}
                 <span className="text-xl font-semibold text-foreground">{currentStatus.label}</span>
               </div>
               <Progress value={currentStatus.progress} className="h-2" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>En preparación</span>
-                <span>En tránsito</span>
-                <span>Entregado</span>
+                <span>{t('track_prep')}</span>
+                <span>{t('track_transit')}</span>
+                <span>{t('track_delivered')}</span>
               </div>
             </div>
 
@@ -132,21 +134,21 @@ export default function TrackingClient() {
               <div className="flex items-start gap-4">
                  <MapPin className="h-6 w-6 mt-1 text-primary" />
                  <div>
-                    <h4 className="font-bold">Origen</h4>
+                    <h4 className="font-bold">{t('track_origin')}</h4>
                     <p className="text-muted-foreground">{shipment.origin}</p>
                  </div>
               </div>
                <div className="flex items-start gap-4">
                  <MapPin className="h-6 w-6 mt-1 text-primary" />
                  <div>
-                    <h4 className="font-bold">Destino</h4>
+                    <h4 className="font-bold">{t('track_destination')}</h4>
                     <p className="text-muted-foreground">{shipment.destination}</p>
                  </div>
               </div>
                <div className="flex items-start gap-4">
                  <Calendar className="h-6 w-6 mt-1 text-primary" />
                  <div>
-                    <h4 className="font-bold">Fecha prevista de entrega</h4>
+                    <h4 className="font-bold">{t('track_eta')}</h4>
                     <p className="text-muted-foreground">{shipment.eta}</p>
                  </div>
               </div>
