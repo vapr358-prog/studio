@@ -1,0 +1,248 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { SHEETDB_API_URL } from '@/lib/config';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+type Solicitud = {
+  id: string;
+  fecha: string;
+  usuario: string;
+  estado: string;
+  detalles: string;
+};
+
+export default function BookingPage() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [orders, setOrders] = useState<Solicitud[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Form State
+  const [tipo, setTipo] = useState('');
+  const [sabor, setSabor] = useState('');
+  const [notas, setNotas] = useState('');
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      router.push('/login');
+      return;
+    }
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+    fetchUserOrders(parsedUser.username);
+  }, [router]);
+
+  async function fetchUserOrders(username: string) {
+    try {
+      setLoading(true);
+      const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`);
+      if (!res.ok) throw new Error('Error al cargar el historial');
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      console.error(err);
+      setError('No se pudo cargar tu historial de pedidos.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tipo || !sabor) {
+      setError('Por favor, rellena los campos obligatorios.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    const newId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
+    const fecha = new Date().toLocaleDateString('es-ES');
+    const detallesStr = `Producto: ${tipo} | Sabor: ${sabor} | Notas: ${notas || 'Sin notas adicionales'}`;
+
+    const payload = {
+      data: [
+        {
+          id: newId,
+          fecha: fecha,
+          usuario: user.username,
+          estado: 'Pendente',
+          detalles: detallesStr,
+        }
+      ]
+    };
+
+    try {
+      const res = await fetch(`${SHEETDB_API_URL}?sheet=solicitudes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('Error al enviar la solicitud');
+
+      // Limpiar formulario y refrescar lista
+      setTipo('');
+      setSabor('');
+      setNotas('');
+      fetchUserOrders(user.username);
+    } catch (err: any) {
+      setError('Hubo un problema al enviar tu pedido. Inténtalo de nuevo.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === 'pendente') return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-none flex items-center gap-1"><Clock size={12}/> Pendiente</Badge>;
+    if (s === 'aprobado' || s === 'entregado') return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none flex items-center gap-1"><CheckCircle2 size={12}/> Aprobado</Badge>;
+    return <Badge variant="secondary">{status}</Badge>;
+  };
+
+  if (loading && !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-12 max-w-5xl">
+      <header className="mb-10 text-center">
+        <h1 className="font-headline text-4xl md:text-5xl text-primary mb-2">Gestión de Pedidos</h1>
+        <p className="text-muted-foreground italic">Crea y consulta tus solicitudes personalizadas en Sweet Queen Reus.</p>
+      </header>
+
+      <div className="grid lg:grid-cols-5 gap-10 items-start">
+        {/* Formulario Section */}
+        <section className="lg:col-span-2 space-y-6">
+          <Card className="border-primary/10 shadow-lg">
+            <CardHeader className="bg-primary/5">
+              <CardTitle className="flex items-center gap-2">
+                <PlusCircle className="text-primary h-5 w-5" />
+                Nueva Solicitud
+              </CardTitle>
+              <CardDescription>Cuéntanos qué pastel tienes en mente.</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tipo">Tipo de Producto *</Label>
+                  <Select onValueChange={setTipo} value={tipo}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un producto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pastís">Pastís</SelectItem>
+                      <SelectItem value="Cupcake">Cupcake</SelectItem>
+                      <SelectItem value="Galeta">Galeta</SelectItem>
+                      <SelectItem value="Postre Especial">Postre Especial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sabor">Sabor Deseado *</Label>
+                  <Input 
+                    id="sabor" 
+                    placeholder="Ej: Chocolate con fresas" 
+                    value={sabor}
+                    onChange={(e) => setSabor(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notas">Cantidad / Notas adicionales</Label>
+                  <Textarea 
+                    id="notas" 
+                    placeholder="Ej: 2 unidades grandes, sin gluten..." 
+                    className="min-h-[100px]"
+                    value={notas}
+                    onChange={(e) => setNotas(e.target.value)}
+                  />
+                </div>
+
+                {error && (
+                  <Alert variant="destructive" className="py-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : 'Enviar Pedido'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Listado Section */}
+        <section className="lg:col-span-3 space-y-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-headline text-3xl text-gray-800 flex items-center gap-2">
+              <History className="text-primary h-6 w-6" />
+              Tus Pedidos
+            </h2>
+            <Button variant="ghost" size="sm" onClick={() => fetchUserOrders(user.username)} className="text-xs">
+              Actualizar lista
+            </Button>
+          </div>
+
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-32 w-full bg-muted animate-pulse rounded-xl" />
+              ))}
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed border-muted">
+              <p className="text-muted-foreground">Aún no tienes ninguna solicitud registrada.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {orders.map((order) => (
+                <Card key={order.id} className="overflow-hidden border-l-4 border-l-primary hover:shadow-md transition-shadow">
+                  <CardHeader className="py-4 flex flex-row items-center justify-between bg-muted/30">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{order.fecha}</p>
+                      <CardTitle className="text-lg font-mono text-primary">{order.id}</CardTitle>
+                    </div>
+                    {getStatusBadge(order.estado)}
+                  </CardHeader>
+                  <CardContent className="py-4">
+                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                      {order.detalles}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
