@@ -31,13 +31,13 @@ export default function HomePage() {
           )}
         </div>
         <div className="relative z-10 p-8 inline-block mx-4">
-          <h1 className="font-display text-7xl md:text-9xl text-primary drop-shadow-2xl tracking-tight uppercase leading-none">
+          <h1 className="font-headline text-5xl md:text-7xl text-primary drop-shadow-sm tracking-widest uppercase leading-tight">
             Sweet Queen
           </h1>
-          <p className="mt-8 text-xl md:text-3xl font-body text-primary font-bold drop-shadow-md max-w-2xl mx-auto italic">
+          <p className="mt-4 text-lg md:text-xl font-body text-primary/80 font-medium max-w-2xl mx-auto italic">
             Pastelería Artesanal que Enamora
           </p>
-          <Button asChild size="lg" className="mt-12 px-14 py-9 text-2xl rounded-full shadow-2xl hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
+          <Button asChild size="lg" className="mt-10 px-10 py-7 text-xl rounded-full shadow-lg hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
             <Link href="/cakes">Ver productos</Link>
           </Button>
         </div>
