@@ -66,7 +66,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Gallery Section - CELEBRACIONES MÁGICAS (Vista 2x2) */}
+      {/* Gallery Section - CELEBRACIONES MÁGICAS */}
       <section className="py-24 bg-secondary/40 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -77,11 +77,11 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8 mb-16">
-            {birthdayGallery?.gallery?.slice(0, 4).map((img, idx) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {birthdayGallery?.gallery?.slice(0, 6).map((img, idx) => (
               <div 
                 key={idx} 
-                className="relative rounded-[2.5rem] overflow-hidden shadow-2xl group aspect-square bg-white border-[8px] border-white"
+                className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square bg-white border-4 border-white"
               >
                 <Image 
                   src={img.url} 

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -38,11 +37,11 @@ export default function CakeDetailPage() {
           <div className="w-24 h-1 bg-primary/20 rounded-full mt-4" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {cake.gallery?.map((img, idx) => (
             <div 
               key={idx} 
-              className="relative rounded-[2.5rem] overflow-hidden shadow-2xl group aspect-square bg-white border-[8px] border-white"
+              className="relative rounded-2xl overflow-hidden shadow-lg group aspect-square bg-white border-4 border-white"
             >
               <Image
                 src={img.url}
@@ -51,7 +50,7 @@ export default function CakeDetailPage() {
                 className="object-cover transition-transform duration-1000 group-hover:scale-110"
                 data-ai-hint={img.hint}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="bg-white/20 backdrop-blur-md p-3 rounded-full">
                   <Camera className="text-white h-6 w-6" />
                 </div>
