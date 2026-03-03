@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useI18n } from '@/context/LanguageContext';
 
 type Solicitud = {
   id: string;
@@ -23,6 +23,7 @@ type Solicitud = {
 };
 
 export default function BookingPage() {
+  const { t, language } = useI18n();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -52,7 +53,9 @@ export default function BookingPage() {
       const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`);
       if (!res.ok) throw new Error('Error al cargar el historial');
       const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      // Mostramos los más nuevos arriba
+      const sortedData = Array.isArray(data) ? data.reverse() : [];
+      setOrders(sortedData);
     } catch (err: any) {
       console.error(err);
       setError('No se pudo cargar tu historial de pedidos.');
@@ -72,8 +75,10 @@ export default function BookingPage() {
     setError(null);
 
     const newId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
-    const fecha = new Date().toLocaleDateString('es-ES');
-    const detallesStr = `Producto: ${tipo} | Sabor: ${sabor} | Notas: ${notas || 'Sin notas adicionales'}`;
+    const fecha = new Date().toLocaleDateString(language === 'ca' ? 'ca-ES' : 'es-ES');
+    
+    // Concatenación según requerimiento de Cap de Tràfic
+    const detallesStr = `Producto: ${tipo} | Sabor: ${sabor} | Notas: ${notas || '---'}`;
 
     const payload = {
       data: [
@@ -81,7 +86,7 @@ export default function BookingPage() {
           id: newId,
           fecha: fecha,
           usuario: user.username,
-          estado: 'Pendente',
+          estado: language === 'ca' ? 'Pendente' : 'Pendiente',
           detalles: detallesStr,
         }
       ]
@@ -109,9 +114,23 @@ export default function BookingPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const s = status.toLowerCase();
-    if (s === 'pendente') return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-none flex items-center gap-1"><Clock size={12}/> Pendiente</Badge>;
-    if (s === 'aprobado' || s === 'entregado') return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none flex items-center gap-1"><CheckCircle2 size={12}/> Aprobado</Badge>;
+    const s = (status || '').toLowerCase().trim();
+    // Pendiente (Amarillo)
+    if (s === 'pendente' || s === 'pendiente') {
+      return (
+        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-none flex items-center gap-1">
+          <Clock size={12}/> {t('status_pending')}
+        </Badge>
+      );
+    }
+    // Aceptada / Aprobado (Verde)
+    if (['aprobado', 'entregado', 'acceptada', 'aceptada', 'aprovat'].includes(s)) {
+      return (
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none flex items-center gap-1">
+          <CheckCircle2 size={12}/> {s.includes('acceptada') || s.includes('aceptada') ? t('status_accepted') : status}
+        </Badge>
+      );
+    }
     return <Badge variant="secondary">{status}</Badge>;
   };
 
@@ -126,8 +145,8 @@ export default function BookingPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <header className="mb-10 text-center">
-        <h1 className="font-headline text-4xl md:text-5xl text-primary mb-2">Gestión de Pedidos</h1>
-        <p className="text-muted-foreground italic">Crea y consulta tus solicitudes personalizadas en Sweet Queen Reus.</p>
+        <h1 className="font-headline text-4xl md:text-5xl text-primary mb-2">{t('booking_mgmt_title')}</h1>
+        <p className="text-muted-foreground italic">{t('booking_mgmt_sub')}</p>
       </header>
 
       <div className="grid lg:grid-cols-5 gap-10 items-start">
@@ -137,42 +156,41 @@ export default function BookingPage() {
             <CardHeader className="bg-primary/5">
               <CardTitle className="flex items-center gap-2">
                 <PlusCircle className="text-primary h-5 w-5" />
-                Nueva Solicitud
+                {t('booking_new_req')}
               </CardTitle>
-              <CardDescription>Cuéntanos qué pastel tienes en mente.</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="tipo">Tipo de Producto *</Label>
+                  <Label htmlFor="tipo">{t('booking_type')} *</Label>
                   <Select onValueChange={setTipo} value={tipo}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un producto" />
+                      <SelectValue placeholder={t('form_select_date')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Pastís">Pastís</SelectItem>
-                      <SelectItem value="Cupcake">Cupcake</SelectItem>
-                      <SelectItem value="Galeta">Galeta</SelectItem>
-                      <SelectItem value="Postre Especial">Postre Especial</SelectItem>
+                      <SelectItem value={t('booking_prod_cake')}>{t('booking_prod_cake')}</SelectItem>
+                      <SelectItem value={t('booking_prod_cupcake')}>{t('booking_prod_cupcake')}</SelectItem>
+                      <SelectItem value={t('booking_prod_cookie')}>{t('booking_prod_cookie')}</SelectItem>
+                      <SelectItem value={t('booking_prod_special')}>{t('booking_prod_special')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sabor">Sabor Deseado *</Label>
+                  <Label htmlFor="sabor">{t('booking_flavor')} *</Label>
                   <Input 
                     id="sabor" 
-                    placeholder="Ej: Chocolate con fresas" 
+                    placeholder="Ej: Chocolate & Vainilla" 
                     value={sabor}
                     onChange={(e) => setSabor(e.target.value)}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notas">Cantidad / Notas adicionales</Label>
+                  <Label htmlFor="notas">{t('booking_notes')}</Label>
                   <Textarea 
                     id="notas" 
-                    placeholder="Ej: 2 unidades grandes, sin gluten..." 
+                    placeholder="Ej: 2 unidades, sin gluten..." 
                     className="min-h-[100px]"
                     value={notas}
                     onChange={(e) => setNotas(e.target.value)}
@@ -190,9 +208,9 @@ export default function BookingPage() {
                   {submitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Enviando...
+                      {t('booking_sending')}
                     </>
-                  ) : 'Enviar Pedido'}
+                  ) : t('booking_send')}
                 </Button>
               </form>
             </CardContent>
@@ -204,10 +222,10 @@ export default function BookingPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-headline text-3xl text-gray-800 flex items-center gap-2">
               <History className="text-primary h-6 w-6" />
-              Tus Pedidos
+              {t('booking_history')}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => fetchUserOrders(user.username)} className="text-xs">
-              Actualizar lista
+              {t('booking_refresh')}
             </Button>
           </div>
 
@@ -219,7 +237,7 @@ export default function BookingPage() {
             </div>
           ) : orders.length === 0 ? (
             <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed border-muted">
-              <p className="text-muted-foreground">Aún no tienes ninguna solicitud registrada.</p>
+              <p className="text-muted-foreground">{t('booking_no_orders')}</p>
             </div>
           ) : (
             <div className="grid gap-4">
