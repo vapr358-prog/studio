@@ -31,13 +31,13 @@ export default function HomePage() {
           )}
         </div>
         <div className="relative z-10 p-8 inline-block mx-4">
-          <h1 className="font-display text-7xl md:text-9xl text-primary font-black drop-shadow-2xl tracking-tighter uppercase">
+          <h1 className="font-display text-7xl md:text-9xl text-primary drop-shadow-2xl tracking-tight uppercase leading-none">
             Sweet Queen
           </h1>
-          <p className="mt-6 text-xl md:text-3xl font-body text-primary font-bold drop-shadow-md max-w-2xl mx-auto">
+          <p className="mt-8 text-xl md:text-3xl font-body text-primary font-bold drop-shadow-md max-w-2xl mx-auto italic">
             Pastelería Artesanal que Enamora
           </p>
-          <Button asChild size="lg" className="mt-10 px-12 py-8 text-xl rounded-full shadow-2xl hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
+          <Button asChild size="lg" className="mt-12 px-14 py-9 text-2xl rounded-full shadow-2xl hover:scale-105 transition-transform bg-primary hover:bg-primary/90">
             <Link href="/cakes">Ver productos</Link>
           </Button>
         </div>
@@ -69,7 +69,7 @@ export default function HomePage() {
       <section className="py-24 bg-secondary/40 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-primary font-bold tracking-[0.3em] uppercase mb-4 block">Portafolio</span>
+            <span className="text-primary font-bold tracking-[0.3em] uppercase mb-4 block text-sm">Portafolio Fotográfico</span>
             <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">CELEBRACIONES MÁGICAS</h2>
             <p className="text-xl text-muted-foreground mt-4 italic max-w-3xl mx-auto">
               No son solo pasteles, son recuerdos capturados en fotos. Inspírate con nuestra galería de momentos especiales.
@@ -109,7 +109,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
           <div className="order-2 md:order-1 text-right flex flex-col items-end gap-6">
             <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Puro Chocolate</h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
+            <p className="text-xl text-muted-foreground leading-relaxed italic">
               Intenso, cremoso y adictivo. Nuestras tartas de chocolate son el paraíso para los amantes del buen cacao.
             </p>
             <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
@@ -146,7 +146,7 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col items-start gap-6">
             <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight">Tus Sueños en Tarta</h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
+            <p className="text-xl text-muted-foreground leading-relaxed italic">
               ¿Buscas algo único? Creamos diseños personalizados que cuentan tu historia. El límite es tu imaginación.
             </p>
             <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">

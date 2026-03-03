@@ -20,7 +20,7 @@ export default {
         body: ['Alegreya', 'serif'],
         headline: ['Belleza', 'sans-serif'],
         handwriting: ['"Great Vibes"', 'cursive'],
-        display: ['"Playfair Display"', 'serif'],
+        display: ['"Abril Fatface"', 'cursive'],
         code: ['monospace'],
       },
       colors: {
