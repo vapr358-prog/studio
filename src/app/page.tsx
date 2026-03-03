@@ -30,8 +30,8 @@ export default function HomePage() {
             />
           )}
         </div>
-        <div className="relative z-10 p-6 bg-white/10 backdrop-blur-sm rounded-3xl inline-block mx-4 border border-white/20">
-          <h1 className="font-handwriting text-7xl md:text-8xl text-primary drop-shadow-xl -rotate-2">
+        <div className="relative z-10 p-8 inline-block mx-4">
+          <h1 className="font-display text-7xl md:text-9xl text-primary font-black drop-shadow-2xl tracking-tighter uppercase">
             Sweet Queen
           </h1>
           <p className="mt-6 text-xl md:text-3xl font-body text-primary font-bold drop-shadow-md max-w-2xl mx-auto">
