@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { cakes } from '@/lib/data';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useI18n } from '@/context/LanguageContext';
-import { useParams } from 'next/navigation';
 
 export default function CakeDetailPage() {
   const { language, t } = useI18n();

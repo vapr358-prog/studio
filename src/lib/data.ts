@@ -1,3 +1,4 @@
+
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
