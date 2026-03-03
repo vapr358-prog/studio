@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe, UtensilsCrossed } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,7 @@ export function Header() {
   const baseNavLinks = [
     { href: '/', label: t('nav_home') },
     { href: '/cakes', label: t('nav_cakes') },
-    { href: '/booking', label: t('nav_booking_mgmt') }, // Added the management link
+    { href: '/pedidos', label: t('nav_booking_mgmt') },
     { href: '/blog', label: t('nav_blog') },
     { href: '/book', label: t('nav_book') },
     { href: '/tracking', label: t('nav_tracking') },
@@ -73,7 +73,6 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* Language Selector Desktop */}
             <div className="hidden lg:flex items-center gap-2 mr-4 border-l pl-4">
               <Globe className="h-4 w-4 text-muted-foreground" />
               <select 
@@ -118,7 +117,6 @@ export function Header() {
               )}
             </div>
 
-            {/* Mobile Navigation */}
             <div className="flex items-center gap-2 lg:hidden">
               <div className="flex items-center gap-1 mr-2 bg-secondary/50 px-2 py-1 rounded-md">
                 <Globe className="h-3 w-3 text-primary" />
