@@ -33,7 +33,7 @@
     {
       "id": "tarta-personalizada",
       "description": "Una hermosa tarta personalizada hecha a medida para eventos especiales.",
-      "imageUrl": "https://images.unsplash.com/photo-1535141192574-5d4897c12636?q=80&w=1080",
+      "imageUrl": "/personalizada.jpeg",
       "imageHint": "custom cake"
     },
     {
