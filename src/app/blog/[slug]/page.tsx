@@ -1,56 +1,36 @@
+'use client';
+
 import Image from 'next/image';
 import { blogPosts } from '@/lib/blog-data';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import type { Metadata, ResolvingMetadata } from 'next';
+import { es, ca } from 'date-fns/locale';
+import { useI18n } from '@/context/LanguageContext';
 
-type Props = {
-  params: { slug: string };
-};
-
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const post = blogPosts.find((p) => p.slug === params.slug);
-
-  if (!post) {
-    return {
-      title: 'Entrada no encontrada',
-    }
-  }
- 
-  return {
-    title: post.title,
-    description: post.excerpt,
-  }
-}
-
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
-export default function BlogPostPage({ params }: Props) {
-  const post = blogPosts.find((p) => p.slug === params.slug);
+export default function BlogPostPage() {
+  const { language } = useI18n();
+  const params = useParams();
+  const slug = params.slug as string;
+  const post = blogPosts.find((p) => p.slug === slug);
 
   if (!post) {
     notFound();
   }
 
   const postDate = new Date(post.date);
+  const locale = language === 'ca' ? ca : es;
 
   return (
     <article className="container mx-auto px-4 py-12 md:py-16 max-w-4xl">
       <header className="mb-8">
-        <h1 className="font-headline text-4xl md:text-5xl mb-4 text-center">{post.title}</h1>
+        <h1 className="font-headline text-4xl md:text-5xl mb-4 text-center">
+          {post.title[language]}
+        </h1>
         <div className="text-center text-muted-foreground">
-          <span>Publicado por {post.author} el </span>
+          <span>{language === 'es' ? 'Publicado por ' : 'Publicat per '} {post.author} {language === 'es' ? ' el ' : ' el '}</span>
           <time dateTime={post.date}>
-            {format(postDate, "d 'de' MMMM, yyyy", { locale: es })}
+            {format(postDate, "d 'de' MMMM, yyyy", { locale })}
           </time>
         </div>
       </header>
@@ -58,7 +38,7 @@ export default function BlogPostPage({ params }: Props) {
       <div className="rounded-lg overflow-hidden shadow-lg mb-8 aspect-video">
         <Image
           src={post.image.url}
-          alt={post.title}
+          alt={post.title[language]}
           width={1200}
           height={675}
           className="w-full h-full object-cover"
@@ -71,7 +51,7 @@ export default function BlogPostPage({ params }: Props) {
 
       <div
         className="prose prose-lg lg:prose-xl max-w-none mx-auto prose-p:text-foreground prose-headings:text-foreground prose-headings:font-headline prose-strong:text-foreground"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        dangerouslySetInnerHTML={{ __html: post.content[language] }}
       />
     </article>
   );

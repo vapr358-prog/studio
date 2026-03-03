@@ -4,24 +4,29 @@ export type Image = {
   hint: string;
 };
 
+export type LocalizedString = {
+  es: string;
+  ca: string;
+};
+
 export type Cake = {
   id: string;
-  name: string;
-  description: string;
+  name: LocalizedString;
+  description: LocalizedString;
   price: number;
-  flavorProfile: string[];
+  flavorProfile: string[]; // Estos suelen ser etiquetas técnicas, pero se podrían localizar si se prefiere
   image: Image;
-  gallery?: Image[]; // Para el collage de imágenes
+  gallery?: Image[];
 };
 
 export type BlogPost = {
   slug: string;
-  title: string;
-  excerpt: string;
+  title: LocalizedString;
+  excerpt: LocalizedString;
   date: string;
   author: string;
   image: Image;
-  content: string;
+  content: LocalizedString;
 };
 
 export type Order = {

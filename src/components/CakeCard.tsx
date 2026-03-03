@@ -3,12 +3,14 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Cake } from '@/lib/types';
+import { useI18n } from '@/context/LanguageContext';
 
 interface CakeCardProps {
   cake: Cake;
 }
 
 export function CakeCard({ cake }: CakeCardProps) {
+  const { language } = useI18n();
   const isUnitBased = cake.id === 'galletas-artesanales';
   
   return (
@@ -17,7 +19,7 @@ export function CakeCard({ cake }: CakeCardProps) {
         <Link href={`/cakes/${cake.id}`} className="block aspect-w-4 aspect-h-3">
           <Image
             src={cake.image.url}
-            alt={cake.name}
+            alt={cake.name[language]}
             width={400}
             height={300}
             className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
@@ -28,7 +30,7 @@ export function CakeCard({ cake }: CakeCardProps) {
       <CardContent className="flex-grow p-6">
         <CardTitle className="font-headline text-2xl mb-2">
           <Link href={`/cakes/${cake.id}`} className="hover:text-primary transition-colors">
-            {cake.name}
+            {cake.name[language]}
           </Link>
         </CardTitle>
         <p className="text-muted-foreground text-lg font-semibold">
@@ -37,7 +39,9 @@ export function CakeCard({ cake }: CakeCardProps) {
       </CardContent>
       <CardFooter className="p-6 pt-0">
         <Button asChild className="w-full">
-          <Link href={`/cakes/${cake.id}`}>Ver detalles</Link>
+          <Link href={`/cakes/${cake.id}`}>
+            {language === 'es' ? 'Ver detalles' : 'Veure detalls'}
+          </Link>
         </Button>
       </CardFooter>
     </Card>
