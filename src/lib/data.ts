@@ -1,4 +1,3 @@
-
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -23,12 +22,12 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Celebración', 'Felicidad', 'Magia'],
-    image: getImage('birthday-cake-1'),
+    image: getImage('baby-cake'),
     gallery: [
-      getImage('birthday-cake-1'),
-      getImage('birthday-cake-2'),
-      getImage('birthday-cake-3'),
-      getImage('birthday-cake-4'),
+      getImage('baby-cake'),
+      getImage('pink-heart-cake'),
+      getImage('pikachu-cake'),
+      getImage('red-heart-cake'),
     ]
   },
   {
@@ -53,7 +52,7 @@ export const cakes: Cake[] = [
     },
     description: {
       es: 'Nuestra especialidad: bizcocho húmedo bañado en tres leches.',
-      ca: 'La nostra especialitat: bescuit humit banyat en tres llets.'
+      ca: 'La nostra galeria de moments màgics i inoblidables.'
     },
     price: 30.00,
     flavorProfile: ['Tres Leches', 'Frutas', 'Vainilla'],

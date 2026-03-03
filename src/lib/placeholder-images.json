@@ -7,28 +7,28 @@
       "imageHint": "bakery official background"
     },
     {
-      "id": "birthday-cake-1",
-      "description": "Niños celebrando un cumpleaños con tarta.",
-      "imageUrl": "https://images.unsplash.com/photo-1600084787689-c4ca2d558d50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHhzfHxjaGlsZCUyMGJpcnRoZGF5fGVufDB8fHx8MTc3MjUyNzM1Mnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "child birthday"
+      "id": "baby-cake",
+      "description": "Tarta temática para bebé.",
+      "imageUrl": "/baby.jpeg",
+      "imageHint": "baby cake"
     },
     {
-      "id": "birthday-cake-2",
-      "description": "Detalle de una tarta colorida en fiesta infantil.",
-      "imageUrl": "https://images.unsplash.com/photo-1509666537727-9154b6962292?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHhzfHxraWRzJTIwcGFydHl8ZW58MHx8fHwxNzcyNDYwOTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "kids party"
+      "id": "pink-heart-cake",
+      "description": "Tarta en forma de corazón rosa.",
+      "imageUrl": "/corazonrosa.jpeg",
+      "imageHint": "pink heart cake"
     },
     {
-      "id": "birthday-cake-3",
-      "description": "Momento de soplar las velas.",
-      "imageUrl": "https://images.unsplash.com/photo-1610670444950-0b29430891b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxiaXJ0aGRheSUyMGNlbGVicmF0aW9ufGVufDB8fHx8MTc3MjM4NTk5MHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "birthday celebration"
+      "id": "pikachu-cake",
+      "description": "Tarta temática de Pikachu.",
+      "imageUrl": "/pikachu.jpeg",
+      "imageHint": "pikachu cake"
     },
     {
-      "id": "birthday-cake-4",
-      "description": "Mesa de dulces decorada.",
-      "imageUrl": "https://images.unsplash.com/photo-1557242071-6d7e84b73e61?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2FuZHklMjBiYXJ8ZW58MHx8fHwxNzcyNDYwOTYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "candy bar"
+      "id": "red-heart-cake",
+      "description": "Tarta en forma de corazón rojo.",
+      "imageUrl": "/corazonrojo.jpeg",
+      "imageHint": "red heart cake"
     },
     {
       "id": "tarta-personalizada",
