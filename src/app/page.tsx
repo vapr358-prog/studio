@@ -77,8 +77,8 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {birthdayGallery?.gallery?.slice(0, 6).map((img, idx) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {birthdayGallery?.gallery?.slice(0, 4).map((img, idx) => (
               <div 
                 key={idx} 
                 className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square bg-white border-4 border-white"

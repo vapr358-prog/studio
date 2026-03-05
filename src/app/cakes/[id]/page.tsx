@@ -41,7 +41,7 @@ export default function CakeDetailPage() {
           {cake.gallery?.map((img, idx) => (
             <div 
               key={idx} 
-              className="relative rounded-2xl overflow-hidden shadow-lg group aspect-square bg-white border-4 border-white"
+              className="relative rounded-2xl overflow-hidden shadow-lg group aspect-square bg-white border-[12px] border-white"
             >
               <Image
                 src={img.url}
@@ -49,6 +49,7 @@ export default function CakeDetailPage() {
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-110"
                 data-ai-hint={img.hint}
+                priority={idx < 4}
               />
               <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="bg-white/20 backdrop-blur-md p-3 rounded-full">
