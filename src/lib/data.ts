@@ -1,3 +1,4 @@
+
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -71,7 +72,7 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Chocolate', 'Ganache', 'Dulce'],
-    image: getImage('chocolate-cake'), // Aseguramos que use chocolate-cake (chocolate.jpeg)
+    image: getImage('chocolate-cake'), // Imagen chocolate.jpeg
   },
   {
     id: 'carrot-cake',
