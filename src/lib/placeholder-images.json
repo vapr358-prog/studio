@@ -107,6 +107,12 @@
       "description": "Una de nuestras tartas más especiales de la casa.",
       "imageUrl": "/torta1.jpeg",
       "imageHint": "special cake"
+    },
+    {
+      "id": "variedad-chocolate",
+      "description": "Variedad de productos Sweet Queen enfocados en chocolate.",
+      "imageUrl": "/variedad.jpg",
+      "imageHint": "chocolate variety"
     }
   ]
 }

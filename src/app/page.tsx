@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { CakeCard } from '@/components/CakeCard';
@@ -18,6 +19,7 @@ import {
 export default function HomePage() {
   const { t } = useI18n();
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
+  const varietyImage = PlaceHolderImages.find((p) => p.id === 'variedad-chocolate');
   const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
   const birthdayGallery = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
 
@@ -139,12 +141,15 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
-            <Image 
-              src="/variedad.jpg" 
-              alt="Variedad de Pasteles Sweet Queen" 
-              fill 
-              className="object-cover"
-            />
+            {varietyImage && (
+              <Image 
+                src={varietyImage.imageUrl} 
+                alt={varietyImage.description} 
+                fill 
+                className="object-cover"
+                data-ai-hint={varietyImage.imageHint}
+              />
+            )}
           </div>
         </div>
       </section>
