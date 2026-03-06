@@ -74,7 +74,7 @@ export default function LoginPage() {
   return (
     <div className="container mx-auto flex flex-col min-h-[calc(100vh-12rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm mb-6 text-left">
-        <Button variant="ghost" asChild className="text-primary hover:text-primary/80 p-0 hover:bg-transparent">
+        <Button variant="secondary" asChild className="shadow-sm border border-white/20 px-6">
           <Link href="/" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             {t('back_to_start')}

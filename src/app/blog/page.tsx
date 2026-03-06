@@ -13,7 +13,7 @@ export default function BlogPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
       <div className="mb-8 text-left">
-        <Button variant="ghost" asChild className="text-primary hover:text-primary/80 p-0 hover:bg-transparent">
+        <Button variant="secondary" asChild className="shadow-sm border border-white/20 px-6">
           <Link href="/" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             {t('back_to_start')}
