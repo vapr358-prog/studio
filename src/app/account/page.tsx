@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OrderHistory } from "@/components/account/OrderHistory"
 import CakeRecommendationForm from "@/components/account/CakeRecommendationForm"
+import BookingManagement from "@/components/account/BookingManagement"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { allFlavors } from "@/lib/types"
@@ -48,13 +49,9 @@ export default function AccountPage() {
         const parsedUser: AppUser = JSON.parse(storedUser);
         setUser(parsedUser);
 
-        // Identificador para filtrar (email o username)
         const userId = (parsedUser.email || parsedUser.username || "").toLowerCase().trim();
-
-        // 1. Cargar Pedidos (Mock + Dinámicos)
         const filteredMock = mockOrders.filter((order) => order.clientName === parsedUser.name);
         
-        // 2. Cargar Facturas y Pedidos de SheetDB en paralelo
         try {
           const [resSolicitudes, resDocs] = await Promise.all([
             fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(parsedUser.username)}&sheet=solicitudes`, { cache: 'no-store' }),
@@ -172,11 +169,6 @@ export default function AccountPage() {
             </Card>
           ))}
         </div>
-        <div className="pt-4 text-center">
-          <Button asChild variant="outline" className="rounded-full px-8">
-            <Link href="/documents">Ver todos los documentos</Link>
-          </Button>
-        </div>
       </div>
     );
   }
@@ -184,7 +176,7 @@ export default function AccountPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
       <div className="mb-8 text-center md:text-left">
-        <h1 className="font-headline text-4xl md:text-5xl">Mi Cuenta</h1>
+        <h1 className="font-headline text-4xl md:text-5xl text-primary">Mi Cuenta</h1>
         <p className="text-lg text-muted-foreground">
           {user ? `Bienvenida de nuevo, ${user.name}.` : 'Cargando tu información...'}
         </p>
@@ -211,25 +203,7 @@ export default function AccountPage() {
         </TabsContent>
 
         <TabsContent value="booking" className="mt-6">
-           <Card>
-            <CardHeader>
-              <CardTitle className="font-headline text-2xl flex items-center gap-2">
-                <CalendarCheck className="h-6 w-6 text-primary"/>
-                {t('booking_mgmt_title')}
-              </CardTitle>
-              <CardDescription>
-                {t('booking_mgmt_sub')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Gestiona tus solicitudes especiales de forma dinámica. Podrás realizar nuevas reservas personalizadas y consultar su estado en tiempo real.</p>
-            </CardContent>
-            <CardFooter>
-              <Button asChild>
-                <Link href="/pedidos">Entrar a Reservar</Link>
-              </Button>
-            </CardFooter>
-          </Card>
+           <BookingManagement />
         </TabsContent>
       </Tabs>
     </div>
