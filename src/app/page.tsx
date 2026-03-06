@@ -122,14 +122,12 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
-            {chocolateCake && (
-              <Image 
-                src="/chocolate.jpeg" 
-                alt="Chocolate" 
-                fill 
-                className="object-cover"
-              />
-            )}
+            <Image 
+              src="/chocolate.jpeg" 
+              alt="Puro Chocolate" 
+              fill 
+              className="object-cover"
+            />
           </div>
         </div>
       </section>
@@ -140,7 +138,7 @@ export default function HomePage() {
           <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
             <Image 
               src="/tarta.jpg" 
-              alt="Especiales" 
+              alt="Tus Sueños en Tarta" 
               fill 
               className="object-cover"
             />
