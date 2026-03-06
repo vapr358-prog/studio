@@ -19,7 +19,6 @@ import {
 export default function HomePage() {
   const { t } = useI18n();
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
-  const varietyImage = PlaceHolderImages.find((p) => p.id === 'variedad-chocolate');
   const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
   const birthdayGallery = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
 
@@ -128,28 +127,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Sections - Chocolate */}
-      <section className="py-24 bg-background">
+      {/* Category Sections - Puro Chocolate */}
+      <section className="py-24 bg-white/60 backdrop-blur-md">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-          <div className="order-2 md:order-1 text-right flex flex-col items-end gap-6">
-            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">{t('section_chocolate_title')}</h2>
-            <p className="text-xl text-muted-foreground leading-relaxed italic">
+          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-white/50">
+            <Image 
+              src="/variedad.jpg" 
+              alt="Variedad de Chocolate Sweet Queen" 
+              fill 
+              className="object-cover"
+              priority
+            />
+          </div>
+          <div className="flex flex-col items-start gap-6">
+            <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">
+              {t('section_chocolate_title')}
+            </h2>
+            <p className="text-2xl text-muted-foreground leading-relaxed italic">
               {t('section_chocolate_sub')}
             </p>
-            <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg">
+            <Button asChild size="lg" className="rounded-full px-12 py-8 text-xl shadow-lg bg-primary hover:bg-primary/90">
               <Link href="/cakes/tarta-de-chocolate">{t('section_chocolate_button')}</Link>
             </Button>
-          </div>
-          <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
-            {varietyImage && (
-              <Image 
-                src={varietyImage.imageUrl} 
-                alt={varietyImage.description} 
-                fill 
-                className="object-cover"
-                data-ai-hint={varietyImage.imageHint}
-              />
-            )}
           </div>
         </div>
       </section>
