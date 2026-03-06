@@ -17,8 +17,8 @@ export const cakes: Cake[] = [
       ca: 'Celebracions Màgiques'
     },
     description: {
-      es: 'Nuestra galería de momentos mágicos e inolvidables.',
-      ca: 'La nostra galeria de moments màgics i inoblidables.'
+      es: 'Donde los sueños se convierten en tarta. En Sweet Queen, no solo horneamos pasteles; diseñamos el centro de tus mejores recuerdos.',
+      ca: 'On els somnis es converteixen en pastís. A Sweet Queen, no només hornegem pastissos; dissenyem el centre dels teus millors records.'
     },
     price: 30.00,
     flavorProfile: ['Celebración', 'Felicidad', 'Magia'],
@@ -26,7 +26,7 @@ export const cakes: Cake[] = [
     gallery: [
       getImage('pink-heart-cake'), // corazonrosa.jpeg
       getImage('tres-leches'),     // treslechesfruta.jpeg
-      getImage('torta-1'),         // torta1.jpeg
+      getImage('baby-cake'),       // baby.jpeg (Sustituida)
       getImage('pikachu-cake'),    // pikachu.jpeg
       getImage('mini-tarta'),       // mini.jpeg
     ]
@@ -53,7 +53,7 @@ export const cakes: Cake[] = [
     },
     description: {
       es: 'Nuestra especialidad: bizcocho húmedo bañado en tres leches.',
-      ca: 'La nostra galeria de moments màgics i inoblidables.'
+      ca: 'La nostra especialitat: bescuit humit banyat en tres llets.'
     },
     price: 30.00,
     flavorProfile: ['Tres Leches', 'Frutas', 'Vainilla'],
