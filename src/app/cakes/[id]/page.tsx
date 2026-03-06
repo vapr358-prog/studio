@@ -35,9 +35,11 @@ export default function CakeDetailPage() {
       <div className="container mx-auto px-4 py-12 md:py-20 max-w-7xl">
         {/* Header Section */}
         <div className="mb-16 flex flex-col items-center text-center gap-6">
-          <Link href="/" className="text-primary flex items-center gap-2 hover:underline mb-4 font-bold">
-            <ArrowLeft className="h-4 w-4" /> {t('back_to_start')}
-          </Link>
+          <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold mb-4">
+            <Link href="/" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" /> {t('back_to_start')}
+            </Link>
+          </Button>
           <h1 className="font-headline text-5xl md:text-8xl text-primary uppercase tracking-tighter leading-none">
             {cake.name[language]}
           </h1>
@@ -143,6 +145,13 @@ export default function CakeDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
+      <div className="mb-8">
+        <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold">
+          <Link href="/cakes" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" /> {language === 'es' ? 'Volver al catálogo' : 'Tornar al catàleg'}
+          </Link>
+        </Button>
+      </div>
       <div className="grid gap-8 lg:gap-16 items-start mb-16 md:grid-cols-2">
         <div className="rounded-[2.5rem] overflow-hidden shadow-2xl bg-white aspect-square relative">
           <Image

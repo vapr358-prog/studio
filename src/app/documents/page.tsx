@@ -4,6 +4,7 @@ import { FileText, ArrowLeft, Printer, AlertTriangle } from 'lucide-react';
 import { SHEETDB_API_URL } from '@/lib/config';
 import Link from 'next/link';
 import { useI18n } from '@/context/LanguageContext';
+import { Button } from '@/components/ui/button';
 
 export default function MisDocumentos() {
   const { t } = useI18n();
@@ -135,12 +136,12 @@ export default function MisDocumentos() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto mb-8 flex justify-between no-print">
-          <button onClick={() => setFacturaSeleccionada(null)} className="flex items-center gap-2 text-gray-500 font-bold hover:text-[#d23669]">
+          <Button variant="secondary" onClick={() => setFacturaSeleccionada(null)} className="flex items-center gap-2 shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold">
             <ArrowLeft size={20} /> VOLVER AL LISTADO
-          </button>
-          <button onClick={() => window.print()} className="bg-[#d23669] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg">
+          </Button>
+          <Button onClick={() => window.print()} className="bg-[#d23669] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg hover:bg-[#b02e58]">
             <Printer size={18} /> IMPRIMIR PDF
-          </button>
+          </Button>
         </div>
 
         <div id="zona-factura" className="max-w-4xl mx-auto border bg-white p-16 rounded-xl shadow-sm print:border-0 print:shadow-none print:p-0">
@@ -207,9 +208,11 @@ export default function MisDocumentos() {
     <div className="min-h-screen bg-[#fffcfd] p-12">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
-          <Link href="/account" className="flex items-center gap-2 text-primary hover:underline font-bold">
-            <ArrowLeft size={20} /> {t('back_to_profile')}
-          </Link>
+          <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold">
+            <Link href="/account" className="flex items-center gap-2">
+              <ArrowLeft size={20} /> {t('back_to_profile')}
+            </Link>
+          </Button>
         </div>
         <h1 className="text-4xl font-black text-gray-900 mb-8 tracking-tighter">Mis Facturas</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
