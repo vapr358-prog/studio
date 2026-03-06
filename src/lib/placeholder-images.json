@@ -19,6 +19,12 @@
       "imageHint": "fresh eggs baking"
     },
     {
+      "id": "encargo-tarta",
+      "description": "Encargo de tarta preparada para transporte.",
+      "imageUrl": "/encargo.jpg",
+      "imageHint": "cake delivery box"
+    },
+    {
       "id": "baby-cake",
       "description": "Tarta temática para bebé.",
       "imageUrl": "/baby.jpeg",

@@ -117,7 +117,7 @@ export const blogPosts: BlogPost[] = [
     },
     date: '2024-03-15',
     author: 'Sweet Queen',
-    image: getImage('tarta-personalizada'),
+    image: getImage('encargo-tarta'),
     content: {
       es: `
         <h2 class="text-3xl font-headline text-primary mb-6">Guía de cuidados para tu tarta Sweet Queen 👑</h2>
@@ -193,7 +193,7 @@ export const blogPosts: BlogPost[] = [
           
           <section>
             <h3 class="text-2xl font-bold text-primary mb-2">4. Compte amb la llum directa i les olors ☀️👃</h3>
-            <p>Evita col·locar la tarta en una taula a prop d'una finestra on li doni el sol directe. A la nevera, assegura't que no hi hagi aliments amb olors fortes a prop, ja que els greixos de les cremes absorbeixen les olors amb facilitat.</p>
+            <p>Evita col·locar la tarta en una taula a prop d'una finestra on li doni el sol directo. A la nevera, assegura't que no hi hagi aliments amb olors fortes a prop, ja que els greixos de les cremes absorbeixen les olors amb facilitat.</p>
           </section>
           
           <section>
@@ -358,7 +358,7 @@ export const blogPosts: BlogPost[] = [
           
           <section>
             <h3 class="text-2xl font-bold text-primary mb-2">2. L'equilibri del sabor ⚖️</h3>
-            <p>Un Red Velvet perfecte no ha de ser embafador. El sabor és subtil: un toc lleuger a cacau compensat pel punt àcid del vinagre i el buttermilk. És una dansa de sabors on cap domina, però tots se senten.</p>
+            <p>Un Red Velvet perfecte no ha de ser embafador. El sabor és subtil: un toque lleuger a cacau compensat pel punt àcid del vinagre i el buttermilk. És una dansa de sabors on cap domina, però tots se senten.</p>
           </section>
           
           <section>
