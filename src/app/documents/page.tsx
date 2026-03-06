@@ -2,8 +2,11 @@
 import { useState, useEffect } from 'react';
 import { FileText, ArrowLeft, Printer, AlertTriangle } from 'lucide-react';
 import { SHEETDB_API_URL } from '@/lib/config';
+import Link from 'next/link';
+import { useI18n } from '@/context/LanguageContext';
 
 export default function MisDocumentos() {
+  const { t } = useI18n();
   const [facturasFiltradas, setFacturasFiltradas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -203,6 +206,11 @@ export default function MisDocumentos() {
   return (
     <div className="min-h-screen bg-[#fffcfd] p-12">
       <div className="max-w-5xl mx-auto">
+        <div className="mb-6">
+          <Link href="/account" className="flex items-center gap-2 text-primary hover:underline font-bold">
+            <ArrowLeft size={20} /> {t('back_to_profile')}
+          </Link>
+        </div>
         <h1 className="text-4xl font-black text-gray-900 mb-8 tracking-tighter">Mis Facturas</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {facturasFiltradas.map((factura, i) => {
