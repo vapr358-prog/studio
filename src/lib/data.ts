@@ -1,4 +1,3 @@
-
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -23,13 +22,13 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Celebración', 'Felicidad', 'Magia'],
-    image: getImage('tres-leches'),
+    image: getImage('pink-heart-cake'), // Imagen principal: corazonrosa.jpeg
     gallery: [
-      getImage('tres-leches'),
-      getImage('torta-1'),
-      getImage('pikachu-cake'),
-      getImage('mini-tarta'),
-      getImage('pink-heart-cake'),
+      getImage('pink-heart-cake'), // corazonrosa.jpeg
+      getImage('tres-leches'),     // treslechesfruta.jpeg
+      getImage('torta-1'),         // torta1.jpeg
+      getImage('pikachu-cake'),    // pikachu.jpeg
+      getImage('mini-tarta'),       // mini.jpeg
     ]
   },
   {
