@@ -21,7 +21,6 @@ export function Header() {
   const baseNavLinks = [
     { href: '/', label: t('nav_home') },
     { href: '/cakes', label: t('nav_cakes') },
-    { href: '/pedidos', label: t('nav_booking_mgmt') },
     { href: '/blog', label: t('nav_blog') },
     { href: '/book', label: t('nav_book') },
     { href: '/tracking', label: t('nav_tracking') },

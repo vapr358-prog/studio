@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button"
 import { allFlavors } from "@/lib/types"
 import type { Order } from '@/lib/types';
 import { orders as allOrders } from '@/lib/data';
-import { FileText, AlertTriangle } from 'lucide-react';
+import { FileText, AlertTriangle, ShoppingBag } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useI18n } from '@/context/LanguageContext';
 
 type AppUser = {
   username: string;
@@ -21,6 +22,7 @@ type AppUser = {
 }
 
 export default function AccountPage() {
+  const { t } = useI18n();
   const [user, setUser] = useState<AppUser | null>(null);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,6 @@ export default function AccountPage() {
         const parsedUser: AppUser = JSON.parse(storedUser);
         setUser(parsedUser);
 
-        // Reverting to use mock data and filter it
         const filteredOrders = allOrders.filter((order) => {
             return order.clientName === parsedUser.name;
         });
@@ -76,7 +77,7 @@ export default function AccountPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
-      <div className="mb-8">
+      <div className="mb-8 text-center md:text-left">
         <h1 className="font-headline text-4xl md:text-5xl">Mi Cuenta</h1>
         <p className="text-lg text-muted-foreground">
           {user ? `Bienvenida de nuevo, ${user.name}.` : 'Cargando tu información...'}
@@ -84,17 +85,21 @@ export default function AccountPage() {
       </div>
 
       <Tabs defaultValue="history" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 max-w-lg">
-          <TabsTrigger value="history">Historial de Pedidos</TabsTrigger>
-          <TabsTrigger value="recommendations">Para Ti</TabsTrigger>
-          <TabsTrigger value="invoices">Facturas</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 max-w-2xl mx-auto md:mx-0 h-auto gap-2">
+          <TabsTrigger value="history" className="py-3">Historial</TabsTrigger>
+          <TabsTrigger value="recommendations" className="py-3">Para Ti</TabsTrigger>
+          <TabsTrigger value="invoices" className="py-3">Facturas</TabsTrigger>
+          <TabsTrigger value="booking" className="py-3">{t('nav_booking_mgmt')}</TabsTrigger>
         </TabsList>
+        
         <TabsContent value="history" className="mt-6">
           <HistoryTabContent />
         </TabsContent>
+        
         <TabsContent value="recommendations" className="mt-6">
           <CakeRecommendationForm flavors={allFlavors} />
         </TabsContent>
+        
         <TabsContent value="invoices" className="mt-6">
            <Card>
             <CardHeader>
@@ -112,6 +117,28 @@ export default function AccountPage() {
             <CardFooter>
               <Button asChild>
                 <Link href="/documents">Ir a Facturas</Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="booking" className="mt-6">
+           <Card>
+            <CardHeader>
+              <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                <ShoppingBag className="h-6 w-6 text-primary"/>
+                {t('booking_mgmt_title')}
+              </CardTitle>
+              <CardDescription>
+                {t('booking_mgmt_sub')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Gestiona tus solicitudes especiales de forma dinámica. Podrás ver en tiempo real si tus pedidos han sido aceptados y añadir nuevas peticiones personalizadas.</p>
+            </CardContent>
+            <CardFooter>
+              <Button asChild>
+                <Link href="/pedidos">Entrar a Mis Pedidos</Link>
               </Button>
             </CardFooter>
           </Card>
