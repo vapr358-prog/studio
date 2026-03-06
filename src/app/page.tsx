@@ -20,12 +20,11 @@ export default function HomePage() {
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
   const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
   
-  // Estas son tus imágenes locales de la carpeta /public
+  // Imágenes solicitadas para el carrusel del portafolio
   const localGallery = [
-    { src: '/mini.jpg', alt: 'Mini Tarta' },
-    { src: '/corazonrojo.jpg', alt: 'Corazón Rojo' },
-    { src: '/torta1.jpg', alt: 'Torta Especial' },
-    { src: '/treslechesfruta.jpg', alt: 'Tres Leches' }
+    { src: '/baby.jpeg', alt: 'Baby Cake' },
+    { src: '/corazonrosa.jpeg', alt: 'Corazón Rosa' },
+    { src: '/treslechesfruta.jpeg', alt: 'Tres Leches' }
   ];
 
   return (
@@ -78,7 +77,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Gallery Section - CELEBRACIONES MÁGICAS (CAROUSEL) */}
+      {/* Gallery Section - CELEBRACIONES MÁGICAS */}
       <section className="py-24 bg-secondary/40 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -89,33 +88,36 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="relative px-12 mb-16">
+          <div className="relative px-4 md:px-12 mb-16">
             <Carousel opts={{ align: "start", loop: true }} className="w-full max-w-6xl mx-auto">
               <CarouselContent className="-ml-4">
                 {localGallery.map((img, idx) => (
-                  <CarouselItem key={idx} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                    <Link href="/cakes/tarta-cumpleanos-especial" className="block cursor-pointer">
-                      <div className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square bg-white">
-                        <img 
-                          src={img.src} 
-                          alt={img.alt} 
-                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1519340333755-5ac5154b42b1?w=500';
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                           <div className="bg-white/20 backdrop-blur-md p-4 rounded-full">
-                              <Camera className="text-white h-8 w-8" />
-                           </div>
-                        </div>
-                      </div>
-                    </Link>
+                  <CarouselItem key={idx} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                    <div className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square bg-white">
+                      <img 
+                        src={img.src} 
+                        alt={img.alt} 
+                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                        loading="eager" 
+                        onError={(e) => {
+                          console.log(`Error cargando: ${img.src}`);
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1519340333755-5ac5154b42b1?w=500';
+                        }}
+                      />
+                      <Link 
+                        href="/cakes/tarta-cumpleanos-especial" 
+                        className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                      >
+                         <div className="bg-white/20 backdrop-blur-md p-4 rounded-full scale-75 group-hover:scale-100 transition-transform duration-500">
+                            <Camera className="text-white h-8 w-8" />
+                         </div>
+                      </Link>
+                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="hidden md:flex absolute -left-4 top-1/2 h-12 w-12 border-primary/20 bg-white text-primary" />
-              <CarouselNext className="hidden md:flex absolute -right-4 top-1/2 h-12 w-12 border-primary/20 bg-white text-primary" />
+              <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 h-10 w-10 border-primary/20 bg-white text-primary hover:bg-primary hover:text-white" />
+              <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 h-10 w-10 border-primary/20 bg-white text-primary hover:bg-primary hover:text-white" />
             </Carousel>
           </div>
 
