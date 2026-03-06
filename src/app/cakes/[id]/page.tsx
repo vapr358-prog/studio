@@ -41,7 +41,7 @@ export default function CakeDetailPage() {
           {cake.gallery?.map((img, idx) => (
             <div 
               key={idx} 
-              className="relative rounded-2xl overflow-hidden shadow-lg group aspect-square bg-white border-[12px] border-white"
+              className="relative rounded-2xl overflow-hidden shadow-lg group aspect-square"
             >
               <Image
                 src={img.url}

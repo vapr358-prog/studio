@@ -79,7 +79,7 @@ export default function HomePage() {
             {birthdayGallery?.gallery?.slice(0, 4).map((img, idx) => (
               <div 
                 key={idx} 
-                className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square bg-white border-4 border-white"
+                className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square"
               >
                 <Image 
                   src={img.url} 
