@@ -14,7 +14,6 @@ export default function HomePage() {
   const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
   const birthdayGallery = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
   const chocolateCake = cakes.find(c => c.id === 'tarta-de-chocolate');
-  const specialCake = cakes.find(c => c.id === 'tarta-personalizada');
 
   return (
     <div className="flex flex-col gap-0">
@@ -125,7 +124,7 @@ export default function HomePage() {
           <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
             {chocolateCake && (
               <Image 
-                src={chocolateCake.image.url} 
+                src="/chocolate.jpeg" 
                 alt="Chocolate" 
                 fill 
                 className="object-cover"
@@ -139,14 +138,12 @@ export default function HomePage() {
       <section className="py-24 bg-secondary/30">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
           <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
-            {specialCake && (
-              <Image 
-                src={specialCake.image.url} 
-                alt="Especiales" 
-                fill 
-                className="object-cover"
-              />
-            )}
+            <Image 
+              src="/tarta.jpg" 
+              alt="Especiales" 
+              fill 
+              className="object-cover"
+            />
           </div>
           <div className="flex flex-col items-start gap-6">
             <h2 className="font-headline text-6xl md:text-8xl text-primary leading-tight uppercase">{t('section_special_title')}</h2>
