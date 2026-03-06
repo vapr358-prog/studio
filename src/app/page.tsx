@@ -13,7 +13,6 @@ export default function HomePage() {
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
   const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
   const birthdayGallery = cakes.find(c => c.id === 'tarta-cumpleanos-especial');
-  const chocolateCake = cakes.find(c => c.id === 'tarta-de-chocolate');
 
   return (
     <div className="flex flex-col gap-0">
@@ -123,8 +122,8 @@ export default function HomePage() {
           </div>
           <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
             <Image 
-              src="/chocolate.jpeg" 
-              alt="Puro Chocolate" 
+              src="/variedad.jpg" 
+              alt="Variedad de Pasteles" 
               fill 
               className="object-cover"
             />
