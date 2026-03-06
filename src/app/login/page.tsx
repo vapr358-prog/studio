@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,10 +15,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { LogIn } from 'lucide-react';
+import { LogIn, ArrowLeft } from 'lucide-react';
 import { SHEETDB_API_URL } from '@/lib/config';
+import { useI18n } from '@/context/LanguageContext';
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const [usuario, setUsuario] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -69,11 +72,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container mx-auto flex min-h-[calc(100vh-12rem)] items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-sm shadow-xl">
+    <div className="container mx-auto flex flex-col min-h-[calc(100vh-12rem)] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm mb-6 text-left">
+        <Button variant="ghost" asChild className="text-primary hover:text-primary/80 p-0 hover:bg-transparent">
+          <Link href="/" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            {t('back_to_start')}
+          </Link>
+        </Button>
+      </div>
+
+      <Card className="w-full max-w-sm shadow-xl bg-white/90 backdrop-blur-sm">
         <form onSubmit={handleLogin}>
           <CardHeader className="text-center">
-            <CardTitle className="font-headline text-3xl">Acceso</CardTitle>
+            <CardTitle className="font-headline text-3xl text-primary">{t('nav_login')}</CardTitle>
             <CardDescription>
               Introduce tus credenciales para continuar
             </CardDescription>
@@ -87,6 +99,7 @@ export default function LoginPage() {
                 onChange={(e) => setUsuario(e.target.value)}
                 required
                 placeholder="Tu nombre de usuario"
+                className="border-primary/20 focus-visible:ring-primary"
               />
             </div>
             <div className="space-y-2">
@@ -98,6 +111,7 @@ export default function LoginPage() {
                 onChange={(e) => setContrasena(e.target.value)}
                 required
                 placeholder="Tu contraseña"
+                className="border-primary/20 focus-visible:ring-primary"
               />
             </div>
             {error && (
@@ -107,7 +121,7 @@ export default function LoginPage() {
             )}
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
               <LogIn className="mr-2" />
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
