@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { allFlavors } from "@/lib/types"
 import type { Order } from '@/lib/types';
 import { orders as mockOrders } from '@/lib/data';
-import { FileText, AlertTriangle, ShoppingBag, Loader2, ChevronRight } from 'lucide-react';
+import { FileText, AlertTriangle, ShoppingBag, Loader2, ChevronRight, CalendarCheck } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useI18n } from '@/context/LanguageContext';
 import { SHEETDB_API_URL } from '@/lib/config';
@@ -215,7 +214,7 @@ export default function AccountPage() {
            <Card>
             <CardHeader>
               <CardTitle className="font-headline text-2xl flex items-center gap-2">
-                <ShoppingBag className="h-6 w-6 text-primary"/>
+                <CalendarCheck className="h-6 w-6 text-primary"/>
                 {t('booking_mgmt_title')}
               </CardTitle>
               <CardDescription>
@@ -223,11 +222,11 @@ export default function AccountPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Gestiona tus solicitudes especiales de forma dinámica. Podrás ver en tiempo real si tus pedidos han sido aceptados y añadir nuevas peticiones personalizadas.</p>
+              <p>Gestiona tus solicitudes especiales de forma dinámica. Podrás realizar nuevas reservas personalizadas y consultar su estado en tiempo real.</p>
             </CardContent>
             <CardFooter>
               <Button asChild>
-                <Link href="/pedidos">Entrar a Mis Pedidos</Link>
+                <Link href="/pedidos">Entrar a Reservar</Link>
               </Button>
             </CardFooter>
           </Card>
