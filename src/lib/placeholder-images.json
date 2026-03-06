@@ -101,6 +101,12 @@
       "description": "Nuestra icónica tarta Red Velvet de terciopelo rojo.",
       "imageUrl": "/redvelvet.jpg",
       "imageHint": "red velvet cake"
+    },
+    {
+      "id": "torta-1",
+      "description": "Una de nuestras tartas más especiales de la casa.",
+      "imageUrl": "/torta1.jpeg",
+      "imageHint": "special cake"
     }
   ]
 }
