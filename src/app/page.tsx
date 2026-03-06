@@ -130,7 +130,7 @@ export default function HomePage() {
       {/* Category Sections - Puro Chocolate */}
       <section className="py-24 bg-white/60 backdrop-blur-md">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-white/50">
+          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
             <Image 
               src="/variedad.jpg" 
               alt="Variedad de Chocolate Sweet Queen" 
