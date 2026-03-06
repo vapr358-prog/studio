@@ -28,7 +28,7 @@ export default function CakeDetailPage() {
   }
 
   const isGalleryOnly = cake.id === 'tarta-cumpleanos-especial';
-  const isUnitBased = cake.id === 'pack-mini-cakes';
+  const isUnitBased = cake.id === 'pack-mini-cakes' || cake.id === 'cupcakes-artesanales';
 
   if (isGalleryOnly) {
     return (
