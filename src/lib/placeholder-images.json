@@ -77,6 +77,12 @@
       "description": "Cupcakes artesanales decorados con frosting cremoso.",
       "imageUrl": "https://images.unsplash.com/photo-1576618148400-f54bed99fcfd?q=80&w=1080",
       "imageHint": "cupcakes"
+    },
+    {
+      "id": "red-velvet",
+      "description": "Nuestra icónica tarta Red Velvet de terciopelo rojo.",
+      "imageUrl": "/redvelvet.jpeg",
+      "imageHint": "red velvet cake"
     }
   ]
 }
