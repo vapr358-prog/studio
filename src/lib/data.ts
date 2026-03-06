@@ -26,7 +26,7 @@ export const cakes: Cake[] = [
     gallery: [
       getImage('pink-heart-cake'), // corazonrosa.jpeg
       getImage('tres-leches'),     // treslechesfruta.jpeg
-      getImage('baby-cake'),       // baby.jpeg (Sustituida)
+      getImage('chocolate-cake'),  // chocolate.jpeg
       getImage('pikachu-cake'),    // pikachu.jpeg
       getImage('mini-tarta'),       // mini.jpeg
     ]
@@ -71,7 +71,7 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Chocolate', 'Ganache', 'Dulce'],
-    image: getImage('chocolate-cake'),
+    image: getImage('chocolate-cake'), // Aseguramos que use chocolate-cake (chocolate.jpeg)
   },
   {
     id: 'carrot-cake',
