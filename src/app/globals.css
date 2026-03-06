@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,11 +16,11 @@ body {
   :root {
     /* Sweet Queen Official Palette - Coral Pink (#FF6F91) */
     /* HSL equivalent of #FF6F91 is approx 346 100% 72% */
-    --background: 346 100% 99%;    /* Light blush white with coral hint */
+    --background: 346 100% 99% / 0.92;    /* Semi-transparent to let background through */
     --foreground: 346 40% 15%;     /* Deep berry for text */
-    --card: 0 0% 100% / 0.9;       /* Slightly transparent for background visibility */
+    --card: 0 0% 100% / 0.85;       /* Slightly transparent for background visibility */
     --card-foreground: 346 40% 15%;
-    --popover: 0 0% 100%;
+    --popover: 0 0% 100% / 0.95;
     --popover-foreground: 346 40% 15%;
     --primary: 346 100% 72%;       /* The NEW Coral Pink #FF6F91 */
     --primary-foreground: 0 0% 100%;
