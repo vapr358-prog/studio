@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,10 +10,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button"
 import { allFlavors } from "@/lib/types"
 import type { Order } from '@/lib/types';
-import { orders as allOrders } from '@/lib/data';
-import { FileText, AlertTriangle, ShoppingBag } from 'lucide-react';
+import { orders as mockOrders } from '@/lib/data';
+import { FileText, AlertTriangle, ShoppingBag, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useI18n } from '@/context/LanguageContext';
+import { SHEETDB_API_URL } from '@/lib/config';
 
 type AppUser = {
   username: string;
@@ -24,12 +26,12 @@ type AppUser = {
 export default function AccountPage() {
   const { t } = useI18n();
   const [user, setUser] = useState<AppUser | null>(null);
-  const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [combinedOrders, setCombinedOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    function loadUserAndOrders() {
+    async function loadData() {
       setLoading(true);
       setError(null);
       try {
@@ -43,26 +45,59 @@ export default function AccountPage() {
         const parsedUser: AppUser = JSON.parse(storedUser);
         setUser(parsedUser);
 
-        const filteredOrders = allOrders.filter((order) => {
-            return order.clientName === parsedUser.name;
-        });
+        // 1. Filtrar pedidos mock (estáticos)
+        const filteredMock = mockOrders.filter((order) => order.clientName === parsedUser.name);
 
-        setUserOrders(filteredOrders);
+        // 2. Intentar cargar pedidos dinámicos desde SheetDB (solicitudes)
+        try {
+          const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(parsedUser.username)}&sheet=solicitudes`, {
+            cache: 'no-store'
+          });
+          
+          if (res.ok) {
+            const dynamicData = await res.json();
+            if (Array.isArray(dynamicData)) {
+              const mappedDynamic: Order[] = dynamicData.map((item: any) => ({
+                id: item.id,
+                clientName: parsedUser.name,
+                date: item.fecha,
+                items: [{ name: item.detalles.split('|')[0].replace('Producto: ', '').trim() || 'Pedido Especial', quantity: 1 }],
+                total: 30.00, // Precio base orientativo para el historial
+                status: item.estado as any // El componente OrderHistory ya maneja colores por string
+              }));
+              
+              // Combinamos y mostramos los más recientes primero
+              setCombinedOrders([...mappedDynamic, ...filteredMock].sort((a, b) => b.id.localeCompare(a.id)));
+            } else {
+              setCombinedOrders(filteredMock);
+            }
+          } else {
+            setCombinedOrders(filteredMock);
+          }
+        } catch (e) {
+          console.warn("No se pudieron cargar los pedidos de SheetDB en el historial", e);
+          setCombinedOrders(filteredMock);
+        }
 
       } catch (e: any) {
-        console.error("Failed to load mock orders", e);
-        setError(e.message || "Ocurrió un error al cargar el historial de pedidos.");
+        console.error("Failed to load account data", e);
+        setError(e.message || "Ocurrió un error al cargar la información.");
       } finally {
         setLoading(false);
       }
     }
     
-    loadUserAndOrders();
+    loadData();
   }, []);
 
   const HistoryTabContent = () => {
     if (loading) {
-      return <p className="text-center">Cargando historial de pedidos...</p>;
+      return (
+        <div className="flex flex-col items-center justify-center py-12 gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Cargando tu historial dulce...</p>
+        </div>
+      );
     }
     if (error) {
       return (
@@ -72,7 +107,7 @@ export default function AccountPage() {
         </Alert>
       );
     }
-    return <OrderHistory orders={userOrders} />;
+    return <OrderHistory orders={combinedOrders} />;
   }
 
   return (
