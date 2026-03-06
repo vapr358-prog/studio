@@ -134,9 +134,9 @@ export default function CakeDetailPage() {
             <p className="text-3xl font-headline text-primary mb-8 leading-tight px-8">
               "{t('closing_phrase')}"
             </p>
-            <Button size="lg" asChild className="rounded-full px-12 py-9 text-2xl shadow-xl hover:scale-105 transition-all bg-primary hover:bg-primary/90">
+            <button size="lg" asChild className="rounded-full px-12 py-9 text-2xl shadow-xl hover:scale-105 transition-all bg-primary hover:bg-primary/90">
                <Link href="/contact">{t('gallery_magic_button')}</Link>
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function CakeDetailPage() {
         </Button>
       </div>
       <div className="grid gap-8 lg:gap-16 items-start mb-16 md:grid-cols-2">
-        <div className="rounded-[2.5rem] overflow-hidden shadow-2xl bg-white aspect-square relative">
+        <div className="rounded-[2.5rem] overflow-hidden shadow-2xl bg-muted aspect-square relative">
           <Image
             src={cake.image.url}
             alt={cake.name[language]}
