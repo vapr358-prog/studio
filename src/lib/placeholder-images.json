@@ -7,6 +7,12 @@
       "imageHint": "bakery official background"
     },
     {
+      "id": "brand-post",
+      "description": "Nuestros pasteles artesanales en el obrador.",
+      "imageUrl": "/pasteles.jpg",
+      "imageHint": "bakery cakes"
+    },
+    {
       "id": "baby-cake",
       "description": "Tarta temática para bebé.",
       "imageUrl": "/baby.jpeg",
