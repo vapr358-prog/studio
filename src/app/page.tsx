@@ -20,9 +20,9 @@ export default function HomePage() {
   const heroImage = PlaceHolderImages.find((p) => p.id === 'hero-bg');
   const featuredCakes = cakes.filter(c => c.id !== 'tarta-cumpleanos-especial').slice(0, 3);
   
-  // Imágenes solicitadas para el carrusel del portafolio
+  // Imágenes solicitadas para el carrusel del portafolio (baby.jpeg sustituida por chocolate.jpeg)
   const localGallery = [
-    { src: '/baby.jpeg', alt: 'Baby Cake' },
+    { src: '/chocolate.jpeg', alt: 'Chocolate Cake' },
     { src: '/corazonrosa.jpeg', alt: 'Corazón Rosa' },
     { src: '/treslechesfruta.jpeg', alt: 'Tres Leches' }
   ];
