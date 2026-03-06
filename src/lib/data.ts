@@ -1,3 +1,4 @@
+
 import type { Cake, Order, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -102,7 +103,7 @@ export const cakes: Cake[] = [
     image: getImage('vanilla-cake'),
   },
   {
-    id: 'mini-tarta-personal',
+    id: 'mini-tarta-personal-especial',
     name: {
       es: 'Mini Tarta (PERSONAL)',
       ca: 'Mini Pastís (PERSONAL)'
