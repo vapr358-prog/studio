@@ -138,7 +138,7 @@ export default function HomePage() {
       {/* Category Sections - Tartas Especiales */}
       <section className="py-24 bg-secondary/30">
         <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
-          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-white">
+          <div className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
             {specialCake && (
               <Image 
                 src={specialCake.image.url} 
