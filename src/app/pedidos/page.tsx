@@ -228,7 +228,7 @@ export default function PedidosPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <div className="mb-6">
-        <Button variant="secondary" asChild className="shadow-sm border border-white/20 px-6">
+        <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold">
           <Link href="/account" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             {t('back_to_profile')}

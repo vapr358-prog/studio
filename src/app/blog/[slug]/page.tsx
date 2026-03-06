@@ -27,7 +27,7 @@ export default function BlogPostPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-16 max-w-4xl">
       <div className="mb-8 text-left">
-        <Button variant="secondary" asChild className="shadow-sm border border-white/20 px-6">
+        <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold">
           <Link href="/blog" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             {language === 'es' ? 'Volver al blog' : 'Tornar al blog'}
@@ -35,7 +35,7 @@ export default function BlogPostPage() {
         </Button>
       </div>
 
-      <article className="bg-white/85 backdrop-blur-md rounded-[2.5rem] shadow-2xl p-6 md:p-12 border border-white/20">
+      <article className="bg-white/90 backdrop-blur-md rounded-[2.5rem] shadow-2xl p-6 md:p-12 border border-white/20">
         <header className="mb-8">
           <h1 className="font-headline text-4xl md:text-5xl mb-4 text-center text-primary leading-tight">
             {post.title[language]}
