@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle, FileText } from 'lucide-react';
 import { useI18n } from '@/context/LanguageContext';
+import { jsPDF } from 'jspdf'; // 1. IMPORTACIÓN <--- AQUÍ
 
 type Solicitud = {
   id: string;
@@ -31,9 +32,9 @@ export default function BookingPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Form State
   const [tipo, setTipo] = useState('');
   const [sabor, setSabor] = useState('');
+  const [cantidad, setCantidad] = useState('');
   const [notas, setNotas] = useState('');
 
   useEffect(() => {
@@ -42,37 +43,44 @@ export default function BookingPage() {
       router.push('/login');
       return;
     }
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
-    fetchUserOrders(parsedUser.username);
+    setUser(JSON.parse(storedUser));
+    fetchUserOrders(JSON.parse(storedUser).username);
   }, [router]);
 
+  // 2. FUNCIÓN PARA GENERAR EL PDF <--- AQUÍ (Dentro del componente)
+  const generatePDF = (order: Solicitud) => {
+    const doc = new jsPDF();
+    doc.setFillColor(255, 241, 242);
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(219, 39, 119);
+    doc.setFontSize(26);
+    doc.text("SWEET QUEEN", 105, 22, { align: "center" });
+    doc.setFontSize(12);
+    doc.text("Resum de la teva comanda", 105, 30, { align: "center" });
+    doc.setDrawColor(219, 39, 119);
+    doc.line(20, 45, 190, 45);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.text(`ID COMANDA: ${order.id}`, 20, 60);
+    doc.text(`DATA: ${order.fecha}`, 20, 70);
+    doc.text(`ESTAT: ${order.estado}`, 20, 80);
+    doc.setFont("helvetica", "bold");
+    doc.text("DETALLS DE L'ENCÀRREC:", 20, 100);
+    doc.setFont("helvetica", "normal");
+    const splitDetails = doc.splitTextToSize(order.detalles, 170);
+    doc.text(splitDetails, 20, 110);
+    doc.save(`Comanda_${order.id}.pdf`);
+  };
+
   async function fetchUserOrders(username: string) {
-    if (!username) return;
     try {
       setLoading(true);
-      setError(null);
-      // Usamos no-store para evitar caché de errores anteriores
-      const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`, {
-        cache: 'no-store'
-      });
-      
-      if (!res.ok) {
-        // Si el sheet no existe, SheetDB puede devolver 404 o 400. 
-        // En lugar de romper la app, asumimos lista vacía y avisamos por consola.
-        console.warn("La hoja 'solicitudes' no existe o no es accesible aún.");
-        setOrders([]);
-        return;
-      }
-      
+      const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`);
       const data = await res.json();
-      // Mostramos los más nuevos arriba. SheetDB devuelve array siempre en /search si res.ok
-      const sortedData = Array.isArray(data) ? [...data].reverse() : [];
-      setOrders(sortedData);
-    } catch (err: any) {
-      console.error("Error cargando historial:", err);
-      // No bloqueamos la UI, simplemente mostramos el aviso de error
-      setError('No se pudo cargar el historial. Asegúrate de que la hoja "solicitudes" existe en tu Excel.');
+      setOrders(Array.isArray(data) ? [...data].reverse() : []);
+    } catch (err) {
+      setError('Error al cargar historial.');
     } finally {
       setLoading(false);
     }
@@ -80,194 +88,100 @@ export default function BookingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tipo || !sabor) {
-      setError('Por favor, rellena los campos obligatorios.');
-      return;
-    }
-
     setSubmitting(true);
-    setError(null);
-
-    const newId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
-    const fecha = new Date().toLocaleDateString(language === 'ca' ? 'ca-ES' : 'es-ES');
+    const newId = `SQ-${Math.floor(1000 + Math.random() * 9000)}`;
+    const fechaHoy = new Date().toLocaleDateString('ca-ES');
     
-    const detallesStr = `Producto: ${tipo} | Sabor: ${sabor} | Notas: ${notas || '---'}`;
+    // CONCATENACIÓN: Aquí unimos todo para la columna 'detalles' del Excel
+    const infoDetalles = `Producte: ${tipo} | Quantitat: ${cantidad} | Sabor: ${sabor} | Notes: ${notas || 'Cap'}`;
 
     const payload = {
-      data: [
-        {
-          id: newId,
-          fecha: fecha,
-          usuario: user.username,
-          estado: 'Pendente',
-          detalles: detallesStr,
-        }
-      ]
+      data: [{
+        id: newId,
+        fecha: fechaHoy,
+        usuario: user.username,
+        estado: 'Pendente',
+        detalles: infoDetalles // <--- ENVÍO AL EXCEL CORREGIDO
+      }]
     };
 
     try {
-      const res = await fetch(`${SHEETDB_API_URL}?sheet=solicitudes`, {
+      await fetch(`${SHEETDB_API_URL}?sheet=solicitudes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
-      if (!res.ok) throw new Error('Error al enviar la solicitud');
-
-      // Limpiar formulario y refrescar lista
-      setTipo('');
-      setSabor('');
-      setNotas('');
+      setTipo(''); setSabor(''); setCantidad(''); setNotas('');
       fetchUserOrders(user.username);
-    } catch (err: any) {
-      setError('Hubo un problema al enviar tu pedido. Verifica que la pestaña "solicitudes" existe en el Excel.');
+    } catch (err) {
+      setError('Error enviando.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const s = (status || '').toLowerCase().trim();
-    if (s === 'pendente' || s === 'pendiente') {
-      return (
-        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-none flex items-center gap-1">
-          <Clock size={12}/> {t('status_pending')}
-        </Badge>
-      );
-    }
-    if (['aprobado', 'entregado', 'acceptada', 'aceptada', 'aprovat'].includes(s)) {
-      return (
-        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none flex items-center gap-1">
-          <CheckCircle2 size={12}/> {t('status_accepted')}
-        </Badge>
-      );
-    }
-    return <Badge variant="secondary">{status}</Badge>;
-  };
-
-  if (loading && !user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
-      <header className="mb-10 text-center">
-        <h1 className="font-headline text-4xl md:text-5xl text-primary mb-2">{t('booking_mgmt_title')}</h1>
-        <p className="text-muted-foreground italic">{t('booking_mgmt_sub')}</p>
-      </header>
-
-      <div className="grid lg:grid-cols-5 gap-10 items-start">
-        <section className="lg:col-span-2 space-y-6">
-          <Card className="border-primary/10 shadow-lg">
-            <CardHeader className="bg-primary/5">
-              <CardTitle className="flex items-center gap-2">
-                <PlusCircle className="text-primary h-5 w-5" />
-                {t('booking_new_req')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
+      <h1 className="text-4xl font-bold text-pink-600 text-center mb-10 italic">Sweet Queen</h1>
+      <div className="grid lg:grid-cols-5 gap-10">
+        <section className="lg:col-span-2">
+          <Card className="border-pink-100 shadow-md">
+            <CardHeader><CardTitle className="text-pink-700">Nou Encàrrec</CardTitle></CardHeader>
+            <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tipo">{t('booking_type')} *</Label>
-                  <Select onValueChange={setTipo} value={tipo}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('form_select_date')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={t('booking_prod_cake')}>{t('booking_prod_cake')}</SelectItem>
-                      <SelectItem value={t('booking_prod_cupcake')}>{t('booking_prod_cupcake')}</SelectItem>
-                      <SelectItem value={t('booking_prod_cookie')}>{t('booking_prod_cookie')}</SelectItem>
-                      <SelectItem value={t('booking_prod_special')}>{t('booking_prod_special')}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="sabor">{t('booking_flavor')} *</Label>
-                  <Input 
-                    id="sabor" 
-                    placeholder="Ej: Chocolate & Vainilla" 
-                    value={sabor}
-                    onChange={(e) => setSabor(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="notas">{t('booking_notes')}</Label>
-                  <Textarea 
-                    id="notas" 
-                    placeholder="Ej: 2 unidades, sin gluten..." 
-                    className="min-h-[100px]"
-                    value={notas}
-                    onChange={(e) => setNotas(e.target.value)}
-                  />
-                </div>
-
-                {error && (
-                  <Alert variant="destructive" className="py-2">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-xs">{error}</AlertDescription>
-                  </Alert>
-                )}
-
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t('booking_sending')}
-                    </>
-                  ) : t('booking_send')}
+                <Label>Producte</Label>
+                <Select onValueChange={setTipo} value={tipo}>
+                  <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Tarta">Tarta</SelectItem>
+                    <SelectItem value="Cupcakes">Cupcakes</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Label>Quantitat</Label>
+                <Input placeholder="Ex: 12u" value={cantidad} onChange={(e)=>setCantidad(e.target.value)} />
+                <Label>Sabor</Label>
+                <Input placeholder="Ex: Xocolata" value={sabor} onChange={(e)=>setSabor(e.target.value)} />
+                <Label>Notes adicionales</Label>
+                <Textarea value={notas} onChange={(e)=>setNotas(e.target.value)} />
+                <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={submitting}>
+                  {submitting ? "Enviant..." : "Confirmar Reserva"}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </section>
 
-        <section className="lg:col-span-3 space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-headline text-3xl text-gray-800 flex items-center gap-2">
-              <History className="text-primary h-6 w-6" />
-              {t('booking_history')}
-            </h2>
-            <Button variant="ghost" size="sm" onClick={() => fetchUserOrders(user?.username || '')} className="text-xs">
-              {t('booking_refresh')}
-            </Button>
-          </div>
+        <section className="lg:col-span-3 space-y-4">
+          <h2 className="text-2xl font-semibold text-gray-700">Historial</h2>
+          {orders.map((order) => (
+            <Card key={order.id} className="border-l-4 border-pink-400">
+              <CardHeader className="py-3 flex flex-row justify-between items-center">
+                <div>
+                  <p className="text-xs text-gray-400">{order.fecha}</p>
+                  <CardTitle className="text-pink-700 text-lg">{order.id}</CardTitle>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <Badge className={order.estado.toLowerCase() !== 'pendente' ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
+                    {order.estado}
+                  </Badge>
 
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-32 w-full bg-muted animate-pulse rounded-xl" />
-              ))}
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed border-muted">
-              <p className="text-muted-foreground">{t('booking_no_orders')}</p>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {orders.map((order) => (
-                <Card key={order.id} className="overflow-hidden border-l-4 border-l-primary hover:shadow-md transition-shadow">
-                  <CardHeader className="py-4 flex flex-row items-center justify-between bg-muted/30">
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{order.fecha}</p>
-                      <CardTitle className="text-lg font-mono text-primary">{order.id}</CardTitle>
-                    </div>
-                    {getStatusBadge(order.estado)}
-                  </CardHeader>
-                  <CardContent className="py-4">
-                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                      {order.detalles}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  {/* 3. BOTÓN DE PDF CONDICIONAL <--- AQUÍ */}
+                  {order.estado.toLowerCase() !== 'pendente' && (
+                    <Button 
+                      variant="outline" size="sm" 
+                      onClick={() => generatePDF(order)}
+                      className="text-xs flex gap-1 border-pink-200 text-pink-600"
+                    >
+                      <FileText size={14} /> PDF Pedido
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 italic">{order.detalles}</p>
+              </CardContent>
+            </Card>
+          ))}
         </section>
       </div>
     </div>
