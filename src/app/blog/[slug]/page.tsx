@@ -7,6 +7,9 @@ import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { es, ca } from 'date-fns/locale';
 import { useI18n } from '@/context/LanguageContext';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function BlogPostPage() {
   const { language } = useI18n();
@@ -23,6 +26,15 @@ export default function BlogPostPage() {
 
   return (
     <article className="container mx-auto px-4 py-12 md:py-16 max-w-4xl">
+      <div className="mb-8 text-left">
+        <Button variant="ghost" asChild className="text-primary hover:text-primary/80 p-0 hover:bg-transparent">
+          <Link href="/blog" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            {language === 'es' ? 'Volver al blog' : 'Tornar al blog'}
+          </Link>
+        </Button>
+      </div>
+
       <header className="mb-8">
         <h1 className="font-headline text-4xl md:text-5xl mb-4 text-center">
           {post.title[language]}

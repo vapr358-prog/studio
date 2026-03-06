@@ -1,15 +1,26 @@
+'use client';
+
 import { blogPosts } from '@/lib/blog-data';
 import { BlogCard } from '@/components/BlogCard';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Lee nuestras últimas historias, recetas y noticias del mundo de la pastelería en Sweet Queen.',
-};
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useI18n } from '@/context/LanguageContext';
 
 export default function BlogPage() {
+  const { t } = useI18n();
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
+      <div className="mb-8 text-left">
+        <Button variant="ghost" asChild className="text-primary hover:text-primary/80 p-0 hover:bg-transparent">
+          <Link href="/" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            {t('back_to_start')}
+          </Link>
+        </Button>
+      </div>
+
       <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl">Nuestro Blog Dulce</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
