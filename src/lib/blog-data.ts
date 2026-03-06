@@ -11,6 +11,101 @@ const getImage = (id: string) => {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'un-dia-en-el-obrador-sweet-queen',
+    title: {
+      es: 'Un día en el obrador de Sweet Queen: Cómo nace tu tarta desde cero 👩‍🍳🍰',
+      ca: 'Un dia a l\'obrador de Sweet Queen: Com neix el teu pastís des de zero 👩‍🍳🍰'
+    },
+    excerpt: {
+      es: 'Mucha gente nos pregunta: "¿Por qué necesito encargar mi tarta con tanta antelación?". La respuesta corta es: porque la magia lleva su tiempo.',
+      ca: 'Molta gent ens pregunta: "Per què necessito encarregar el meu pastís amb tanta antelació?". La resposta curta és: perquè la màgia porta el seu temps.'
+    },
+    date: '2024-03-25',
+    author: 'Sweet Queen',
+    image: getImage('brand-post'),
+    content: {
+      es: `
+        <h2 class="text-3xl font-headline text-primary mb-6">La magia lleva su tiempo: El viaje de tu tarta 👑✨</h2>
+        
+        <p>Mucha gente nos pregunta: "¿Por qué necesito encargar mi tarta con tanta antelación?". La respuesta corta es: porque la magia lleva su tiempo.</p>
+        
+        <p class="mt-4">Hoy queremos abrirte las puertas de nuestro rincón favorito, el obrador de Sweet Queen, para que nos acompañes en el viaje que hace tu tarta desde que haces clic en "Enviar Reserva" hasta que llega a tus manos.</p>
+        
+        <div class="space-y-10 mt-10">
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">08:00 AM – El aroma de la mañana ☕</h3>
+            <p>El día empieza muy temprano. Lo primero es revisar las reservas confirmadas en nuestro sistema. Imprimimos los resúmenes en PDF (los mismos que tú recibes) para tener cada detalle a la vista: sabores, alergias y anotaciones de diseño.</p>
+            <p class="mt-2 text-muted-foreground italic">Encendemos los hornos y empezamos con el batido de las masas. Aquí no hay mezclas preparadas; rompemos huevos frescos, tamizamos harina y fundimos el chocolate.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">11:00 AM – El reposo es sagrado 🧊</h3>
+            <p>Una vez salen los bizcochos del horno, llega un paso que muchos olvidan: el reposo. Un bizcocho caliente no se puede rellenar. Dejamos que se enfríen lentamente para que la miga se asiente. Esto garantiza que tu tarta sea estable y no se desmorone al cortarla.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">13:00 PM – La arquitectura del sabor 🏗️</h3>
+            <p>Aquí empieza la construcción. Cortamos los bizcochos en capas perfectas, aplicamos el almíbar para que estén jugosos y rellenamos. Aplicamos lo que llamamos la "crumb coat" (una capa fina de crema que atrapa las migas) y la tarta vuelve al frío para sellar el sabor.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">16:00 PM – El momento del artista 🎨</h3>
+            <p>Esta es nuestra parte favorita. Con la estructura bien firme, sacamos las espátulas, las mangas pasteleras y el fondant. Es el momento de dar vida al diseño que imaginaste. Pintamos detalles, modelamos figuras o colocamos flores frescas.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">19:00 PM – Control de calidad y empaquetado 🎀</h3>
+            <p>Antes de meter la tarta en su caja, verificamos que todo esté perfecto. Limpiamos la base, hacemos la foto de rigor y cerramos la caja con nuestro lazo rosa. Actualizamos el estado en la web a "Listo para entrega" y preparamos todo para el gran encuentro.</p>
+          </section>
+        </div>
+        
+        <div class="bg-primary/10 p-8 rounded-[2rem] mt-12 border border-primary/20">
+          <h4 class="text-2xl font-headline text-primary mb-4 text-center">¿Quieres ser el protagonista de nuestra próxima hornada? 👑</h4>
+          <p class="text-center italic">Como ves, cada tarta de Sweet Queen es un proceso artesanal de horas de dedicación. Por eso, te animamos a usar nuestro sistema de reservas online con antelación.</p>
+        </div>
+      `,
+      ca: `
+        <h2 class="text-3xl font-headline text-primary mb-6">La màgia porta el seu temps: El viatge del teu pastís 👑✨</h2>
+        
+        <p>Molta gent ens pregunta: "Per què necessito encarregar el meu pastís amb tanta antelació?". La resposta curta és: perquè la màgia porta el seu temps.</p>
+        
+        <p class="mt-4">Avui volem obrir-te les portes del nostre racó preferit, l'obrador de Sweet Queen, perquè ens acompanyis en el viatge que fa el teu pastís des que fas clic a "Enviar Reserva" fins que arriba a les teves mans.</p>
+        
+        <div class="space-y-10 mt-10">
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">08:00 AM – L'aroma del matí ☕</h3>
+            <p>El dia comença molt d'hora. El primer és revisar les reserves confirmades al nostre sistema. Imprimim els resums en PDF per tenir cada detall a la vista: sabors, al·lèrgies i anotacions de disseny.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">11:00 AM – El repòs és sagrat 🧊</h3>
+            <p>Una vegada surten els bescuits del forn, arriba un pas que molts obliden: el repòs. Un bescuit calent no es pot omplir. Deixem que es refredin lentament perquè la miga s'asenti. Això garanteix que el teu pastís sigui estable.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">13:00 PM – L'arquitectura del sabor 🏗️</h3>
+            <p>Aquí comença la construcció. Tallem els bescuits en capes perfectes, apliquem l'almívar perquè estiguin sucosos i els omplim. Apliquem la "crumb coat" i el pastís torna al fred per segellar el sabor.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">16:00 PM – El moment de l'artista 🎨</h3>
+            <p>Aquesta és la nostra part preferida. Amb l'estructura ben ferma, traiem les espàtules, les mànigues pastisseres i el fondant. És el moment de donar vida al disseny que vas imaginar.</p>
+          </section>
+          
+          <section class="border-l-4 border-primary pl-6 py-2">
+            <h3 class="text-2xl font-bold text-primary mb-2">19:00 PM – Control de qualitat i empaquetat 🎀</h3>
+            <p>Abans de ficar el pastís a la seva caixa, verifiquem que tot estigui perfecte. Netegem la base, fem la foto de rigor i tanquem la caixa amb el nostre llaç rosa.</p>
+          </section>
+        </div>
+        
+        <div class="bg-primary/10 p-8 rounded-[2rem] mt-12 border border-primary/20">
+          <h4 class="text-2xl font-headline text-primary mb-4 text-center">Vols ser el protagonista de la nostra propera fornada? 👑</h4>
+          <p class="text-center italic">Com veus, cada pastís de Sweet Queen és un procés artesanal d'hores de dedicació. Per això, t'animem a fer servir el nostre sistema de reserves online.</p>
+        </div>
+      `
+    }
+  },
+  {
     slug: '5-consejos-imprescindibles-transporte-tarta',
     title: {
       es: '5 Consejos imprescindibles para que tu Tarta Personalizada llegue perfecta a la mesa 🎂✨',
@@ -270,12 +365,12 @@ export const blogPosts: BlogPost[] = [
           
           <section>
             <h3 class="text-2xl font-bold text-primary mb-2">3. El Frosting: El company inseparable 🍦</h3>
-            <p>A Sweet Queen som puristes: un Red Velvet no és res sense el seu frosting de crema de formatge. El truc: Utilitzem mantega d'alta qualitat i formatge crema amb el punt just de fred perquè sigui estable però lleuger com un núvol. El punt de sal del formatge és el que potencia la dolçor del bescuit.</p>
+            <p>A Sweet Queen som puristes: un Red Velvet no és res sense el seu frosting de crema de formatge. El truc: Utilitzem mantega d'alta qualitat i formatge crema amb el punt just de fred perquè sigui estable i lleuger.</p>
           </section>
           
           <section>
             <h3 class="text-2xl font-bold text-primary mb-2">4. La humitat és la clau 💧</h3>
-            <p>No hi ha res pitjor que un Red Velvet sec. El secret dels nostres pastissos és l'ús d'oli en lloc de només mantega a la massa, cosa que garanteix que el bescuit es mantingui sucós durant dies, mantenint aquesta textura "humida" tan característica.</p>
+            <p>No hi ha res pitjor que un Red Velvet sec. El secret dels nostres pastissos és l'ús d'oli en lloc de només mantega a la massa, cosa que garanteix que el bescuit es mantingui sucós durant dies.</p>
           </section>
         </div>
         
@@ -283,7 +378,6 @@ export const blogPosts: BlogPost[] = [
           <h4 class="text-2xl font-headline text-primary mb-4">Vols tastar l'autèntic "vellut" en el teu proper esdeveniment? 👑</h4>
           <p>A Sweet Queen hem perfeccionat aquesta recepta després de moltes proves fins a donar amb l'equilibri exacte. Ja sigui en format pastís de diversos pisos o en els nostres famosos cupcakes, et prometem una experiència que va més enllà de la vista.</p>
           <p class="mt-4 font-bold">Fes la teva comanda avui mateix!</p>
-          <p class="mt-2 text-sm italic">Entra a la nostra secció de reserves, tria "Red Velvet" com el teu sabor preferit i prepara't per gaudir. Recorda que un cop acceptem la teva comanda, podràs descarregar el teu resum en PDF directament des del teu panell.</p>
         </div>
       `
     },
