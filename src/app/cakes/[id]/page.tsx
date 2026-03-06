@@ -134,9 +134,9 @@ export default function CakeDetailPage() {
             <p className="text-3xl font-headline text-primary mb-8 leading-tight px-8">
               "{t('closing_phrase')}"
             </p>
-            <button size="lg" asChild className="rounded-full px-12 py-9 text-2xl shadow-xl hover:scale-105 transition-all bg-primary hover:bg-primary/90">
+            <Button size="lg" asChild className="rounded-full px-12 py-9 text-2xl shadow-xl hover:scale-105 transition-all bg-primary hover:bg-primary/90">
                <Link href="/contact">{t('gallery_magic_button')}</Link>
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function CakeDetailPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 md:py-16">
+    <div className="container mx-auto px-4 py-12 md:py-20 max-w-6xl">
       <div className="mb-8">
         <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold">
           <Link href="/cakes" className="flex items-center gap-2">
@@ -152,44 +152,56 @@ export default function CakeDetailPage() {
           </Link>
         </Button>
       </div>
-      <div className="grid gap-8 lg:gap-16 items-start mb-16 md:grid-cols-2">
-        <div className="rounded-[2.5rem] overflow-hidden shadow-2xl bg-muted aspect-square relative">
-          <Image
-            src={cake.image.url}
-            alt={cake.name[language]}
-            fill
-            className="object-cover"
-            data-ai-hint={cake.image.hint}
-          />
-        </div>
-        
-        <div className="flex flex-col gap-6">
-          <h1 className="font-headline text-5xl md:text-7xl text-primary uppercase leading-none">
-            {cake.name[language]}
-          </h1>
-          <p className="text-4xl font-semibold text-primary">
-            Desde {cake.price.toFixed(2)}€{isUnitBased ? ' und' : ''}
-          </p>
-          <Separator className="bg-primary/20" />
-          <p className="text-xl text-muted-foreground leading-relaxed italic">
-            {cake.description[language]}
-          </p>
-          
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-primary/80">{t('flavor_profile')}</h2>
-            <div className="flex flex-wrap gap-2">
-              {cake.flavorProfile.map((flavor) => (
-                <Badge key={flavor} variant="secondary" className="text-md px-4 py-1 rounded-full bg-secondary text-primary border-primary/10">
-                  {flavor}
-                </Badge>
-              ))}
-            </div>
+
+      <div className="bg-white/90 backdrop-blur-md rounded-[3.5rem] shadow-2xl overflow-hidden border border-white/20 p-8 md:p-12">
+        <div className="grid gap-12 lg:gap-20 items-center md:grid-cols-2">
+          <div className="rounded-[2.5rem] overflow-hidden shadow-xl aspect-square relative bg-pink-50/50">
+            <Image
+              src={cake.image.url}
+              alt={cake.name[language]}
+              fill
+              className="object-cover transition-transform duration-700 hover:scale-105"
+              data-ai-hint={cake.image.hint}
+              priority
+            />
           </div>
           
-          <div className="mt-6">
-            <Button size="lg" className="w-full sm:w-auto text-xl py-8 px-12 rounded-full shadow-lg bg-primary hover:bg-primary/90">
-              {t('order_this_cake')}
-            </Button>
+          <div className="flex flex-col gap-8">
+            <div className="space-y-4">
+              <h1 className="font-headline text-5xl md:text-7xl text-primary uppercase leading-tight tracking-tighter">
+                {cake.name[language]}
+              </h1>
+              <p className="text-4xl font-bold text-primary/90 flex items-baseline gap-1">
+                Desde {cake.price.toFixed(2)}€
+                {isUnitBased && <span className="text-lg font-normal text-muted-foreground">/ und</span>}
+              </p>
+            </div>
+
+            <Separator className="bg-primary/10" />
+            
+            <p className="text-xl text-muted-foreground leading-relaxed italic font-body">
+              {cake.description[language]}
+            </p>
+            
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                {t('flavor_profile')}
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {cake.flavorProfile.map((flavor) => (
+                  <Badge key={flavor} variant="secondary" className="text-sm px-5 py-2 rounded-full bg-primary/5 text-primary border-primary/10 font-bold uppercase tracking-wide">
+                    {flavor}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            
+            <div className="pt-6">
+              <Button size="lg" className="w-full sm:w-auto text-xl py-8 px-14 rounded-full shadow-xl hover:scale-105 transition-all bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest">
+                {t('order_this_cake')}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
