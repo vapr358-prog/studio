@@ -12,8 +12,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle, ArrowLeft, FileText } from 'lucide-react';
 import { useI18n } from '@/context/LanguageContext';
+import { jsPDF } from 'jspdf';
 
 type Solicitud = {
   id: string;
@@ -74,6 +75,77 @@ export default function PedidosPage() {
     }
   }
 
+  // FUNCIÓN PARA GENERAR EL PDF
+  const generatePDF = (order: Solicitud) => {
+    const doc = new jsPDF();
+    
+    // Cabecera Decorativa Sweet Queen
+    doc.setFillColor(255, 241, 242); // Rosa muy claro
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(219, 39, 119); // Rosa fuerte
+    doc.setFontSize(28);
+    doc.text("SWEET QUEEN", 105, 20, { align: "center" });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(150, 150, 150);
+    doc.text("Resumen de tu Pedido Especial", 105, 30, { align: "center" });
+
+    // Cuerpo del documento
+    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    
+    let y = 60;
+    doc.setFont("helvetica", "bold");
+    doc.text(`Nº DE PEDIDO:`, 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.id, 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text(`FECHA:`, 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.fecha, 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text(`CLIENTE:`, 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.usuario, 60, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text(`ESTADO:`, 20, y);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(22, 163, 74); // Verde para éxito
+    doc.text(order.estado.toUpperCase(), 60, y);
+
+    // Línea separadora
+    y += 15;
+    doc.setDrawColor(244, 114, 182);
+    doc.line(20, y, 190, y);
+
+    // Detalles
+    y += 15;
+    doc.setTextColor(60, 60, 60);
+    doc.setFont("helvetica", "bold");
+    doc.text("DETALLES DEL ENCARGO:", 20, y);
+    
+    y += 10;
+    doc.setFont("helvetica", "normal");
+    const splitDetails = doc.splitTextToSize(order.detalles, 170);
+    doc.text(splitDetails, 20, y);
+
+    // Pie de página
+    doc.setFontSize(10);
+    doc.setTextColor(180, 180, 180);
+    doc.text("Gracias por confiar en Sweet Queen Reus para tus momentos más dulces.", 105, 280, { align: "center" });
+
+    doc.save(`Pedido_SweetQueen_${order.id}.pdf`);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tipo || !sabor) {
@@ -121,6 +193,11 @@ export default function PedidosPage() {
     }
   };
 
+  const isAccepted = (status: string) => {
+    const s = (status || '').toLowerCase().trim();
+    return ['aprobado', 'entregado', 'acceptada', 'aceptada', 'aprovat'].includes(s);
+  };
+
   const getStatusBadge = (status: string) => {
     const s = (status || '').toLowerCase().trim();
     if (s === 'pendente' || s === 'pendiente') {
@@ -130,7 +207,7 @@ export default function PedidosPage() {
         </Badge>
       );
     }
-    if (['aprobado', 'entregado', 'acceptada', 'aceptada', 'aprovat'].includes(s)) {
+    if (isAccepted(s)) {
       return (
         <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-none flex items-center gap-1">
           <CheckCircle2 size={12}/> {t('status_accepted')}
@@ -261,7 +338,20 @@ export default function PedidosPage() {
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{order.fecha}</p>
                       <CardTitle className="text-lg font-mono text-primary">{order.id}</CardTitle>
                     </div>
-                    {getStatusBadge(order.estado)}
+                    <div className="flex flex-col items-end gap-2">
+                      {getStatusBadge(order.estado)}
+                      {isAccepted(order.estado) && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-7 text-[10px] font-bold border-primary/20 text-primary hover:bg-primary/5 gap-1"
+                          onClick={() => generatePDF(order)}
+                        >
+                          <FileText size={12} />
+                          PDF
+                        </Button>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent className="py-4">
                     <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">

@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle, FileText } from 'lucide-react';
+import { Loader2, PlusCircle, History, FileText, RefreshCcw, AlertCircle } from 'lucide-react';
 import { useI18n } from '@/context/LanguageContext';
 import { jsPDF } from 'jspdf';
 
@@ -49,29 +49,28 @@ export default function BookingPage() {
     fetchUserOrders(parsedUser.username);
   }, [router]);
 
-  // Función para leer datos del Excel
+  // LEER DATOS DEL EXCEL
   async function fetchUserOrders(username: string) {
     if (!username) return;
     try {
       setLoading(true);
-      // Buscamos en la hoja 'solicitudes' filtrando por el nombre de usuario
       const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`, {
         cache: 'no-store'
       });
       const data = await res.json();
       setOrders(Array.isArray(data) ? [...data].reverse() : []);
     } catch (err) {
-      setError('No s\'ha pogut carregar l\'historial.');
+      setError('No se ha podido cargar el historial.');
     } finally {
       setLoading(false);
     }
   }
 
-  // Función para generar el PDF (Solo cuando está Aceptada)
+  // GENERAR PDF
   const generatePDF = (order: Solicitud) => {
     const doc = new jsPDF();
     
-    // Cabecera rosa Sweet Queen
+    // Diseño Sweet Queen
     doc.setFillColor(255, 241, 242);
     doc.rect(0, 0, 210, 40, 'F');
     doc.setFont("helvetica", "bold");
@@ -79,54 +78,46 @@ export default function BookingPage() {
     doc.setFontSize(24);
     doc.text("SWEET QUEEN", 105, 20, { align: "center" });
     doc.setFontSize(12);
-    doc.text("Resum de la teva reserva", 105, 30, { align: "center" });
+    doc.text("Resumen de tu Reserva", 105, 30, { align: "center" });
 
-    // Línea de separación
-    doc.setDrawColor(219, 39, 119);
-    doc.line(20, 45, 190, 45);
-
-    // Datos del pedido
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
-    doc.text(`ID COMANDA: ${order.id}`, 20, 60);
-    doc.text(`DATA: ${order.fecha}`, 20, 70);
-    doc.text(`CLIENT: ${order.usuario}`, 20, 80);
-    doc.text(`ESTAT: ${order.estado.toUpperCase()}`, 20, 90);
+    doc.text(`Nº PEDIDO: ${order.id}`, 20, 60);
+    doc.text(`FECHA: ${order.fecha}`, 20, 70);
+    doc.text(`CLIENTE: ${order.usuario}`, 20, 80);
+    doc.text(`ESTADO: ${order.estado.toUpperCase()}`, 20, 90);
 
-    // Detalles del dulce
     doc.setFont("helvetica", "bold");
-    doc.text("DETALLS DE L'ENCÀRREC:", 20, 110);
+    doc.text("DETALLES DEL ENCARGO:", 20, 110);
     doc.setFont("helvetica", "normal");
     const splitDetails = doc.splitTextToSize(order.detalles, 170);
     doc.text(splitDetails, 20, 120);
 
-    doc.setFontSize(10);
-    doc.text("Gràcies per confiar en Sweet Queen!", 105, 280, { align: "center" });
-
-    doc.save(`Comanda_${order.id}_SweetQueen.pdf`);
+    doc.save(`Reserva_SweetQueen_${order.id}.pdf`);
   };
 
+  // ENVIAR AL EXCEL
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tipo || !sabor) {
-      setError('Siusplau, indica el producte i el sabor.');
+      setError('Por favor, indica producto y sabor.');
       return;
     }
 
     setSubmitting(true);
     const newId = `SQ-${Math.floor(1000 + Math.random() * 9000)}`;
-    const fechaAvui = new Date().toLocaleDateString('ca-ES');
+    const fechaHoy = new Date().toLocaleDateString('es-ES');
     
-    // CONCATENACIÓN: Guardamos todo en la columna 'detalles'
-    const infoDetalles = `Producte: ${tipo} | Quantitat: ${cantidad || '1'} | Sabor: ${sabor} | Notes: ${notas || 'Cap'}`;
+    // CONCATENACIÓN PARA EXCEL (Columna detalles)
+    const infoConcatenada = `Producto: ${tipo} | Cantidad: ${cantidad || '1'} | Sabor: ${sabor} | Notas: ${notas || 'Ninguna'}`;
 
     const payload = {
       data: [{
         id: newId,
-        fecha: fechaAvui,
+        fecha: fechaHoy,
         usuario: user.username,
-        estado: 'pendiente', // Estado inicial
-        detalles: infoDetalles
+        estado: 'pendiente',
+        detalles: infoConcatenada
       }]
     };
 
@@ -140,124 +131,107 @@ export default function BookingPage() {
       if (res.ok) {
         setTipo(''); setSabor(''); setCantidad(''); setNotas('');
         fetchUserOrders(user.username);
-        alert("Sol·licitud enviada!");
+        alert("¡Solicitud enviada con éxito!");
       }
     } catch (err) {
-      setError('Error en enviar la sol·licitud.');
+      setError('Error al enviar.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Función para verificar si el estado es exactamente "aceptada" (ignorando mayúsculas y espacios)
+  // FUNCIÓN CRÍTICA: Detectar si el estado es "aceptada"
   const esAceptada = (estado: string) => {
-    return estado?.toLowerCase().trim() === 'aceptada';
+    if (!estado) return false;
+    const e = estado.toLowerCase().trim();
+    return e === 'aceptada';
   };
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-pink-600 mb-2">Reserves Sweet Queen</h1>
-        <p className="text-muted-foreground italic">Fes la teva comanda personalitzada</p>
+        <h1 className="text-4xl font-bold text-pink-600 mb-2">Reservas Sweet Queen</h1>
+        <p className="text-muted-foreground italic">Personaliza tu momento más dulce</p>
       </header>
 
       <div className="grid lg:grid-cols-5 gap-10">
-        {/* FORMULARIO DE ENTRADA */}
         <section className="lg:col-span-2">
           <Card className="border-pink-200 shadow-xl">
-            <CardHeader className="bg-pink-50/50">
-              <CardTitle className="text-pink-700 flex items-center gap-2">
-                <PlusCircle size={20} /> Nou Encàrrec
-              </CardTitle>
+            <CardHeader className="bg-pink-50/50 text-pink-700">
+              <CardTitle className="flex items-center gap-2"><PlusCircle size={20} /> Nuevo Encargo</CardTitle>
             </CardHeader>
-            <CardContent className="pt-6 space-y-4">
+            <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Quin producte vols? *</Label>
+                  <Label>¿Qué producto quieres?</Label>
                   <Select onValueChange={setTipo} value={tipo}>
                     <SelectTrigger><SelectValue placeholder="Selecciona..." /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Tarta">Tarta Personalitzada</SelectItem>
+                      <SelectItem value="Tarta">Tarta Personalizada</SelectItem>
                       <SelectItem value="Cupcakes">Pack de Cupcakes</SelectItem>
-                      <SelectItem value="Galetes">Galetes Decorades</SelectItem>
+                      <SelectItem value="Galletas">Galletas Decoradas</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div className="space-y-2">
-                  <Label>Quantitat / Persones</Label>
-                  <Input placeholder="Ex: 12 unitats / 10 persones" value={cantidad} onChange={(e)=>setCantidad(e.target.value)} />
+                  <Label>Cantidad / Personas</Label>
+                  <Input placeholder="Ej: 12 unidades" value={cantidad} onChange={(e)=>setCantidad(e.target.value)} />
                 </div>
-
                 <div className="space-y-2">
-                  <Label>Sabor preferit *</Label>
-                  <Input placeholder="Ex: Xocolata i maduixa" value={sabor} onChange={(e)=>setSabor(e.target.value)} />
+                  <Label>Sabor preferido</Label>
+                  <Input placeholder="Ej: Chocolate" value={sabor} onChange={(e)=>setSabor(e.target.value)} />
                 </div>
-
                 <div className="space-y-2">
-                  <Label>Notes adicionals (al·lèrgies, colors...)</Label>
-                  <Textarea placeholder="Explica'ns més detalls..." value={notas} onChange={(e)=>setNotas(e.target.value)} />
+                  <Label>Notas adicionales</Label>
+                  <Textarea placeholder="Alérgenos, colores..." value={notas} onChange={(e)=>setNotas(e.target.value)} />
                 </div>
-
                 {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-
-                <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold" disabled={submitting}>
-                  {submitting ? <Loader2 className="animate-spin" /> : 'Enviar Sol·licitud'}
+                <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={submitting}>
+                  {submitting ? "Enviando..." : "Enviar Solicitud"}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </section>
 
-        {/* HISTORIAL DE PEDIDOS */}
-        <section className="lg:col-span-3 space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold flex items-center gap-2 text-gray-700">
-              <History className="text-pink-500" /> Les meves comandes
-            </h2>
-            <Button variant="ghost" size="sm" onClick={() => fetchUserOrders(user?.username)}>
-              Actualitzar
-            </Button>
+        <section className="lg:col-span-3 space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold flex items-center gap-2 text-gray-700"><History className="text-pink-500" /> Historial</h2>
+            <Button variant="ghost" size="sm" onClick={() => fetchUserOrders(user?.username)}><RefreshCcw size={16} className="mr-2"/>Actualizar</Button>
           </div>
 
           {loading ? (
-             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-pink-300" /></div>
+             <div className="flex justify-center"><Loader2 className="animate-spin text-pink-300" /></div>
           ) : orders.length === 0 ? (
-            <div className="text-center py-16 border-2 border-dashed border-pink-100 rounded-2xl bg-white text-muted-foreground">
-              Encara no has fet cap comanda.
-            </div>
+            <div className="text-center py-10 border-2 border-dashed rounded-xl text-muted-foreground">No hay pedidos registrados.</div>
           ) : (
             <div className="grid gap-4">
               {orders.map((order) => (
-                <Card key={order.id} className="border-l-4 border-l-pink-400 hover:shadow-md transition-all">
-                  <CardHeader className="py-3 flex flex-row items-center justify-between bg-pink-50/10">
+                <Card key={order.id} className="border-l-4 border-l-pink-400">
+                  <CardHeader className="py-3 flex flex-row items-center justify-between">
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase">{order.fecha}</p>
                       <CardTitle className="text-md font-mono text-pink-700">{order.id}</CardTitle>
                     </div>
-                    
                     <div className="flex flex-col items-end gap-2">
                       <Badge className={esAceptada(order.estado) ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-800"}>
                         {order.estado || 'pendiente'}
                       </Badge>
-
-                      {/* EL BOTÓN: Solo aparece si el estado en el Excel es "aceptada" */}
+                      
+                      {/* ESTO ES LO QUE ESTABAS BUSCANDO */}
                       {esAceptada(order.estado) && (
                         <Button 
-                          variant="outline" 
                           size="sm" 
                           onClick={() => generatePDF(order)}
-                          className="text-xs flex gap-1 border-pink-300 text-pink-600 hover:bg-pink-50 font-bold"
+                          className="bg-pink-100 text-pink-700 hover:bg-pink-200 border-none font-bold text-xs"
                         >
-                          <FileText size={14} /> PDF Comanda
+                          <FileText size={14} className="mr-1" /> DESCARGAR PDF
                         </Button>
                       )}
                     </div>
                   </CardHeader>
                   <CardContent className="py-3">
-                    <p className="text-sm text-gray-700 leading-relaxed italic">
-                      {order.detalles}
-                    </p>
+                    <p className="text-sm text-gray-600 italic leading-relaxed">{order.detalles}</p>
                   </CardContent>
                 </Card>
               ))}
