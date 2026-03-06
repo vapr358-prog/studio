@@ -22,7 +22,7 @@ export const blogPosts: BlogPost[] = [
     },
     date: '2024-03-25',
     author: 'Sweet Queen',
-    image: getImage('brand-post'),
+    image: getImage('obrador-huevo'),
     content: {
       es: `
         <h2 class="text-3xl font-headline text-primary mb-6">La magia lleva su tiempo: El viaje de tu tarta 👑✨</h2>
@@ -188,7 +188,7 @@ export const blogPosts: BlogPost[] = [
           
           <section>
             <h3 class="text-2xl font-bold text-primary mb-2">3. La temperatura de servei ideal 🌡️</h3>
-            <p>Una tarta freda de nevera està molt ferma, però el sabor i la textura es gaudeixen molt més a temperatura ambient. Mantén la tarta a la nevera fins a unes 1 o 2 hores abans de servir-la.</p>
+            <p>Una tarta freda de nevera està molt ferma, herbor el sabor i la textura es gaudeixen molt més a temperatura ambient. Mantén la tarta a la nevera fins a unes 1 o 2 hores abans de servir-la.</p>
           </section>
           
           <section>
@@ -261,8 +261,6 @@ export const blogPosts: BlogPost[] = [
         <h2 class="text-3xl font-headline text-primary mb-6">Per què triar Sweet Queen per als teus moments més especials? 👑✨</h2>
         
         <p>A <strong>Sweet Queen</strong> no només hornegem pastissos; creem records comestibles. Sabem que darrere de cada celebració hi ha una il·lusió, un esforç i una història per explicar. Per això, posem tot el nostre cor en cada detall.</p>
-        
-        <p class="mt-4">Si t'estàs preguntant què és el que ens fa diferents i per què confiar en nosaltres per al teu gran dia, aquí et donem 4 raons fonamentals:</p>
         
         <div class="space-y-8 mt-8">
           <section>

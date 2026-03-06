@@ -13,6 +13,12 @@
       "imageHint": "bakery cakes"
     },
     {
+      "id": "obrador-huevo",
+      "description": "Proceso artesanal con huevos frescos en el obrador.",
+      "imageUrl": "/huevo.jpg",
+      "imageHint": "fresh eggs baking"
+    },
+    {
       "id": "baby-cake",
       "description": "Tarta temática para bebé.",
       "imageUrl": "/baby.jpeg",
