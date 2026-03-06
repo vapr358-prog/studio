@@ -25,14 +25,48 @@ export const blogPosts: BlogPost[] = [
     image: getImage('brand-post'),
     content: {
       es: `
-        <p>En <strong>SWEET QUEEN</strong> convertimos momentos especiales en sabores inolvidables. Desde Reus, Tarragona (España) elaboramos pasteles artesanales llenos de creatividad.</p>
-        <h2 class="font-headline text-3xl mt-8 mb-4">💖 ¿Por Qué Elegir SWEET QUEEN?</h2>
-        <p>Cada pastel es una creación única, diseñada con amor y con un toque especial que nos diferencia.</p>
+        <p>En <strong>Sweet Queen</strong> no solo horneamos pasteles; creamos recuerdos comestibles. Sabemos que detrás de cada celebración hay una ilusión, un esfuerzo y una historia que contar. Por eso, ponemos todo nuestro corazón en cada detalle.</p>
+        
+        <p>Si te estás preguntando qué es lo que nos hace diferentes y por qué confiar en nosotras para tu gran día, aquí te damos 4 razones fundamentales:</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">1. Pasión por el detalle artesanal 🎨</h3>
+        <p>Cada tarta es una obra de arte única. Huimos de los procesos industriales y los diseños genéricos. Desde la primera capa de bizcocho hasta el último toque de decoración, trabajamos a mano para que el resultado refleje tu personalidad o la temática de tu fiesta. No hay dos pedidos iguales porque no hay dos clientes iguales.</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">2. Ingredientes de máxima calidad 🥚🍓</h3>
+        <p>Estamos convencidas de que un pastel espectacular por fuera debe ser inolvidable por dentro. Por eso, seleccionamos cuidadosamente materias primas de primera: huevos frescos, mantequilla de calidad, fruta de temporada y el chocolate más fino. El resultado es ese sabor casero y auténtico que te hace cerrar los ojos en cada bocado.</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">3. Personalización sin límites 🍰</h3>
+        <p>¿Eres fan del Red Velvet clásico? ¿Prefieres una combinación atrevida de trufa y maracuyá? ¿Necesitas opciones para intolerancias? En Sweet Queen nos adaptamos a ti. Tú sueñas el diseño y eliges el sabor, y nosotras nos encargamos de convertirlo en realidad, cuidando siempre el equilibrio perfecto entre estética y sabor.</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">4. Somos parte de tu historia 🎂</h3>
+        <p>Hemos tenido el privilegio de acompañar a muchas familias en sus bautizos, cumpleaños, bodas y comuniones. Nuestra mayor recompensa es ver la cara de sorpresa y felicidad cuando abrís la caja por primera vez. Para nosotras, no eres un número de pedido; eres parte de la familia Sweet Queen y tratamos tu tarta con el mismo mimo que si fuera para nuestra propia casa.</p>
+        
+        <div class="bg-primary/10 p-6 rounded-2xl mt-8 border border-primary/20">
+          <h4 class="text-xl font-bold mb-2">¿Quieres que tu próximo evento sea realmente dulce?</h4>
+          <p>No esperes más y haz tu reserva a través de nuestra nueva plataforma web. Ahora es más fácil que nunca: personaliza tu pedido, sigue el estado de tu encargo y, una vez aceptado, podrás descargar tu comprobante en PDF al instante.</p>
+        </div>
       `,
       ca: `
-        <p>A <strong>SWEET QUEEN</strong> convertim moments especials en sabors inoblidables. Des de Reus, Tarragona (Espanya) elaborem pastissos artesanals plens de creativitat.</p>
-        <h2 class="font-headline text-3xl mt-8 mb-4">💖 Per Què Triar SWEET QUEEN?</h2>
-        <p>Cada pastís és una creació única, dissenyada amb amor i amb un toc especial que ens diferencia.</p>
+        <p>A <strong>Sweet Queen</strong> no només hornegem pastissos; creem records comestibles. Sabem que darrere de cada celebració hi ha una il·lusió, un esforç i una història per explicar. Per això, posem tot el nostre cor en cada detall.</p>
+        
+        <p>Si t'estàs preguntant què és el que ens fa diferents i per què confiar en nosaltres per al teu gran dia, aquí et donem 4 raons fonamentals:</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">1. Passió pel detall artesanal 🎨</h3>
+        <p>Cada pastís és una obra d'art única. Fugim dels processos industrials i els dissenys genèrics. Des de la primera capa de bescuit fins a l'últim toc de decoració, treballem a mà perquè el resultat reflecteixi la teva personalitat o la temàtica de la teva festa. No hi ha dues comandes iguals perquè no hi ha dos clients iguals.</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">2. Ingredients de màxima qualitat 🥚🍓</h3>
+        <p>Estem convençudes que un pastís espectacular per fora ha de ser inoblidable per dins. Per això, seleccionem acuradament matèries primeres de primera: ous frescos, mantega de qualitat, fruita de temporada i la xocolata més fina. El resultat és aquest sabor casolà i autèntic que et fa tancar els ulls en cada mos.</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">3. Personalització sense límits 🍰</h3>
+        <p>Ets fan del Red Velvet clàssic? Prefereixes una combinació atrevida de trufa i maracujà? Necessites opcions per a intoleràncies? A Sweet Queen ens adaptem a tu. Tu somies el disseny i tries el sabor, i nosaltres ens encarreguem de convertir-lo en realitat, cuidant sempre l'equilibri perfecte entre estètica i sabor.</p>
+        
+        <h3 class="text-2xl font-bold mt-6 mb-2">4. Som part de la teva història 🎂</h3>
+        <p>Hem tingut el privilegi d'acompanyar moltes famílies en els seus batejos, aniversaris, bodes i comunions. La nostra major recompensa és veure la cara de sorpresa i felicitat quan obriu la caixa per primera vegada. Per a nosaltres, no ets un número de comanda; ets part de la família Sweet Queen i tractem el teu pastís amb el mateix afecte que si fos per a la nostra pròpia casa.</p>
+        
+        <div class="bg-primary/10 p-6 rounded-2xl mt-8 border border-primary/20">
+          <h4 class="text-xl font-bold mb-2">Vols que el teu proper esdeveniment sigui realment dolç?</h4>
+          <p>No esperis més i fes la teva reserva a través de la nostra nova plataforma web. Ara és més fàcil que mai: personalitza la teva comanda, segueix l'estat del teu encàrrec i, un cop acceptat, podràs descarregar el teu comprovant en PDF a l'instant.</p>
+        </div>
       `
     }
   },
