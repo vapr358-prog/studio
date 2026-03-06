@@ -23,7 +23,7 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Celebración', 'Felicidad', 'Magia'],
-    image: getImage('pink-heart-cake'), // Imagen principal: corazonrosa.jpeg
+    image: getImage('pink-heart-cake'), // corazonrosa.jpeg
     gallery: [
       getImage('pink-heart-cake'), // corazonrosa.jpeg
       getImage('tres-leches'),     // treslechesfruta.jpeg
@@ -72,7 +72,7 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Chocolate', 'Ganache', 'Dulce'],
-    image: getImage('chocolate-cake'), // Imagen chocolate.jpeg
+    image: getImage('chocolate-cake'), // Imagen chocolate.jpeg desde public
   },
   {
     id: 'carrot-cake',
@@ -124,7 +124,7 @@ export const cakes: Cake[] = [
     },
     description: {
       es: 'Deliciosos cupcakes artesanos con frosting cremoso y decoraciones únicas.',
-      ca: 'Deliciosos cupcakes artesans amb frosting cremós i decoracions úniques.'
+      ca: 'Deliciosos cupcakes artesans amb frosting cremós i decoracions uniquès.'
     },
     price: 3.50,
     flavorProfile: ['Cupcake', 'Frosting', 'Dulce'],
