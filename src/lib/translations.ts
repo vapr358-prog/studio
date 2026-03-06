@@ -91,6 +91,7 @@ export const translations = {
     status_accepted: "Aceptada",
     // General
     back_to_start: "Volver al inicio",
+    back_to_profile: "Volver a mi Perfil",
     see_details: "Ver detalles",
     order_this_cake: "Encargar este Pastel",
     flavor_profile: "Perfil de Sabor:",
@@ -187,6 +188,7 @@ export const translations = {
     status_accepted: "Acceptada",
     // General
     back_to_start: "Tornar a l'inici",
+    back_to_profile: "Tornar al meu Perfil",
     see_details: "Veure detalls",
     order_this_cake: "Encarregar aquest Pastís",
     flavor_profile: "Perfil de Sabor:",

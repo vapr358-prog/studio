@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { SHEETDB_API_URL } from '@/lib/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Loader2, PlusCircle, History, CheckCircle2, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useI18n } from '@/context/LanguageContext';
 
 type Solicitud = {
@@ -149,6 +150,15 @@ export default function PedidosPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
+      <div className="mb-6">
+        <Button variant="ghost" asChild className="text-primary hover:text-primary/80 p-0 hover:bg-transparent">
+          <Link href="/account" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            {t('back_to_profile')}
+          </Link>
+        </Button>
+      </div>
+
       <header className="mb-10 text-center">
         <h1 className="font-headline text-4xl md:text-5xl text-primary mb-2">{t('booking_mgmt_title')}</h1>
         <p className="text-muted-foreground italic">{t('booking_mgmt_sub')}</p>
