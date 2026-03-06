@@ -28,7 +28,7 @@ export default function CakeDetailPage() {
   }
 
   const isGalleryOnly = cake.id === 'tarta-cumpleanos-especial';
-  const isUnitBased = cake.id === 'cupcakes-artesanales';
+  const isUnitBased = cake.id === 'pack-mini-cakes';
 
   if (isGalleryOnly) {
     return (
@@ -41,7 +41,7 @@ export default function CakeDetailPage() {
             </Link>
           </Button>
           <h1 className="font-headline text-5xl md:text-8xl text-primary uppercase tracking-tighter leading-none">
-            {cake.name[language]}
+            {typeof cake.name === 'string' ? cake.name : cake.name[language]}
           </h1>
           <p className="text-2xl text-muted-foreground italic max-w-4xl font-body">
             {t('section_gallery_sub')}
@@ -58,7 +58,7 @@ export default function CakeDetailPage() {
           </div>
         </div>
 
-        {/* Carousel Images - Clean without white borders */}
+        {/* Carousel Images */}
         <div className="relative max-w-5xl mx-auto mb-24 px-12">
           <Carousel
             opts={{
@@ -76,7 +76,6 @@ export default function CakeDetailPage() {
                       alt={`Celebración - ${idx + 1}`}
                       fill
                       className="object-cover transition-transform duration-1000"
-                      data-ai-hint={img.hint}
                       priority={idx < 2}
                     />
                     <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md p-3 rounded-full pointer-events-none">
@@ -124,12 +123,11 @@ export default function CakeDetailPage() {
           </div>
         </section>
 
-        {/* Closing and Footer CTA */}
+        {/* Closing CTA */}
         <div className="text-center space-y-10 max-w-4xl mx-auto">
           <p className="text-2xl italic text-muted-foreground leading-relaxed px-4">
             {t('gallery_footer_prompt')}
           </p>
-          
           <div className="py-12 bg-secondary/30 rounded-[3rem] border border-primary/5 shadow-xl">
             <p className="text-3xl font-headline text-primary mb-8 leading-tight px-8">
               "{t('closing_phrase')}"
@@ -158,10 +156,9 @@ export default function CakeDetailPage() {
           <div className="rounded-[2.5rem] overflow-hidden shadow-xl aspect-square relative bg-pink-50/50">
             <Image
               src={cake.image.url}
-              alt={cake.name[language]}
+              alt={typeof cake.name === 'string' ? cake.name : cake.name[language]}
               fill
               className="object-cover transition-transform duration-700 hover:scale-105"
-              data-ai-hint={cake.image.hint}
               priority
             />
           </div>
@@ -169,7 +166,7 @@ export default function CakeDetailPage() {
           <div className="flex flex-col gap-8">
             <div className="space-y-4">
               <h1 className="font-headline text-5xl md:text-7xl text-primary uppercase leading-tight tracking-tighter">
-                {cake.name[language]}
+                {typeof cake.name === 'string' ? cake.name : cake.name[language]}
               </h1>
               <p className="text-4xl font-bold text-primary/90 flex items-baseline gap-1">
                 Desde {cake.price.toFixed(2)}€
@@ -180,22 +177,24 @@ export default function CakeDetailPage() {
             <Separator className="bg-primary/10" />
             
             <p className="text-xl text-muted-foreground leading-relaxed italic font-body">
-              {cake.description[language]}
+              {typeof cake.description === 'string' ? cake.description : cake.description[language]}
             </p>
             
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
-                {t('flavor_profile')}
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {cake.flavorProfile.map((flavor) => (
-                  <Badge key={flavor} variant="secondary" className="text-sm px-5 py-2 rounded-full bg-primary/5 text-primary border-primary/10 font-bold uppercase tracking-wide">
-                    {flavor}
-                  </Badge>
-                ))}
+            {cake.flavorProfile && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" />
+                  {t('flavor_profile')}
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {cake.flavorProfile.map((flavor) => (
+                    <Badge key={flavor} variant="secondary" className="text-sm px-5 py-2 rounded-full bg-primary/5 text-primary border-primary/10 font-bold uppercase tracking-wide">
+                      {flavor}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
             
             <div className="pt-6">
               <Button size="lg" className="w-full sm:w-auto text-xl py-8 px-14 rounded-full shadow-xl hover:scale-105 transition-all bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest">
