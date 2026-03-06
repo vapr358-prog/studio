@@ -5,7 +5,7 @@ import { cakes } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Image as ImageIcon, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Image as ImageIcon, Camera } from 'lucide-react';
 import { useI18n } from '@/context/LanguageContext';
 import {
   Carousel,
@@ -141,7 +141,7 @@ export default function HomePage() {
           <div className="order-1 md:order-2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
             <Image 
               src="/variedad.jpg" 
-              alt="Variedad de Pasteles" 
+              alt="Variedad de Pasteles Sweet Queen" 
               fill 
               className="object-cover"
             />
