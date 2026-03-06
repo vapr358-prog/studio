@@ -1,4 +1,3 @@
-
 import type { BlogPost } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -11,6 +10,110 @@ const getImage = (id: string) => {
 }
 
 export const blogPosts: BlogPost[] = [
+  {
+    slug: '5-consejos-imprescindibles-transporte-tarta',
+    title: {
+      es: '5 Consejos imprescindibles para que tu Tarta Personalizada llegue perfecta a la mesa 🎂✨',
+      ca: '5 Consells imprescindibles perquè el teu Pastís Personalitzat arribi perfecte a la taula 🎂✨'
+    },
+    excerpt: {
+      es: 'Has pasado tiempo eligiendo el diseño y el sabor ideal. Aquí tienes la guía definitiva para que tu tarta llegue intacta.',
+      ca: 'Has passat temps triant el disseny i el sabor ideal. Aquí tens la guia definitiva perquè la teva tarta arribi intacta.'
+    },
+    date: '2024-03-15',
+    author: 'Sweet Queen',
+    image: getImage('tarta-personalizada'),
+    content: {
+      es: `
+        <h2 class="text-3xl font-headline text-primary mb-6">Guía de cuidados para tu tarta Sweet Queen 👑</h2>
+        
+        <p>Has pasado tiempo eligiendo el diseño, el sabor y el tamaño ideal. Tu tarta de Sweet Queen ya está lista y luce espectacular. Pero ahora llega el momento crítico: el transporte y la conservación.</p>
+        
+        <p class="mt-4">Para que el esfuerzo y la ilusión lleguen intactos al momento de soplar las velas, hemos preparado esta guía rápida de cuidados básicos. ¡Toma nota!</p>
+        
+        <div class="space-y-8 mt-8">
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">1. El transporte: El suelo es tu mejor aliado 🚗</h3>
+            <p>Parece contraintuitivo, pero nunca coloques la tarta en el asiento del coche. Los asientos tienen una ligera inclinación que puede hacer que la tarta se deslice o que los pisos se tuerzan.</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li><strong>El lugar ideal:</strong> El suelo del lado del copiloto o un maletero despejado y plano.</li>
+              <li><strong>Conducción:</strong> Evita frenazos bruscos y curvas cerradas. ¡Recuerda que llevas una obra de arte comestible!</li>
+            </ul>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">2. Adiós a la calefacción ❄️</h3>
+            <p>Las tartas personalizadas (especialmente las de crema de mantequilla o ganache) son muy sensibles al calor. Si vienes a por ella en verano o invierno, pon el aire acondicionado a tope unos minutos antes de entrar la tarta al coche.</p>
+            <p class="mt-2"><strong>Importante:</strong> Nunca dejes la tarta dentro del coche aparcado; el efecto invernadero podría derretir la decoración en cuestión de minutos.</p>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">3. La temperatura de servicio ideal 🌡️</h3>
+            <p>Una tarta fría de nevera está muy firme, pero el sabor y la textura se disfrutan mucho más a temperatura ambiente. Mantén la tarta en la nevera hasta unas 1 o 2 horas antes de servirla (dependiendo de la temperatura ambiental).</p>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">4. Cuidado con la luz directa y los olores ☀️👃</h3>
+            <p>Evita colocar la tarta en una mesa cerca de una ventana donde le dé el sol directo. En la nevera, asegúrate de que no haya alimentos con olores fuertes cerca, ya que las grasas de las cremas absorben los olores con facilidad.</p>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">5. El corte perfecto 🔪</h3>
+            <p>Usa un cuchillo largo y liso (no de sierra). El truco Pro: Sumerge el cuchillo en agua caliente, sécalo y haz el corte. Repite el proceso en cada corte para obtener rebanadas limpias.</p>
+          </section>
+        </div>
+        
+        <div class="bg-primary/10 p-8 rounded-3xl mt-12 border border-primary/20 shadow-inner">
+          <h4 class="text-2xl font-headline text-primary mb-4">¿Aún no has hecho tu pedido?</h4>
+          <p>Recuerda que en Sweet Queen trabajamos bajo reserva para garantizar la máxima frescura. Entra en nuestra web, rellena el formulario y, una vez aceptemos tu encargo, podrás descargar tu resumen en PDF para tener todos los detalles a mano.</p>
+        </div>
+      `,
+      ca: `
+        <h2 class="text-3xl font-headline text-primary mb-6">Guia de cures per a la teva tarta Sweet Queen 👑</h2>
+        
+        <p>Has passat temps triant el disseny, el sabor i la mida ideal. La teva tarta de Sweet Queen ja està llesta i llueix espectacular. Però ara arriba el moment crític: el transport i la conservació.</p>
+        
+        <p class="mt-4">Perquè l'esforç i la il·lusió arribin intactes al moment de bufat les espelmes, hem preparat aquesta guia ràpida de cures bàsiques. Pren nota!</p>
+        
+        <div class="space-y-8 mt-8">
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">1. El transport: El terra és el teu millor aliat 🚗</h3>
+            <p>Sembla contraintuïtiu, però mai col·loquis la tarta al seient del cotxe. Els seients tenen una lleugera inclinació que pot fer que la tarta llisqui o que els pisos es torcin.</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+              <li><strong>El lloc ideal:</strong> El terra del costat del copilot o un maleter buit i pla.</li>
+              <li><strong>Conducció:</strong> Evita frenades brusques i corbes tancades. Recorda que portes una obra d'art comestible!</li>
+            </ul>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">2. Adeu a la calefacció ❄️</h3>
+            <p>Les tartes personalitzades (especialment les de crema de mantega o ganache) són molt sensibles a la calor. Si vens a buscar-la a l'estiu o a l'hivern, posa l'aire condicionat al màxim uns minuts abans d'entrar la tarta al cotxe.</p>
+            <p class="mt-2"><strong>Important:</strong> Mai deixis la tarta dins del cotxe aparcat; l'efecte hivernacle podria fondre la decoració en qüestió de minuts.</p>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">3. La temperatura de servei ideal 🌡️</h3>
+            <p>Una tarta freda de nevera està molt ferma, però el sabor i la textura es gaudeixen molt més a temperatura ambient. Mantén la tarta a la nevera fins a unes 1 o 2 hores abans de servir-la.</p>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">4. Compte amb la llum directa i les olors ☀️👃</h3>
+            <p>Evita col·locar la tarta en una taula a prop d'una finestra on li doni el sol directe. A la nevera, assegura't que no hi hagi aliments amb olors fortes a prop, ja que els greixos de les cremes absorbeixen les olors amb facilitat.</p>
+          </section>
+          
+          <section>
+            <h3 class="text-2xl font-bold text-primary mb-2">5. El tall perfecte 🔪</h3>
+            <p>Fes servir un ganivet llarg i lliç (no de serra). El truc Pro: Submergeix el ganivet en aigua calenta, eixuga'l i fes el tall. Repeteix el procés en cada tall per obtenir llesques netes.</p>
+          </section>
+        </div>
+        
+        <div class="bg-primary/10 p-8 rounded-3xl mt-12 border border-primary/20 shadow-inner">
+          <h4 class="text-2xl font-headline text-primary mb-4">Encara no has fet la teva comanda?</h4>
+          <p>Recorda que a Sweet Queen treballem sota reserva per garantir la màxima frescor. Entra a la nostra web, omple el formulari i, un cop acceptem el teu encàrrec, podràs descarregar el teu resum en PDF per tenir tots els detalls a mà.</p>
+        </div>
+      `
+    }
+  },
   {
     slug: 'donde-los-suenos-se-vuelven-pasteles',
     title: {
@@ -79,7 +182,7 @@ export const blogPosts: BlogPost[] = [
           
           <section>
             <h3 class="text-2xl font-bold text-primary mb-2">3. Personalització sense límits 🍰</h3>
-            <p>Ets fan del Red Velvet clàssic? Prefereixes una combinació atrevida de trufa i maracuyà? Necessites opcions per a intoleràncies? A Sweet Queen ens adaptem a tu. Tu somies el disseny i tries el sabor, i nosaltres ens encarreguem de convertir-lo en realitat, cuidant sempre l'equilibri perfecte entre estètica i sabor.</p>
+            <p>Ets fan del Red Velvet clàssic? Prefereixes una combinació atrevida de trufa i maracuyà? Necessites opcions per a intoleràncies? A Sweet Queen ens adaptem a tu. Tu somies el disseny i tries el sabor, i nosaltres ens encarreguem de convertirlo en realitat, cuidant sempre l'equilibri perfecte entre estètica i sabor.</p>
           </section>
           
           <section>
@@ -156,7 +259,7 @@ export const blogPosts: BlogPost[] = [
         <div class="space-y-8 mt-8">
           <section>
             <h3 class="text-2xl font-bold text-primary mb-2">1. No és només xocolata (és química!) 🧪</h3>
-            <p>Molta gent creu que el Red Velvet és simplement un bescuit de xocolata amb colorant. Error. El verdader secret resideix en la reacció entre el cacau natural, el bicarbonat i un ingredient àcid: el <strong>buttermilk</strong> (serum de llet).</p>
+            <p>Molta gent creu que el Red Velvet és simplement un bescuit de xocolata amb colorant. Error. El verdader secret resideix en la reacció entre el cacau natural, el bicarbonato i un ingredient àcid: el <strong>buttermilk</strong> (serum de llet).</p>
             <p class="mt-2">Aquesta combinació no només ajuda a intensificar el to vermellós del cacau, sinó que trenca les fibres de la farina per crear aquesta miga increïblement suau i fina que es desfà a la boca. D'aquí el seu nom: <em>Velvet</em> (vellut).</p>
           </section>
           
