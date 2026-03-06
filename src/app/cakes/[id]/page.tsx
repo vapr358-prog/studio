@@ -9,6 +9,13 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Camera, Heart, Sparkles, ChefHat } from 'lucide-react';
 import Link from 'next/link';
 import { useI18n } from '@/context/LanguageContext';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function CakeDetailPage() {
   const { language, t } = useI18n();
@@ -49,28 +56,40 @@ export default function CakeDetailPage() {
           </div>
         </div>
 
-        {/* Grid Images - Clean without white borders */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
-          {cake.gallery?.map((img, idx) => (
-            <div 
-              key={idx} 
-              className="relative rounded-[2rem] overflow-hidden shadow-2xl group aspect-square bg-muted"
-            >
-              <Image
-                src={img.url}
-                alt={`Celebración - ${idx + 1}`}
-                fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                data-ai-hint={img.hint}
-                priority={idx < 4}
-              />
-              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="bg-white/20 backdrop-blur-md p-4 rounded-full">
-                  <Camera className="text-white h-8 w-8" />
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Carousel Images - Clean without white borders */}
+        <div className="relative max-w-5xl mx-auto mb-24 px-12">
+          <Carousel
+            opts={{
+              align: "center",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {cake.gallery?.map((img, idx) => (
+                <CarouselItem key={idx} className="md:basis-1/2 lg:basis-1/1">
+                  <div className="relative rounded-[2rem] overflow-hidden shadow-2xl aspect-[4/5] md:aspect-square bg-muted">
+                    <Image
+                      src={img.url}
+                      alt={`Celebración - ${idx + 1}`}
+                      fill
+                      className="object-cover transition-transform duration-1000"
+                      data-ai-hint={img.hint}
+                      priority={idx < 2}
+                    />
+                    <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md p-3 rounded-full pointer-events-none">
+                      <Camera className="text-white h-6 w-6" />
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 h-12 w-12 bg-white text-primary border-primary/20 hover:bg-primary hover:text-white transition-all shadow-xl" />
+            <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 h-12 w-12 bg-white text-primary border-primary/20 hover:bg-primary hover:text-white transition-all shadow-xl" />
+          </Carousel>
+          <p className="text-center text-muted-foreground mt-8 italic">
+            {language === 'es' ? 'Desliza para ver más momentos mágicos' : 'Llisca per veure més moments màgics'}
+          </p>
         </div>
 
         {/* Commitment Section */}

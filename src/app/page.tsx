@@ -5,8 +5,15 @@ import { cakes } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Image as ImageIcon, Camera } from 'lucide-react';
+import { MapPin, Phone, Mail, Image as ImageIcon, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/context/LanguageContext';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -64,7 +71,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Gallery Section - CELEBRACIONES MÁGICAS */}
+      {/* Gallery Section - CELEBRACIONES MÁGICAS (CAROUSEL) */}
       <section className="py-24 bg-secondary/40 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -75,26 +82,37 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {birthdayGallery?.gallery?.slice(0, 4).map((img, idx) => (
-              <div 
-                key={idx} 
-                className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square"
-              >
-                <Image 
-                  src={img.url} 
-                  alt={`Celebración ${idx + 1}`} 
-                  fill 
-                  className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                  data-ai-hint={img.hint}
-                />
-                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                   <div className="bg-white/20 backdrop-blur-md p-4 rounded-full">
-                      <Camera className="text-white h-8 w-8" />
-                   </div>
-                </div>
-              </div>
-            ))}
+          <div className="relative px-12 mb-16">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full max-w-6xl mx-auto"
+            >
+              <CarouselContent className="-ml-4">
+                {birthdayGallery?.gallery?.map((img, idx) => (
+                  <CarouselItem key={idx} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                    <div className="relative rounded-2xl overflow-hidden shadow-xl group aspect-square">
+                      <Image 
+                        src={img.url} 
+                        alt={`Celebración ${idx + 1}`} 
+                        fill 
+                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                        data-ai-hint={img.hint}
+                      />
+                      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                         <div className="bg-white/20 backdrop-blur-md p-4 rounded-full">
+                            <Camera className="text-white h-8 w-8" />
+                         </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 h-12 w-12 border-primary/20 bg-white text-primary hover:bg-primary hover:text-white transition-all shadow-md" />
+              <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 h-12 w-12 border-primary/20 bg-white text-primary hover:bg-primary hover:text-white transition-all shadow-md" />
+            </Carousel>
           </div>
 
           <div className="text-center">
