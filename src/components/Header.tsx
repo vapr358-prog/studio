@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe, Trash2 } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe, Trash2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription, SheetHeader } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,6 @@ import { useI18n } from '@/context/LanguageContext';
 import { Language } from '@/lib/translations';
 import { useCart } from '@/context/CartContext';
 import { ScrollArea } from './ui/scroll-area';
-import { processOrder } from '@/lib/actions';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +20,7 @@ export function Header() {
   const { language, setLanguage, t } = useI18n();
   const { cart, totalItems, totalPrice, removeFromCart, clearCart } = useCart();
   const router = useRouter();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const baseNavLinks = [
     { href: '/', label: t('nav_home') },
@@ -55,14 +54,14 @@ export function Header() {
     if (isOpen) setIsOpen(false);
   };
 
-  const handleCheckout = async () => {
-    setIsProcessing(true);
-    const result = await processOrder(cart);
-    if (result.success) {
-      clearCart();
-      alert(language === 'es' ? '¡Pedido recibido! Gracias por confiar en Sweet Queen.' : '¡Comanda rebuda! Gràcies per confiar en Sweet Queen.');
+  const handleCheckoutRedirect = () => {
+    setIsSheetOpen(false);
+    const user = localStorage.getItem('user');
+    if (user) {
+      router.push('/checkout');
+    } else {
+      router.push('/checkout-gateway');
     }
-    setIsProcessing(false);
   };
 
   return (
@@ -101,7 +100,7 @@ export function Header() {
 
             <div className="flex items-center gap-2">
               {/* Carrito Sidebar */}
-              <Sheet>
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative" aria-label="Carrito de compras">
                     <ShoppingBag className="h-5 w-5" />
@@ -157,8 +156,9 @@ export function Header() {
                         <span className="text-muted-foreground">Subtotal</span>
                         <span className="text-2xl font-bold text-primary">{totalPrice.toFixed(2)}€</span>
                       </div>
-                      <Button className="w-full py-6 rounded-full font-bold text-lg" onClick={handleCheckout} disabled={isProcessing}>
-                        {isProcessing ? "Procesando..." : "Finalizar Pedido"}
+                      <Button className="w-full py-6 rounded-full font-bold text-lg" onClick={handleCheckoutRedirect}>
+                        Finalizar Pedido
+                        <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
                       <Button variant="ghost" className="w-full text-xs text-muted-foreground" onClick={clearCart}>
                         Vaciar carrito
