@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useI18n } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
@@ -9,12 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CreditCard, Truck, MapPin, Loader2, CheckCircle } from 'lucide-react';
+import { CreditCard, Truck, MapPin, Loader2, CheckCircle, ShoppingBag, AlertTriangle } from 'lucide-react';
 import { processOrder } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CheckoutPage() {
   const { t, language } = useI18n();
   const { cart, totalPrice, clearCart } = useCart();
+  const { toast } = useToast();
   const router = useRouter();
   
   const [loading, setLoading] = useState(false);
@@ -27,6 +30,7 @@ export default function CheckoutPage() {
       setUser(JSON.parse(storedUser));
     }
     
+    // Si no hay éxito y el carrito está vacío, volvemos a la tienda
     if (cart.length === 0 && !success) {
       router.push('/cakes');
     }
@@ -36,16 +40,32 @@ export default function CheckoutPage() {
     e.preventDefault();
     setLoading(true);
     
-    const result = await processOrder(cart);
-    
-    if (result.success) {
-      setSuccess(true);
-      clearCart();
-      setTimeout(() => {
-        router.push('/');
-      }, 5000);
+    try {
+      const result = await processOrder(cart);
+      
+      if (result.success) {
+        setSuccess(true);
+        clearCart();
+        // Redirigir al inicio tras 5 segundos
+        setTimeout(() => {
+          router.push('/');
+        }, 5000);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error en el pedido",
+          description: result.message || "No hemos podido procesar tu solicitud.",
+        });
+      }
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error de conexión",
+        description: "Ha ocurrido un problema al conectar con el servidor.",
+      });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (success) {
@@ -56,11 +76,21 @@ export default function CheckoutPage() {
         </div>
         <h1 className="font-headline text-5xl text-primary mb-4">¡Gracias por tu pedido!</h1>
         <p className="text-xl text-muted-foreground max-w-lg mb-8">
-          Hemos recibido tu solicitud artesanal. En breve recibirás un correo de confirmación y podrás hacer el seguimiento.
+          Hemos recibido tu solicitud artesanal. En breve recibirás un correo de confirmación y podrás hacer el seguimiento de tu envío.
         </p>
         <Button asChild className="rounded-full px-10 py-6" variant="outline">
           <Link href="/">Volver al inicio</Link>
         </Button>
+      </div>
+    );
+  }
+
+  // Prevención de renderizado si el carrito se vacía durante la transición
+  if (cart.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center">
+        <Loader2 className="animate-spin text-primary h-12 w-12" />
+        <p className="mt-4 text-muted-foreground italic">Redirigiendo a la tienda...</p>
       </div>
     );
   }
@@ -87,11 +117,11 @@ export default function CheckoutPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">{t('form_name')}</Label>
-                    <Input id="name" defaultValue={user?.name || ''} required />
+                    <Input id="name" defaultValue={user?.name || ''} required placeholder="Tu nombre" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">{t('form_email')}</Label>
-                    <Input id="email" type="email" defaultValue={user?.username || ''} required />
+                    <Input id="email" type="email" defaultValue={user?.username || ''} required placeholder="tu@email.com" />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -117,7 +147,7 @@ export default function CheckoutPage() {
                   <CreditCard className="text-primary" />
                   {t('checkout_payment')}
                 </CardTitle>
-                <CardDescription>Esta es una simulación de pago seguro.</CardDescription>
+                <CardDescription>Esta es una simulación de pago seguro para Sweet Queen.</CardDescription>
               </CardHeader>
               <CardContent>
                  <div className="bg-muted/30 p-4 rounded-xl border-dashed border-2 flex items-center justify-between">
@@ -125,7 +155,7 @@ export default function CheckoutPage() {
                         <CreditCard className="text-muted-foreground" />
                         <span className="font-medium">Tarjeta de Crédito / Débito</span>
                     </div>
-                    <span className="text-xs text-primary font-bold">ACTIVO</span>
+                    <span className="text-xs text-primary font-bold">MÉTODO ACTIVO</span>
                  </div>
               </CardContent>
             </Card>
@@ -134,42 +164,54 @@ export default function CheckoutPage() {
 
         {/* Resumen del Pedido */}
         <div className="space-y-8">
-          <Card className="shadow-xl border-none bg-primary text-primary-foreground">
-            <CardHeader>
+          <Card className="shadow-xl border-none bg-primary text-primary-foreground overflow-hidden">
+            <CardHeader className="bg-white/10">
               <CardTitle className="text-2xl flex items-center gap-2">
                 <ShoppingBag />
-                Resumen
+                Resumen del Pedido
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               {cart.map((item) => (
                 <div key={item.id} className="flex justify-between items-center text-sm">
-                  <span>{item.quantity}x {item.name[language]}</span>
+                  <span className="opacity-90">{item.quantity}x {item.name[language]}</span>
                   <span className="font-bold">{(item.price * item.quantity).toFixed(2)}€</span>
                 </div>
               ))}
               <Separator className="bg-white/20" />
-              <div className="flex justify-between items-center text-lg font-bold">
+              <div className="flex justify-between items-center text-2xl font-bold pt-2">
                 <span>Total</span>
                 <span>{totalPrice.toFixed(2)}€</span>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="pb-8">
               <Button 
                 form="checkout-form"
                 type="submit"
-                className="w-full py-7 rounded-full bg-white text-primary hover:bg-white/90 text-xl font-bold"
+                className="w-full py-8 rounded-full bg-white text-primary hover:bg-white/90 text-xl font-bold shadow-2xl transition-all active:scale-95"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="animate-spin mr-2" /> : <Truck className="mr-2" />}
-                {t('checkout_confirm')}
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" />
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    <Truck className="mr-2" />
+                    {t('checkout_confirm')}
+                  </>
+                )}
               </Button>
             </CardFooter>
           </Card>
+          
+          <div className="flex items-center gap-2 text-xs text-muted-foreground justify-center">
+            <AlertTriangle size={14} className="text-amber-500" />
+            <span>Pago seguro garantizado por Sweet Queen</span>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-import Link from 'next/link';

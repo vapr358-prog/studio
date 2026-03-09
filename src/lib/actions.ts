@@ -60,17 +60,32 @@ export async function getCakeRecommendations(
 }
 
 /**
- * Procesa un pedido simulado
+ * Procesa un pedido simulado con gestión de errores robusta
  */
 export async function processOrder(cart: any[]) {
-  // Aquí iría la lógica de integración con Stripe o base de datos de pedidos real
-  console.log("Procesando pedido de Sweet Queen:", cart);
-  
-  // Simulamos un retraso de red
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  try {
+    // Simulación de validación de servidor
+    if (!cart || cart.length === 0) {
+      return {
+        success: false,
+        message: "El carrito está vacío.",
+      };
+    }
 
-  return {
-    success: true,
-    message: "Pedido recibido con éxito",
-  };
+    console.log("Procesando pedido de Sweet Queen:", cart);
+    
+    // Simulamos un retraso de red (ej: comunicación con pasarela de pago)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    return {
+      success: true,
+      message: "Pedido recibido con éxito",
+    };
+  } catch (error) {
+    console.error("Error crítico procesando el pedido:", error);
+    return {
+      success: false,
+      message: "Lo sentimos, ha ocurrido un error técnico. Inténtalo de nuevo.",
+    };
+  }
 }
