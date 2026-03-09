@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -19,7 +20,7 @@ export default {
       fontFamily: {
         body: ['Alegreya', 'serif'],
         headline: ['Belleza', 'sans-serif'],
-        handwriting: ['"Great Vibes"', 'cursive'],
+        handwriting: ['"Lucida Handwriting"', 'cursive', 'system-ui'],
         display: ['"Abril Fatface"', 'cursive'],
         code: ['monospace'],
       },

@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { CakeCard } from '@/components/CakeCard';
@@ -43,7 +44,7 @@ export default function HomePage() {
           )}
         </div>
         <div className="relative z-10 p-8 inline-block mx-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
-          <h1 className="font-headline text-5xl md:text-7xl text-primary drop-shadow-sm tracking-widest uppercase leading-tight">
+          <h1 className="font-handwriting text-5xl md:text-8xl text-primary drop-shadow-sm tracking-tight leading-tight">
             {t('hero_title')}
           </h1>
           <p className="mt-4 text-lg md:text-xl font-body text-primary font-medium max-w-2xl mx-auto italic">

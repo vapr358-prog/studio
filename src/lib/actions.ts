@@ -1,12 +1,14 @@
+// src/lib/actions.ts
 "use server";
 
 import { z } from "zod";
+// Importamos la función que me acabas de pasar
 import { personalizedCakeRecommendations } from "@/ai/flows/personalized-cake-recommendations";
 import { orders } from "./data";
 
 export type RecommendationState = {
   recommendations?: string[];
-  explanation?: string;
+  explanation?: string; // Añadimos la explicación que genera tu IA
   error?: string;
   timestamp?: number;
 };
@@ -33,16 +35,20 @@ export async function getCakeRecommendations(
   }
   
   try {
+    // 1. Obtenemos el historial real del usuario
     const userOrderHistory = orders
       .filter(order => order.status === 'Entregado')
       .flatMap(order => order.items.map(item => item.name));
 
+    // 2. LLAMADA AL FLOW DE GENKIT
+    // Importante: Pasamos los parámetros tal cual los pide tu esquema de entrada
     const aiResponse = await personalizedCakeRecommendations({
       orderHistory: userOrderHistory,
       flavorPreferences: validatedFields.data.flavors,
-      trendingCakes: ['tarta-de-chocolate', 'red-velvet'],
+      trendingCakes: ['tarta-de-chocolate', 'red-velvet'], 
     });
     
+    // 3. Devolvemos los IDs y la explicación amable
     return { 
       recommendations: aiResponse.recommendedCakes, 
       explanation: aiResponse.explanation,
@@ -50,9 +56,9 @@ export async function getCakeRecommendations(
     };
 
   } catch (e) {
-    console.error(e);
+    console.error("Error en Genkit Flow:", e);
     return {
-      error: "No pudimos obtener tus recomendaciones en este momento. Por favor, inténtalo de nuevo más tarde.",
+      error: "La IA está descansando en la cocina. Inténtalo en un momento.",
       timestamp: Date.now(),
     };
   }
