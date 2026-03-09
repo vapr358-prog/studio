@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Camera, Heart, Sparkles, ChefHat, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Camera, Sparkles, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useI18n } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';

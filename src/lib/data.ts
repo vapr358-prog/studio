@@ -22,13 +22,13 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Celebración', 'Felicidad', 'Magia'],
-    image: getImage('pink-heart-cake'), // corazonrosa.jpeg
+    image: getImage('pink-heart-cake'), 
     gallery: [
-      getImage('pink-heart-cake'), // corazonrosa.jpeg
-      getImage('tres-leches'),     // treslechesfruta.jpeg
-      getImage('chocolate-cake'),  // chocolate.jpeg
-      getImage('pikachu-cake'),    // pikachu.jpeg
-      getImage('mini-tarta'),       // mini.jpeg
+      getImage('pink-heart-cake'), 
+      getImage('tres-leches'),     
+      getImage('chocolate-cake'),  
+      getImage('pikachu-cake'),    
+      getImage('mini-tarta'),       
     ]
   },
   {
@@ -71,7 +71,7 @@ export const cakes: Cake[] = [
     },
     price: 30.00,
     flavorProfile: ['Chocolate', 'Ganache', 'Dulce'],
-    image: getImage('chocolate-cake'), // chocolate.jpeg
+    image: getImage('chocolate-cake'), 
   },
   {
     id: 'carrot-cake',
