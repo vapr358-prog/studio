@@ -2,13 +2,12 @@
 "use server";
 
 import { z } from "zod";
-// Importamos la función que me acabas de pasar
 import { personalizedCakeRecommendations } from "@/ai/flows/personalized-cake-recommendations";
 import { orders } from "./data";
 
 export type RecommendationState = {
   recommendations?: string[];
-  explanation?: string; // Añadimos la explicación que genera tu IA
+  explanation?: string;
   error?: string;
   timestamp?: number;
 };
@@ -35,20 +34,16 @@ export async function getCakeRecommendations(
   }
   
   try {
-    // 1. Obtenemos el historial real del usuario
     const userOrderHistory = orders
       .filter(order => order.status === 'Entregado')
       .flatMap(order => order.items.map(item => item.name));
 
-    // 2. LLAMADA AL FLOW DE GENKIT
-    // Importante: Pasamos los parámetros tal cual los pide tu esquema de entrada
     const aiResponse = await personalizedCakeRecommendations({
       orderHistory: userOrderHistory,
       flavorPreferences: validatedFields.data.flavors,
       trendingCakes: ['tarta-de-chocolate', 'red-velvet'], 
     });
     
-    // 3. Devolvemos los IDs y la explicación amable
     return { 
       recommendations: aiResponse.recommendedCakes, 
       explanation: aiResponse.explanation,
@@ -62,4 +57,20 @@ export async function getCakeRecommendations(
       timestamp: Date.now(),
     };
   }
+}
+
+/**
+ * Procesa un pedido simulado
+ */
+export async function processOrder(cart: any[]) {
+  // Aquí iría la lógica de integración con Stripe o base de datos de pedidos real
+  console.log("Procesando pedido de Sweet Queen:", cart);
+  
+  // Simulamos un retraso de red
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  return {
+    success: true,
+    message: "Pedido recibido con éxito",
+  };
 }

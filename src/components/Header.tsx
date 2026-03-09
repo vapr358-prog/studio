@@ -3,20 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogIn, LogOut, Globe, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription, SheetHeader } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/context/LanguageContext';
 import { Language } from '@/lib/translations';
+import { useCart } from '@/context/CartContext';
+import { ScrollArea } from './ui/scroll-area';
+import { processOrder } from '@/lib/actions';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { language, setLanguage, t } = useI18n();
+  const { cart, totalItems, totalPrice, removeFromCart, clearCart } = useCart();
   const router = useRouter();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const baseNavLinks = [
     { href: '/', label: t('nav_home') },
@@ -48,6 +53,16 @@ export function Header() {
     window.dispatchEvent(new Event('local-storage'));
     router.push('/login');
     if (isOpen) setIsOpen(false);
+  };
+
+  const handleCheckout = async () => {
+    setIsProcessing(true);
+    const result = await processOrder(cart);
+    if (result.success) {
+      clearCart();
+      alert(language === 'es' ? '¡Pedido recibido! Gracias por confiar en Sweet Queen.' : '¡Comanda rebuda! Gràcies per confiar en Sweet Queen.');
+    }
+    setIsProcessing(false);
   };
 
   return (
@@ -84,29 +99,93 @@ export function Header() {
               </select>
             </div>
 
-            <div className="hidden lg:flex items-center gap-2">
-              <Button variant="ghost" size="icon" aria-label="Carrito de compras">
-                <ShoppingBag className="h-5 w-5" />
-              </Button>
+            <div className="flex items-center gap-2">
+              {/* Carrito Sidebar */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative" aria-label="Carrito de compras">
+                    <ShoppingBag className="h-5 w-5" />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center animate-in zoom-in">
+                        {totalItems}
+                      </span>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-full sm:max-w-md flex flex-col">
+                  <SheetHeader>
+                    <SheetTitle className="font-headline text-2xl text-primary">Tu Cesta Dulce</SheetTitle>
+                    <SheetDescription>Resumen de tus productos seleccionados.</SheetDescription>
+                  </SheetHeader>
+                  
+                  <div className="flex-grow mt-6 overflow-hidden">
+                    {cart.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center opacity-40 italic">
+                        <ShoppingBag size={48} className="mb-4" />
+                        <p>Tu carrito está vacío</p>
+                      </div>
+                    ) : (
+                      <ScrollArea className="h-full pr-4">
+                        <div className="space-y-6">
+                          {cart.map((item) => (
+                            <div key={item.id} className="flex gap-4 group">
+                              <div className="relative h-20 w-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                                <Image src={item.image.url} alt={item.name.es} fill className="object-cover" />
+                              </div>
+                              <div className="flex-grow">
+                                <h4 className="font-bold text-sm leading-tight">{item.name[language]}</h4>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {item.quantity} x {item.price.toFixed(2)}€
+                                </p>
+                                <div className="flex items-center justify-between mt-2">
+                                  <span className="font-bold text-primary">{(item.price * item.quantity).toFixed(2)}€</span>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeFromCart(item.id)}>
+                                    <Trash2 size={14} />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    )}
+                  </div>
+
+                  {cart.length > 0 && (
+                    <div className="mt-auto pt-6 border-t space-y-4">
+                      <div className="flex justify-between items-end">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="text-2xl font-bold text-primary">{totalPrice.toFixed(2)}€</span>
+                      </div>
+                      <Button className="w-full py-6 rounded-full font-bold text-lg" onClick={handleCheckout} disabled={isProcessing}>
+                        {isProcessing ? "Procesando..." : "Finalizar Pedido"}
+                      </Button>
+                      <Button variant="ghost" className="w-full text-xs text-muted-foreground" onClick={clearCart}>
+                        Vaciar carrito
+                      </Button>
+                    </div>
+                  )}
+                </SheetContent>
+              </Sheet>
 
               {isLoggedIn ? (
                 <>
-                  <Separator orientation="vertical" className="h-6" />
-                  <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
+                  <Separator orientation="vertical" className="h-6 hidden lg:block" />
+                  <Button variant="ghost" size="icon" asChild className="hidden lg:flex" aria-label="Cuenta de usuario">
                     <Link href="/account">
                       <User className="h-5 w-5" />
                     </Link>
                   </Button>
-                  <Separator orientation="vertical" className="h-6" />
-                  <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  <Separator orientation="vertical" className="h-6 hidden lg:block" />
+                  <Button variant="ghost" size="sm" className="hidden lg:flex" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4"/>
                     {t('nav_logout')}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Separator orientation="vertical" className="h-6" />
-                  <Button variant="ghost" size="sm" asChild>
+                  <Separator orientation="vertical" className="h-6 hidden lg:block" />
+                  <Button variant="ghost" size="sm" asChild className="hidden lg:flex">
                     <Link href="/login">
                       <LogIn className="mr-2 h-4 w-4"/>
                       {t('nav_login')}
@@ -180,18 +259,6 @@ export function Header() {
                     <div className="mt-auto border-t pt-4 flex flex-col gap-4">
                       {isLoggedIn ? (
                         <>
-                          <div className="flex items-center justify-center gap-4">
-                            <Button variant="ghost" size="icon" asChild aria-label="Carrito de compras">
-                              <Link href="#" onClick={() => setIsOpen(false)}>
-                                <ShoppingBag className="h-5 w-5" />
-                              </Link>
-                            </Button>
-                            <Button variant="ghost" size="icon" asChild aria-label="Cuenta de usuario">
-                              <Link href="/account" onClick={() => setIsOpen(false)}>
-                                <User className="h-5 w-5" />
-                              </Link>
-                            </Button>
-                          </div>
                           <SheetClose asChild>
                             <Button onClick={handleLogout} variant="ghost" className="w-full text-lg">
                                 <LogOut className="mr-2 h-5 w-5" />

@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Toaster } from "@/components/ui/toaster"
 import { LanguageProvider } from '@/context/LanguageContext';
+import { CartProvider } from '@/context/CartContext';
 
 export const metadata: Metadata = {
   title: {
@@ -31,10 +32,12 @@ export default function RootLayout({
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
         <LanguageProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <Toaster />
+          <CartProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <Toaster />
+          </CartProvider>
         </LanguageProvider>
       </body>
     </html>

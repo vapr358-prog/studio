@@ -6,9 +6,10 @@ import { notFound, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Camera, Heart, Sparkles, ChefHat } from 'lucide-react';
+import { ArrowLeft, Camera, Heart, Sparkles, ChefHat, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useI18n } from '@/context/LanguageContext';
+import { useCart } from '@/context/CartContext';
 import {
   Carousel,
   CarouselContent,
@@ -19,26 +20,23 @@ import {
 
 export default function CakeDetailPage() {
   const { language, t } = useI18n();
+  const { addToCart } = useCart();
   const params = useParams();
   const id = params?.id as string;
   
-  // Buscamos el pastel por ID
   const cake = cakes.find((c) => c.id === id);
 
   if (!cake) {
     notFound();
   }
 
-  // Verificamos si es la galería o cupcakes
   const isGalleryOnly = cake.id === 'tarta-cumpleanos-especial';
   const isUnitBased = cake.id === 'cupcakes-artesanales';
 
-  // Helper para obtener el texto según el idioma actual (ca o es)
   const getLabel = (obj: any) => {
     return obj[language] || obj['es'] || '';
   };
 
-  // --- VISTA DE GALERÍA (CELEBRACIONES MÁGICAS) ---
   if (isGalleryOnly) {
     return (
       <div className="container mx-auto px-4 py-12 md:py-20 max-w-7xl">
@@ -84,7 +82,6 @@ export default function CakeDetailPage() {
     );
   }
 
-  // --- VISTA DE PRODUCTO NORMAL (CATÁLOGO) ---
   return (
     <div className="container mx-auto px-4 py-12 md:py-20 max-w-6xl">
       <div className="mb-8">
@@ -98,7 +95,6 @@ export default function CakeDetailPage() {
       <div className="bg-white/90 backdrop-blur-md rounded-[3.5rem] shadow-2xl overflow-hidden border border-white/20 p-8 md:p-12">
         <div className="grid gap-12 lg:gap-20 items-center md:grid-cols-2">
           
-          {/* IMAGEN DEL PRODUCTO - Usamos cake.image.url según tu data.ts */}
           <div className="rounded-[2.5rem] overflow-hidden shadow-xl aspect-square relative bg-pink-50">
             <Image
               src={cake.image.url}
@@ -143,8 +139,13 @@ export default function CakeDetailPage() {
             )}
             
             <div className="pt-6">
-              <Button size="lg" className="w-full sm:w-auto text-xl py-8 px-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest">
-                {language === 'es' ? 'Pedir este pastel' : 'Demanar aquest pastís'}
+              <Button 
+                size="lg" 
+                onClick={() => addToCart(cake)}
+                className="w-full sm:w-auto text-xl py-8 px-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest"
+              >
+                <ShoppingCart className="mr-3 h-6 w-6" />
+                {language === 'es' ? 'Añadir al carrito' : 'Afegir al carret'}
               </Button>
             </div>
           </div>
