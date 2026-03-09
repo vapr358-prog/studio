@@ -2,10 +2,11 @@
 
 import { z } from "zod";
 import { personalizedCakeRecommendations } from "@/ai/flows/personalized-cake-recommendations";
-import { orders, mockUser } from "./data";
+import { orders } from "./data";
 
 export type RecommendationState = {
   recommendations?: string[];
+  explanation?: string;
   error?: string;
   timestamp?: number;
 };
@@ -18,7 +19,7 @@ export async function getCakeRecommendations(
   prevState: RecommendationState,
   formData: FormData
 ): Promise<RecommendationState> {
-  const selectedFlavors = formData.getAll("flavors");
+  const selectedFlavors = formData.getAll("flavors") as string[];
 
   const validatedFields = schema.safeParse({
     flavors: selectedFlavors,
@@ -39,10 +40,14 @@ export async function getCakeRecommendations(
     const aiResponse = await personalizedCakeRecommendations({
       orderHistory: userOrderHistory,
       flavorPreferences: validatedFields.data.flavors,
-      trendingCakes: ['Cheesecake Artesanal Premium', 'Tarta de Zanahoria y Nueces'], // Optional: example of trending cakes
+      trendingCakes: ['tarta-de-chocolate', 'red-velvet'],
     });
     
-    return { recommendations: aiResponse.recommendedCakes, timestamp: Date.now() };
+    return { 
+      recommendations: aiResponse.recommendedCakes, 
+      explanation: aiResponse.explanation,
+      timestamp: Date.now() 
+    };
 
   } catch (e) {
     console.error(e);

@@ -1,99 +1,115 @@
 "use client";
 
-import { useActionState, useEffect, useState, useRef } from "react";
-import { useFormStatus } from "react-dom";
-import { getCakeRecommendations } from "@/lib/actions";
-import type { RecommendationState } from "@/lib/actions";
+import { useState, useTransition } from "react";
+import { cakes } from "@/lib/data";
+import { CakeCard } from "@/components/CakeCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ThumbsUp, PartyPopper } from "lucide-react";
+import { Sparkles, Cookie, Loader2, Quote } from "lucide-react";
+import type { Cake } from "@/lib/types";
+import { getCakeRecommendations } from "@/lib/actions";
 
 interface CakeRecommendationFormProps {
   flavors: string[];
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? "Buscando recomendaciones..." : "Obtener Recomendaciones"}
-    </Button>
-  );
-}
-
 export default function CakeRecommendationForm({ flavors }: CakeRecommendationFormProps) {
-  const initialState: RecommendationState = {};
-  const [state, dispatch] = useActionState(getCakeRecommendations, initialState);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<Cake[]>([]);
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (state.recommendations) {
-      setRecommendations(state.recommendations);
-      formRef.current?.reset();
-    }
-  }, [state.timestamp]); // Use timestamp to detect new state
+  const handleFlavorChange = (flavor: string, checked: boolean) => {
+    setSelectedFlavors(prev => 
+      checked ? [...prev, flavor] : prev.filter(f => f !== flavor)
+    );
+  };
+
+  const handleGetRecommendations = async () => {
+    const formData = new FormData();
+    selectedFlavors.forEach(f => formData.append("flavors", f));
+
+    startTransition(async () => {
+      const result = await getCakeRecommendations({}, formData);
+      if (result.recommendations) {
+        const recommendedCakes = cakes.filter(c => result.recommendations?.includes(c.id));
+        setRecommendations(recommendedCakes);
+        setExplanation(result.explanation || null);
+      }
+    });
+  };
 
   return (
-    <div className="grid md:grid-cols-2 gap-8">
-      <Card>
-        <form action={dispatch} ref={formRef}>
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl">Descubre tu Próximo Pastel Favorito</CardTitle>
-            <CardDescription>
-              Selecciona tus sabores preferidos y nuestra IA te recomendará algo especial solo para ti.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label className="font-bold">Tus sabores favoritos:</Label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {flavors.map((flavor) => (
-                  <div key={flavor} className="flex items-center space-x-2">
-                    <Checkbox id={`flavor-${flavor}`} name="flavors" value={flavor} />
-                    <Label htmlFor={`flavor-${flavor}`} className="font-normal cursor-pointer">
-                      {flavor}
-                    </Label>
-                  </div>
-                ))}
+    <div className="grid md:grid-cols-2 gap-8 items-start">
+      <Card className="rounded-[2rem] border-none shadow-xl bg-white/90">
+        <CardHeader>
+          <CardTitle className="font-headline text-3xl text-primary">Para Ti</CardTitle>
+          <CardDescription>Selecciona tus sabores y encuentra tu tarta ideal.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-2 gap-3">
+            {flavors.map((flavor) => (
+              <div key={flavor} className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50">
+                <Checkbox 
+                  id={`flavor-${flavor}`} 
+                  checked={selectedFlavors.includes(flavor)}
+                  onCheckedChange={(checked) => handleFlavorChange(flavor, checked as boolean)}
+                />
+                <Label htmlFor={`flavor-${flavor}`} className="cursor-pointer font-medium">{flavor}</Label>
               </div>
-            </div>
-            {state.error && (
-              <Alert variant="destructive">
-                <AlertDescription>{state.error}</AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-          <CardFooter>
-            <SubmitButton />
-          </CardFooter>
-        </form>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button 
+            onClick={handleGetRecommendations}
+            className="w-full py-6 rounded-full bg-pink-500 hover:bg-pink-600 font-bold"
+            disabled={isPending || selectedFlavors.length === 0}
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Consultando al Sumiller...
+              </>
+            ) : "Ver Recomendaciones"}
+          </Button>
+        </CardFooter>
       </Card>
 
-      <Card className="bg-muted/50 flex flex-col">
+      <Card className="rounded-[2rem] border-none shadow-xl bg-pink-50/30 min-h-[400px]">
         <CardHeader>
-          <CardTitle className="font-headline text-2xl flex items-center gap-2">
-            <ThumbsUp className="text-primary" />
-            Nuestras Sugerencias
+          <CardTitle className="font-headline text-2xl flex items-center gap-2 text-primary">
+            <Sparkles className="text-yellow-500" />
+            Sugerencias del Sumiller
           </CardTitle>
-          <CardDescription>Basado en tus gustos, creemos que te encantarán estos:</CardDescription>
         </CardHeader>
-        <CardContent className="flex-grow">
+        <CardContent className="space-y-6">
+          {explanation && (
+            <div className="bg-white/60 p-4 rounded-2xl border border-pink-100 italic text-primary/80 flex gap-3">
+              <Quote className="h-5 w-5 shrink-0 opacity-20" />
+              <p className="text-sm leading-relaxed">{explanation}</p>
+            </div>
+          )}
+          
           {recommendations.length > 0 ? (
-            <ul className="space-y-3">
-              {recommendations.map((rec, index) => (
-                <li key={index} className="flex items-center gap-3 p-3 bg-background rounded-lg shadow-sm">
-                  <PartyPopper className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="font-medium">{rec}</span>
-                </li>
+            <div className="grid gap-6">
+              {recommendations.map((cake) => (
+                <CakeCard key={cake.id} cake={cake} />
               ))}
-            </ul>
-          ) : (
-            <div className="flex items-center justify-center h-full text-center text-muted-foreground">
-              <p>Tus recomendaciones aparecerán aquí.</p>
+            </div>
+          ) : !isPending && (
+            <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
+              <Cookie className="h-16 w-16 mb-2" />
+              <p className="italic">Elige sabores para ver qué tenemos para ti</p>
+            </div>
+          )}
+
+          {isPending && (
+            <div className="flex flex-col items-center justify-center py-20 opacity-30 text-center">
+              <Loader2 className="h-16 w-16 mb-2 animate-spin" />
+              <p className="italic">Buscando el maridaje perfecto...</p>
             </div>
           )}
         </CardContent>

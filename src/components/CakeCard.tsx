@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -16,34 +15,42 @@ export function CakeCard({ cake }: CakeCardProps) {
   const { language } = useI18n();
   const isUnitBased = cake.id === 'cupcakes-artesanales';
   
+  // Obtenemos el nombre según el idioma con un respaldo por seguridad
+  const cakeName = cake.name[language] || cake.name['es'];
+
   return (
-    <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-full border-none bg-white/50 backdrop-blur-sm">
       <CardHeader className="p-0">
-        <Link href={`/cakes/${cake.id}`} className="block aspect-w-4 aspect-h-3">
+        <Link href={`/cakes/${cake.id}`} className="block relative w-full aspect-[4/3] overflow-hidden">
           <Image
             src={cake.image.url}
-            alt={cake.name[language]}
-            width={400}
-            height={300}
-            className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
-            data-ai-hint={cake.image.hint}
+            alt={cakeName}
+            fill // Usamos fill para que ocupe todo el contenedor aspect-ratio
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 hover:scale-110"
+            priority={false}
           />
         </Link>
       </CardHeader>
-      <CardContent className="flex-grow p-6">
-        <CardTitle className="font-headline text-2xl mb-2">
-          <Link href={`/cakes/${cake.id}`} className="hover:text-primary transition-colors">
-            {cake.name[language]}
-          </Link>
-        </CardTitle>
-        <p className="text-muted-foreground text-lg font-semibold">
-          Desde {cake.price.toFixed(2)}€{isUnitBased ? ' und' : ''}
-        </p>
+      
+      <CardContent className="flex-grow p-6 flex flex-col justify-between">
+        <div>
+          <CardTitle className="font-headline text-2xl mb-2 text-primary">
+            <Link href={`/cakes/${cake.id}`} className="hover:opacity-80 transition-opacity">
+              {cakeName}
+            </Link>
+          </CardTitle>
+          <p className="text-muted-foreground text-lg font-medium">
+            {language === 'es' ? 'Desde' : 'Des de'} {cake.price.toFixed(2)}€
+            {isUnitBased ? ' / ud' : ''}
+          </p>
+        </div>
       </CardContent>
+
       <CardFooter className="p-6 pt-0">
-        <Button asChild className="w-full">
+        <Button asChild className="w-full rounded-full bg-primary hover:bg-primary/90 text-white font-bold tracking-wide">
           <Link href={`/cakes/${cake.id}`}>
-            {language === 'es' ? 'Ver detalles' : 'Veure detalls'}
+            {language === 'es' ? 'VER DETALLES' : 'VEURE DETALLS'}
           </Link>
         </Button>
       </CardFooter>
