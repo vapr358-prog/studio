@@ -39,7 +39,7 @@ export default function CheckoutPage() {
   }, [cart, success, router]);
 
   const priceBreakdown = useMemo(() => {
-    const ivaRate = 10; // IVA reducido para pastelería en España
+    const ivaRate = 10; 
     const basePrice = totalPrice / (1 + ivaRate / 100);
     const ivaAmount = totalPrice - basePrice;
     return {
@@ -65,7 +65,16 @@ export default function CheckoutPage() {
     setLoading(true);
     
     try {
-      const result = await processOrder(cart);
+      // Obtenemos los datos del formulario de forma segura
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const email = formData.get('email') as string;
+      
+      const userInfo = {
+        username: user?.username || email || "Invitado",
+        paymentMethod: paymentMethod
+      };
+
+      const result = await processOrder(cart, userInfo);
       
       if (result.success) {
         setSuccess(true);
@@ -99,7 +108,7 @@ export default function CheckoutPage() {
         </div>
         <h1 className="font-headline text-5xl text-primary mb-4">¡Gracias por tu pedido!</h1>
         <p className="text-xl text-muted-foreground max-w-lg mb-8">
-          Hemos recibido tu solicitud artesanal. En breve recibirás un correo de confirmación y podrás hacer el seguimiento de tu envío.
+          Hemos recibido tu solicitud artesanal y se ha registrado correctamente en nuestro sistema. En breve nos pondremos en contacto contigo.
         </p>
         <Button asChild className="rounded-full px-10 py-6" variant="outline">
           <Link href="/">Volver al inicio</Link>
@@ -125,10 +134,8 @@ export default function CheckoutPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
-        {/* Formulario de Envío y Pago */}
         <div className="lg:col-span-2 space-y-8">
           <form id="checkout-form" onSubmit={handleFinishOrder}>
-            {/* Sección Dirección */}
             <Card className="shadow-lg border-none bg-white/80 backdrop-blur-sm overflow-hidden rounded-[2rem]">
               <CardHeader className="bg-primary/5">
                 <CardTitle className="flex items-center gap-2 text-primary">
@@ -140,31 +147,30 @@ export default function CheckoutPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-xs uppercase font-bold text-muted-foreground tracking-widest">{t('form_name')}</Label>
-                    <Input id="name" defaultValue={user?.name || ''} required placeholder="Tu nombre" className="rounded-xl border-primary/20" />
+                    <Input id="name" name="name" defaultValue={user?.name || ''} required placeholder="Tu nombre" className="rounded-xl border-primary/20" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-xs uppercase font-bold text-muted-foreground tracking-widest">{t('form_email')}</Label>
-                    <Input id="email" type="email" defaultValue={user?.username || ''} required placeholder="tu@email.com" className="rounded-xl border-primary/20" />
+                    <Input id="email" name="email" type="email" defaultValue={user?.username || ''} required placeholder="tu@email.com" className="rounded-xl border-primary/20" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address" className="text-xs uppercase font-bold text-muted-foreground tracking-widest">{t('checkout_address')}</Label>
-                  <Input id="address" placeholder="Carrer de..." required className="rounded-xl border-primary/20" />
+                  <Input id="address" name="address" placeholder="Carrer de..." required className="rounded-xl border-primary/20" />
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city" className="text-xs uppercase font-bold text-muted-foreground tracking-widest">{t('checkout_city')}</Label>
-                    <Input id="city" defaultValue="Reus" required className="rounded-xl border-primary/20" />
+                    <Input id="city" name="city" defaultValue="Reus" required className="rounded-xl border-primary/20" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="zip" className="text-xs uppercase font-bold text-muted-foreground tracking-widest">{t('checkout_zip')}</Label>
-                    <Input id="zip" placeholder="43201" required className="rounded-xl border-primary/20" />
+                    <Input id="zip" name="zip" placeholder="43201" required className="rounded-xl border-primary/20" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Sección Pago */}
             <Card className="shadow-lg border-none bg-white/80 backdrop-blur-sm mt-8 overflow-hidden rounded-[2rem]">
               <CardHeader className="bg-primary/5">
                 <CardTitle className="flex items-center gap-2 text-primary">
@@ -230,7 +236,6 @@ export default function CheckoutPage() {
           </form>
         </div>
 
-        {/* Resumen del Pedido Lateral */}
         <div className="space-y-8">
           <Card className="shadow-2xl border-none bg-primary text-primary-foreground overflow-hidden rounded-[2.5rem]">
             <CardHeader className="bg-white/10 pb-6 pt-8 px-8">
@@ -300,17 +305,6 @@ export default function CheckoutPage() {
               </Button>
             </CardFooter>
           </Card>
-          
-          <div className="flex flex-col items-center gap-4 text-center px-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <AlertTriangle size={14} className="text-amber-500" />
-              <span>Pago seguro garantizado por Sweet Queen</span>
-            </div>
-            <div className="flex gap-4 opacity-30 grayscale hover:grayscale-0 transition-all">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-4" />
-            </div>
-          </div>
         </div>
       </div>
     </div>

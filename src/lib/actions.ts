@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { personalizedCakeRecommendations } from "@/ai/flows/personalized-cake-recommendations";
 import { orders } from "./data";
+import { SHEETDB_API_URL } from "./config";
 
 export type RecommendationState = {
   recommendations?: string[];
@@ -60,11 +61,10 @@ export async function getCakeRecommendations(
 }
 
 /**
- * Procesa un pedido simulado con gestión de errores robusta
+ * Procesa un pedido de la tienda y lo registra en Google Sheets (hoja solicitudes)
  */
-export async function processOrder(cart: any[]) {
+export async function processOrder(cart: any[], userInfo: { username: string, paymentMethod?: string }) {
   try {
-    // Simulación de validación de servidor
     if (!cart || cart.length === 0) {
       return {
         success: false,
@@ -72,20 +72,49 @@ export async function processOrder(cart: any[]) {
       };
     }
 
-    console.log("Procesando pedido de Sweet Queen:", cart);
+    // Preparar datos para el Excel
+    const orderId = `SQ-${Math.floor(1000 + Math.random() * 9000)}`;
+    const fechaHoy = new Date().toLocaleDateString('es-ES');
+    const usuario = userInfo.username || "Invitado";
     
-    // Simulamos un retraso de red (ej: comunicación con pasarela de pago)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Formatear detalles del pedido (productos del carrito)
+    const detallesPedido = cart.map(item => 
+      `${item.name.es || item.name} (x${item.quantity})`
+    ).join(' | ');
+
+    const infoCompleta = `Tienda: ${detallesPedido} | Pago: ${userInfo.paymentMethod || 'No especificado'}`;
+
+    const payload = {
+      data: [{
+        id: orderId,
+        fecha: fechaHoy,
+        usuario: usuario,
+        estado: 'Pendiente',
+        detalles: infoCompleta
+      }]
+    };
+
+    // Enviar a SheetDB
+    const res = await fetch(`${SHEETDB_API_URL}?sheet=solicitudes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error("No se pudo conectar con la base de datos de pedidos.");
+    }
 
     return {
       success: true,
       message: "Pedido recibido con éxito",
+      orderId: orderId
     };
   } catch (error) {
     console.error("Error crítico procesando el pedido:", error);
     return {
       success: false,
-      message: "Lo sentimos, ha ocurrido un error técnico. Inténtalo de nuevo.",
+      message: "Lo sentimos, ha ocurrido un error técnico al registrar tu pedido.",
     };
   }
 }
