@@ -65,13 +65,13 @@ export default function CheckoutPage() {
     setLoading(true);
     
     try {
-      // Obtenemos los datos del formulario de forma segura
       const formData = new FormData(e.currentTarget as HTMLFormElement);
       const email = formData.get('email') as string;
       
       const userInfo = {
         username: user?.username || email || "Invitado",
-        paymentMethod: paymentMethod
+        paymentMethod: paymentMethod,
+        totalPrice: totalPrice
       };
 
       const result = await processOrder(cart, userInfo);

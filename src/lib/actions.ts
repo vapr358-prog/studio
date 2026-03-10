@@ -63,7 +63,7 @@ export async function getCakeRecommendations(
 /**
  * Procesa un pedido de la tienda y lo registra en Google Sheets (hoja solicitudes)
  */
-export async function processOrder(cart: any[], userInfo: { username: string, paymentMethod?: string }) {
+export async function processOrder(cart: any[], userInfo: { username: string, paymentMethod?: string, totalPrice?: number }) {
   try {
     if (!cart || cart.length === 0) {
       return {
@@ -75,14 +75,15 @@ export async function processOrder(cart: any[], userInfo: { username: string, pa
     // Preparar datos para el Excel
     const orderId = `SQ-${Math.floor(1000 + Math.random() * 9000)}`;
     const fechaHoy = new Date().toLocaleDateString('es-ES');
-    const usuario = userInfo.username || "Invitado";
+    const usuario = (userInfo.username || "Invitado").toLowerCase().trim();
     
     // Formatear detalles del pedido (productos del carrito)
     const detallesPedido = cart.map(item => 
       `${item.name.es || item.name} (x${item.quantity})`
     ).join(' | ');
 
-    const infoCompleta = `Tienda: ${detallesPedido} | Pago: ${userInfo.paymentMethod || 'No especificado'}`;
+    // Calculamos el total por seguridad si no viene informado
+    const total = userInfo.totalPrice || cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const payload = {
       data: [{
@@ -90,11 +91,13 @@ export async function processOrder(cart: any[], userInfo: { username: string, pa
         fecha: fechaHoy,
         usuario: usuario,
         estado: 'Pendiente',
-        detalles: infoCompleta
+        detalles: detallesPedido,
+        metodo_pago: userInfo.paymentMethod || 'No especificado',
+        total: total.toFixed(2)
       }]
     };
 
-    // Enviar a SheetDB
+    // Enviar a SheetDB (Hoja solicitudes)
     const res = await fetch(`${SHEETDB_API_URL}?sheet=solicitudes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
