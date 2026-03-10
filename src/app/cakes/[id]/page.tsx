@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Camera, Sparkles, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Camera, Sparkles, ShoppingCart, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { useI18n } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';
@@ -59,7 +59,7 @@ export default function CakeDetailPage() {
             <CarouselContent>
               {cake.gallery?.map((img, idx) => (
                 <CarouselItem key={idx} className="md:basis-1/2 lg:basis-1/1">
-                  <div className="relative rounded-[2rem] overflow-hidden shadow-2xl aspect-square bg-muted">
+                  <div className="relative rounded-[3rem] overflow-hidden shadow-2xl aspect-square bg-muted">
                     <Image
                       src={img.url}
                       alt={`Celebración - ${idx + 1}`}
@@ -67,15 +67,15 @@ export default function CakeDetailPage() {
                       className="object-cover"
                       priority={idx < 2}
                     />
-                    <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md p-3 rounded-full pointer-events-none">
-                      <Camera className="text-white h-6 w-6" />
+                    <div className="absolute top-6 right-6 bg-white/30 backdrop-blur-md p-4 rounded-full pointer-events-none">
+                      <Camera className="text-white h-7 w-7" />
                     </div>
                   </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="absolute -left-4 top-1/2 h-12 w-12 bg-white text-primary shadow-xl" />
-            <CarouselNext className="absolute -right-4 top-1/2 h-12 w-12 bg-white text-primary shadow-xl" />
+            <CarouselPrevious className="absolute -left-4 top-1/2 h-12 w-12 bg-white text-primary shadow-xl hover:bg-primary hover:text-white transition-colors border-none" />
+            <CarouselNext className="absolute -right-4 top-1/2 h-12 w-12 bg-white text-primary shadow-xl hover:bg-primary hover:text-white transition-colors border-none" />
           </Carousel>
         </div>
       </div>
@@ -85,52 +85,63 @@ export default function CakeDetailPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-20 max-w-6xl">
       <div className="mb-8">
-        <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold">
+        <Button variant="secondary" asChild className="shadow-md border border-white/30 px-6 bg-white/95 hover:bg-white text-primary font-bold rounded-full">
           <Link href="/cakes" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" /> {language === 'es' ? 'Volver al catálogo' : 'Tornar al catàleg'}
           </Link>
         </Button>
       </div>
 
-      <div className="bg-white/90 backdrop-blur-md rounded-[3.5rem] shadow-2xl overflow-hidden border border-white/20 p-8 md:p-12">
-        <div className="grid gap-12 lg:gap-20 items-center md:grid-cols-2">
+      <div className="bg-white/80 backdrop-blur-lg rounded-[4rem] shadow-2xl overflow-hidden border border-white/40 p-8 md:p-16">
+        <div className="grid gap-12 lg:gap-24 items-center md:grid-cols-2">
           
-          <div className="rounded-[2.5rem] overflow-hidden shadow-xl aspect-square relative bg-pink-50">
+          <div className="rounded-[3rem] overflow-hidden shadow-2xl aspect-square relative bg-pink-50/50 group">
             <Image
               src={cake.image.url}
               alt={getLabel(cake.name)}
               fill
-              className="object-cover transition-transform duration-700 hover:scale-105"
+              className="object-cover transition-transform duration-1000 group-hover:scale-110"
               priority
             />
+            <div className="absolute bottom-6 right-6">
+               <div className="bg-white/80 backdrop-blur-md p-3 rounded-full text-primary shadow-lg">
+                  <Heart className="h-6 w-6 fill-primary" />
+               </div>
+            </div>
           </div>
           
           <div className="flex flex-col gap-8">
             <div className="space-y-4">
-              <h1 className="font-headline text-5xl md:text-7xl text-primary uppercase leading-tight tracking-tighter">
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-none px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                Creación Artesanal
+              </Badge>
+              <h1 className="font-headline text-5xl md:text-7xl text-primary uppercase leading-[0.9] tracking-tighter">
                 {getLabel(cake.name)}
               </h1>
-              <p className="text-4xl font-bold text-primary/90 flex items-baseline gap-1">
-                Desde {cake.price.toFixed(2)}€
-                {isUnitBased && <span className="text-lg font-normal text-muted-foreground ml-2">/ und</span>}
-              </p>
+              <div className="flex items-baseline gap-2 pt-2">
+                <span className="text-muted-foreground font-body text-xl italic">Desde</span>
+                <span className="text-5xl font-black text-primary/90">
+                  {cake.price.toFixed(2)}€
+                </span>
+                {isUnitBased && <span className="text-xl font-normal text-muted-foreground">/ und</span>}
+              </div>
             </div>
 
             <Separator className="bg-primary/10" />
             
             <p className="text-xl text-muted-foreground leading-relaxed italic font-body">
-            {getLabel(cake.description)}
+              {getLabel(cake.description)}
             </p>
             
             {cake.flavorProfile && (
-              <div className="space-y-4">
-                <h2 className="text-xl font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" />
-                  {language === 'es' ? 'Perfil de Sabor' : 'Perfil de Sabor'}
+              <div className="space-y-5">
+                <h2 className="text-xs font-black text-primary/40 uppercase tracking-[0.4em] flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Perfil de Sabor
                 </h2>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {cake.flavorProfile.map((flavor) => (
-                    <Badge key={flavor} variant="secondary" className="text-sm px-5 py-2 rounded-full bg-primary/5 text-primary border-primary/10 font-bold uppercase">
+                    <Badge key={flavor} variant="outline" className="text-[10px] px-6 py-2 rounded-full border-primary/20 text-primary font-bold uppercase tracking-widest bg-white/50">
                       {flavor}
                     </Badge>
                   ))}
@@ -138,13 +149,13 @@ export default function CakeDetailPage() {
               </div>
             )}
             
-            <div className="pt-6">
+            <div className="pt-8">
               <Button 
                 size="lg" 
                 onClick={() => addToCart(cake)}
-                className="w-full sm:w-auto text-xl py-8 px-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest"
+                className="w-full sm:w-auto text-xl py-10 px-16 rounded-full shadow-2xl bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
               >
-                <ShoppingCart className="mr-3 h-6 w-6" />
+                <ShoppingCart className="mr-4 h-7 w-7" />
                 {language === 'es' ? 'Añadir al carrito' : 'Afegir al carret'}
               </Button>
             </div>
