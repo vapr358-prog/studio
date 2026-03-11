@@ -24,6 +24,7 @@ import {
   History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type OrderItem = {
   name: string;
@@ -65,9 +66,6 @@ export default function MisPedidosPage() {
     setLoading(true);
     setError(null);
     try {
-      // Nota: Aquí asumo que los pedidos se guardan en la misma hoja 'solicitudes'
-      // o una hoja similar llamada 'pedidos'. Por consistencia con el código previo,
-      // usamos 'solicitudes' que es donde el usuario está registrando sus encargos.
       const res = await fetch(`${SHEETDB_API_URL}/search?usuario=${encodeURIComponent(username)}&sheet=solicitudes`, {
         cache: 'no-store'
       });
@@ -93,7 +91,6 @@ export default function MisPedidosPage() {
   };
 
   const parseItems = (detalles: string): OrderItem[] => {
-    // Ejemplo: "Producto: Tarta | Cantidad: 1 | Sabor: Chocolate"
     if (!detalles) return [];
     
     const parts = detalles.split('|');
@@ -111,7 +108,6 @@ export default function MisPedidosPage() {
   const handleRepeatOrder = (order: OrderData) => {
     const items = parseItems(order.detalles);
     items.forEach(item => {
-      // Intentamos encontrar el pastel en el catálogo para obtener sus datos completos
       const cake = cakes.find(c => 
         c.name.es.toLowerCase() === item.name.toLowerCase() || 
         c.id.toLowerCase().includes(item.name.toLowerCase())
@@ -119,9 +115,6 @@ export default function MisPedidosPage() {
       
       if (cake) {
         addToCart(cake);
-      } else {
-        // Si es personalizado, podríamos avisar o redirigir
-        console.warn("Producto personalizado - No se puede repetir automáticamente");
       }
     });
     router.push('/checkout');
@@ -159,7 +152,7 @@ export default function MisPedidosPage() {
       {error && (
         <Alert variant="destructive" className="mb-8 rounded-2xl">
           <AlertTriangle className="h-4 w-4" />
-          <CardDescription>{error}</CardDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
@@ -246,7 +239,7 @@ export default function MisPedidosPage() {
                       </Button>
                     </div>
                   </div>
-                </CardHeader>
+                </CardContent>
                 
                 <CardFooter className="px-8 py-4 border-t border-primary/5 flex justify-end">
                    <Link href={`/tracking?code=${pedido.id}`} className="text-xs font-bold text-primary flex items-center gap-1 hover:underline">
